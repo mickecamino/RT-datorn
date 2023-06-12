@@ -10,7 +10,7 @@ Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att 
 
 * CÅ-813 - kommunikation
 Det nya kortet för seriekommunikation heter CÅ-813 och det ersätter de äldre korten 8001, 8014 och 8015.
-Här finns även en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp
+Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp
 (Centronics) och en realtidsklocka med batteriuppbackning.
 
 * CÅ-814 - minneskort
@@ -27,3 +27,36 @@ För anslutning av upp till 4 st 360 kb enkel eller dubbelsidiga diskettenheter.
 
 * CÅ-831 - Terminalkort enkelt
 Hexadecimalt terminalkort med PIA för labbfunktioner.
+
+
+### Minnesmappning
+```
+Adres    Funktion        kort
+FFFF ---------------------------
+     2k  EPROM           CPU 812
+F800 ---------------------------
+     2k  EPROM           CPU 812
+F000 ---------------------------
+     2k bildskärms-RAM   CRT 815
+E800 ---------------------------
+     1k reserv
+E400 ---------------------------
+     768 bytes RAM       CRT 812
+E100 ---------------------------
+     CRTC + PIA          CRT 815
+E0F0 ---------------------------
+     reserv
+E0BF ---------------------------
+     EPROM-kort              816
+E0B0 ---------------------------
+     reserv
+E01F ---------------------------
+     flexkontrollkort    FDC 817
+E010 ---------------------------
+     in/ut-kort              813
+E000 ---------------------------
+     8k static RAM       CPU 812
+C000 ---------------------------
+     48k dynamic RAM         814
+0000 ---------------------------
+```
