@@ -3,8 +3,9 @@
 ### Med tillstånd av Åke Holm att publicera alla detaljer om RT-datorn
 Två versioner finns av denna dator:
 
-### Den "gamla" som publicerades i ett antal artiklar i tidningen Radio & Television
-### Den "nya" som fanns i en ertikel i tidningen elektrnikvärlden nr 4 1983.
+Den "gamla" som publicerades i ett antal artiklar i tidningen Radio & Television
+
+Den "nya" som fanns i en ertikel i tidningen elektrnikvärlden nr 4 1983.
 
 ## Följande kort fanns att tillgå för den "gamla" RT-datorn:
 * CÅ-800 - moderkort
