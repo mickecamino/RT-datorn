@@ -1,2 +1,2 @@
-# CÅ-815 - Videoterminal
-Schema till CÅ-815 i KiCad 7.x
+# CÅ-815 - Videoterminal-kort
+Videoterminalkortet med 24 rader om 80 tecken. Ingång för ASCII-tangentbord och utgång för 6 st status-LED. Bildminnet ligger mellan adresserna $E800 oc $EFFF.

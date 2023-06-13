@@ -2,7 +2,7 @@
 ## En 6809-dator designad av Åke Holm (CÅ-Elektronik) på 80-talet. Den presenterades i tidningen Radio & Television, därav namnet RT-datorn.
 ### Med tillstånd av Åke Holm att publicera alla detaljer om RT-datorn
 
-## Följande kort fanns att tillgå för den "nya" RT-datorn:
+## Följande kort fanns till den "nya" RT-datorn:
 
 * CÅ-812A - CPU-kort
 På processorkortet finns ett statiskt RAM som ligger på adress $C000 - DFFF.
@@ -14,7 +14,7 @@ Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skriv
 (Centronics) och en realtidsklocka med batteriuppbackning.
 
 * CÅ-814 - minneskort
-Minneskortet 814 ersätter 6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerkigt i ställer för som tidigare med 32 kHz. Minneskorten är på 49 kb.
+Minneskortet 814 ersätter 6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerkigt i ställer för som tidigare med 32 kHz. Minneskortet är på 48 kb.
 
 * CÅ-815 - Video-terminalkort
 Videoterminalkortet med 24 rader om 80 tecken. Ingång för ASCII-tangentbord och utgång för 6 st status-LED. Bildminnet ligger mellan adresserna $E800 oc $EFFF.
