@@ -7,7 +7,7 @@ Den "gamla" som publicerades i ett antal artiklar i tidningen Radio & Television
 
 Den "nya" som fanns i en ertikel i tidningen elektrnikvärlden nr 4 1983.
 
-## Följande kort fanns att till den "gamla" RT-datorn:
+## Följande kort fanns till den "gamla" RT-datorn:
 * CÅ-800 - moderkort
 * CÅ-6819 - CPU-kort
 * CÅ-6864 - Videoterminal
