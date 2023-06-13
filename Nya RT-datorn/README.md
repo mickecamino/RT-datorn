@@ -28,6 +28,10 @@ För anslutning av upp till 4 st 360 kb enkel eller dubbelsidiga diskettenheter.
 * CÅ-831 - Terminalkort enkelt
 Hexadecimalt terminalkort med PIA för labbfunktioner.
 
+* CÅ-834 - minneskort för Statiska RAM-kretsar och/eller EPROM.
+Nytt kort med plats för 24 st 2k minnes-kretsar, 6116 och/eller 2716 EPROM
+Ersätter CÅ-814.
+
 
 ### Minnesmappning
 ```
