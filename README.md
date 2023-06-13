@@ -5,7 +5,7 @@ Två versioner finns av denna dator:
 
 Den "gamla" som publicerades i ett antal artiklar i tidningen Radio & Television
 
-Den "nya" som fanns i en ertikel i tidningen elektrnikvärlden nr 4 1983.
+Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 
 ## Följande kort fanns till den "gamla" RT-datorn:
 * CÅ-800 - moderkort
@@ -45,7 +45,7 @@ Här finns även en programmeringsbar seriekommunikationskrets med V24-snitt, en
 (Centronics) och en realtidsklocka med batteriuppbackning.
 
 * CÅ-814 - minneskort
-Minneskortet 814 ersätter 6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerkigt i ställer för som tidigare med 32 kHz. Minneskorten är på 49 kb.
+Minneskortet 814 ersätter 6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerkigt i ställer för som tidigare med 32 kHz. Minneskorten är på 48 kb.
 
 * CÅ-815 - Video-terminalkort
 Videoterminalkortet med 24 rader om 80 tecken. Ingång för ASCII-tangentbord och utgång för 6 st status-LED. Bildminnet ligger mellan adresserna $E800 oc $EFFF.
