@@ -1,5 +1,5 @@
 ## Följande artiklar publicerades i Radio & Television
-
+```
 * Del 1 - RT 1979-12  - CÅ-6819 CPU-kort
 * Del 2 - RT 1980-1   - CÅ-800 moderkort, CÅ-8001 ACIA (seriekort)
 * Del 3 - RT 1980-2   - CÅ-8004 Timer, CÅ-8091 PIA Labbkort
@@ -9,9 +9,9 @@
 * Del 7 - RT 1980-10  - CÅ-8005 RTC
 * Del 8 - RT 1981-1   - CÅ-8025 epromkort
 * Del 9 - RT 1981-3   - CÅ-8018 IEEE-kort
+```
 
-
-## Följande kort fanns att tillgå för den "gamla" RT-datorn:
+## Följande kort fanns till den "gamla" RT-datorn:
 * CÅ-800 - moderkort
 * CÅ-6819 - CPU-kort
 * CÅ-6864 - Videoterminal

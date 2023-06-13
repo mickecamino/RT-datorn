@@ -7,7 +7,7 @@ Den "gamla" som publicerades i ett antal artiklar i tidningen Radio & Television
 
 Den "nya" som fanns i en ertikel i tidningen elektrnikvärlden nr 4 1983.
 
-## Följande kort fanns att tillgå för den "gamla" RT-datorn:
+## Följande kort fanns att till den "gamla" RT-datorn:
 * CÅ-800 - moderkort
 * CÅ-6819 - CPU-kort
 * CÅ-6864 - Videoterminal
@@ -33,7 +33,7 @@ Den "nya" som fanns i en ertikel i tidningen elektrnikvärlden nr 4 1983.
 * CÅ-9000 - Förlängningskort för CPU-kort
 
 
-## Följande kort fanns att tillgå för den "nya" RT-datorn:
+## Följande kort fanns till den "nya" RT-datorn:
 
 * CÅ-812A - CPU-kort
 På processorkortet finns ett statiskt RAM som ligger på adress $C000 - DFFF.
