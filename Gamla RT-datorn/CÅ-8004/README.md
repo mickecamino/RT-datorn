@@ -1,4 +1,4 @@
-# CÅ-8006
+# CÅ-8004
 Detta periferikort består av en timer, MC6840 från Motorola och två små förstärkare för ljudutgång.
 Utgångarna 1-3 används för att generera toner.
 Ett kodexempel finns som spelar en Mozart-vals är skapat av Åke Holm, filen heter univkort.asm. 
