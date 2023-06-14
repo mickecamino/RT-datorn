@@ -46,7 +46,7 @@ RT-datorns addressering
 * J6  - E050-E005F = CÅ-8005 RTC
 * J7  - E060-E006F = CÅ-8010 EPROM-programmerare
 * J8  - E070-E007F = 
-* J9  - E080-E008F = 
+* J9  - E080-E008F = CÅ-8008 A/D-omvandlare
 * J10 - E090-E009F = 
 * J11 - E0A0-E00AF = 
 * J12 - E0B0-E00BF = CÅ-8003 kassettmodem
