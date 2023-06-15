@@ -1,0 +1,120 @@
+                              NAM     ADOMV
+                              OPT     M09
+                      *
+                      * Programexempel för A/D-omvandlare
+                      * CÅ-8008 till RT-datorn
+                      *
+                      * Av Åke Holm 80-06-25
+                      *
+                      * Programmet hämtar de analoga
+                      * värdena från ingång 0 och 1 och
+                      * omvandlar dessa till decimala värden
+                      * mellan 0 och 255. dessa värden läggs
+                      * ut på de sex lysdiodsindikatorerna
+                      * på displaykort CÅ-8006
+                      *
+ E080                 PIAAD0  EQU     $E080   DATAREGISTER ADRESSVAL
+ E081                 PIAAD1  EQU     $E081   KONTROLLRED. DITO
+ E082                 PIAAD2  EQU     $E082   DATAREGISTER MÄTVÄRDE
+ E083                 PIAAD3  EQU     $E083   KONTROLLREG. DITO
+ E0E0                 DISPL   EQU     $E0E0   ADRESS TILL FÖRSTA DISPLAY
+                      *
+                              ORG     $A100
+                      *
+ A100 7FE081          START   CLR     PIAAD1  NOLLA KONTROLLREG.
+ A103 7FE083                  CLR     PIAAD3
+ A106 7FE082                  CLR     PIAAD2  PB0-7 INGÅNGAR
+ A109 8636                    LDA     #$36    CB2 UTGÅNG, CB1 INGÅNG
+ A10B B7E083                  STA     PIAAD3
+ A10E 860F                    LDA     #$0F    PA0-3 UTGÅNGAR
+ A110 B7E080                  STA     PIAAD0
+ A113 8604                    LDA     #4
+ A115 B7E081                  STA     PIAAD1
+                      *
+ A118 5F              LOOP00  CLRB            NOLLA FÖR INGÅNG 0
+ A119 8EA1A8                  LDX     #BINTAB
+ A11C 8D28                    BSR     INPUT   HÄMTA MÄTVÄRDE KANAL 0
+ A11E 8D3C                    BSR     BCDCON  OMVANDLA TILL DECIMALT
+ A120 A602                    LDA     2,X
+ A122 B7E0E0                  STA     DISPL   LÄGG UT PÅ FÖRSTA DISPLAYEN
+ A125 A603                    LDA     3,X     HÄMTA 2:A SIFFRAN
+ A127 B7E0E1                  STA     DISPL+1 LÄGG UT PÅ 2:A DISPLAYEN
+ A12A A604                    LDA     4,X     HÄMTA 3:E SIFFRAN
+ A12C B7E0E2                  STA     DISPL+2 LÄGG UT PÅ 3:E DISPLAYEN
+ A12F C601                    LDB     #1      HÄMTA FRÅN KANAL 1
+ A131 8D13                    BSR     INPUT
+ A133 8D27                    BSR     BCDCON
+ A135 A602                    LDA     2,X     HÄMTA 1:A SIFFRAN
+ A137 B7E0E3                  STA     DISPL+3 LÄGG UT PÅ 4:E DISPLAYEN
+ A13A A603                    LDA     3,X     HÄMTA 2:A SIFFRAN
+ A13C B7E0E4                  STA     DISPL+4 LÄGG UT PÅ 5:E DISPLAYEN
+ A13F A604                    LDA     4,X     HÄMTA 3:E SIFFRAN
+ A141 B7E0E5                  STA     DISPL+5 LÄGG UT PÅ 6:E DISPLAYEN
+ A144 20D2                    BRA     LOOP00  FORTSÄTT
+                      *
+ A146 F7E080          INPUT   STAB    PIAAD0
+ A149 863E                    LDA     #$3E    GE HÖG PULS PÅ CB2
+ A14B C636                    LDB     #$36
+ A14D B7E083                  STA     PIAAD3  HÖG NU
+ A150 F7E083                  STAB    PIAAD3  LÅG IGEN
+ A153 B6E083          INPUTS  LDA     PIAAD3  HÄMTA STATUS
+ A156 2AFB                    BPL     INPUTS  VÄNTA TILLS AD-CONV. KLAR
+ A158 B6E082                  LDA     PIAAD2  HÄMTA MÄTVÄRDE
+ A15B 39                      RTS
+                      *
+                      * RUTIN FÖR OMVANDLING AV EN
+                      * HEX-BYTE TILL DECIMALTAL 0-255
+                      * A-ACC LSB HALVA
+                      * B-ACC MSB HALVA
+                      *
+ A15C BFA1A6          BCDCON  STX     SAVEX   SPARA PEKAREN
+ A15F 8EA199                  LDX     #CONST  TABELL FÖR KONSTANTEN
+ A162 5F                      CLRB
+ A163 7FA1A3          B10     CLR     SAVEA   ATT BILDA DECIMALTECKEN
+ A166 A001            B20     SUBA    1,X     DRAG IFRÅN TILLS UNDERFLOW
+ A168 E200                    SBCB    0,X
+ A16A 2505                    BCS     B30
+ A16C 7CA1A3                  INC     SAVEA
+ A16F 20F5                    BRA     B20
+                      *
+ A171 AB01            B30     ADDA    1,X
+ A173 E900                    ADCB    0,X
+ A175 3402                    PSHA
+ A177 BFA1A4                  STX     SAVEK0  SPARA AKTUELLT VÄRDE
+ A17A BEA1A6                  LDX     SAVEX   VAR SKALL DET LAGRAS
+ A17D B6A1A3                  LDA     SAVEA   LÄGG IN DET
+ A180 A700                    STA     0,X     I TABELLEN
+ A182 3502                    PULA            ÅTERTAG
+ A184 3001                    INX
+ A186 BFA1A6                  STX     SAVEX   SPARA NYA VÄRDET
+ A189 BEA1A4                  LDX     SAVEK0
+ A18C 3001                    INX
+ A18E 3001                    INX
+ A190 8CA1A3                  CPX     #KONEND SLUT PÅ KONSTANTERNA ?
+ A193 26CE                    BNE     B10
+ A195 8EA1A8                  LDX     #BINTAB PEKA PÅ TABELLEN
+ A198 39                      RTS
+                      *
+ A199 2710            CONST   FDB     10000
+ A19B 03E8                    FDB     1000
+ A19D 0064                    FDB     100
+ A19F 000A                    FDB     10
+ A1A1 0001                    FDB     1
+ A1A3                 KONEND  EQU     *
+                      *
+ A1A3                 SAVEA   RMB     1
+ A1A4                 SAVEK0  RMB     2
+ A1A6                 SAVEX   RMB     2
+ A1A8                 BINTAB  RMB     5
+                      *
+ A100                         END     START
+
+SYMBOL TABLE
+       B10 02 A163       B20 02 A166       B30 02 A171    BCDCON 02 A15C
+    BINTAB 02 A1A8     CONST 02 A199     DISPL 00 E0E0     INPUT 02 A146
+    INPUTS 02 A153    KONEND 02 A1A3    LOOP00 02 A118    PIAAD0 00 E080
+    PIAAD1 00 E081    PIAAD2 00 E082    PIAAD3 00 E083     SAVEA 02 A1A3
+    SAVEK0 02 A1A4     SAVEX 02 A1A6     START 02 A100
+19 SYMBOLS
+
+0 error(s), 0 warning(s)

@@ -4,3 +4,5 @@ För att kunna ta hand om analoga signaler måste RT-datorn förses med ed A/D-o
 Periferikortet innehåller en PIA-krets (IC1) som ansluter A/D-omvandlaren (IC2) till mikroprocessorn. IC3 är klockfrekvensoscillator och IC4 är en extra adressavkodning som normalt ej behövs.
 
 De sexton ingångarna har försetts med  var sin trimpotentiometer för att individuellt kunna justera lämpligt värde och få anpassning till de olika inspänningarna.
+
+Kodexempeln är kompilerade med [A09](https://github.com/Arakula/A09) 

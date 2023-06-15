@@ -1,5 +1,5 @@
         NAM     ADOMV
-        OPT     M08
+        OPT     M09
 *
 * Programexempel för A/D-omvandlare
 * CÅ-8008 till RT-datorn
@@ -13,11 +13,11 @@
 * ut på de sex lysdiodsindikatorerna
 * på displaykort CÅ-8006
 *
-PIAAD0  EQU     $8080   DATAREGISTER ADRESSVAL
-PIAAD1  EQU     $8081   KONTROLLRED. DITO
-PIAAD2  EQU     $8082   DATAREGISTER MÄTVÄRDE
-PIAAD3  EQU     $8083   KONTROLLREG. DITO
-DISPL   EQU     $80E0   ADRESS TILL FÖRSTA DISPLA
+PIAAD0  EQU     $E080   DATAREGISTER ADRESSVAL
+PIAAD1  EQU     $E081   KONTROLLRED. DITO
+PIAAD2  EQU     $E082   DATAREGISTER MÄTVÄRDE
+PIAAD3  EQU     $E083   KONTROLLREG. DITO
+DISPL   EQU     $E0E0   ADRESS TILL FÖRSTA DISPLAY
 *
         ORG     $A100
 *
