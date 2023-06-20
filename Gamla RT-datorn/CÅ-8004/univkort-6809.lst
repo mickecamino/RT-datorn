@@ -72,7 +72,7 @@
  0151 A601                    LDA     1,X     TOPPOKTAVEN
  0153 58                      ASLB
                       *
-                      * MILTIPLICERA DIVISORN FÖR VARJE LÄGRE OKTAV
+                      * MULTIPLICERA DIVISORN FÖR VARJE LÄGRE OKTAV
                       *
  0154 C0E0            MULTI   SUBB    #$E0    MASKA UT OKTAVNUMRET
  0156 2405                    BCC     MULTI0
@@ -84,7 +84,7 @@
  015E 9E04                    LDX     PTIMER  HÄMTA ADR TILL TIMERREG.
  0160 D607                    LDB     TOP     HÄMTA MSB-DIVISORN
  0162 E700                    STB     0,X     OCH LÄGG UT TILL TIMERN
- 0164 A701                    STA     1,X     LÄGG UT LSB-DIV. TILLTIMERN
+ 0164 A701                    STA     1,X     LÄGG UT LSB-DIV. TILL TIMERN
  0166 3001                    INX
  0168 3001                    INX
  016A 3502                    PULA            HÄMTA TILLBAKA NOTEN
