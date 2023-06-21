@@ -1,0 +1,55 @@
+CÅ-812 Komponentförteckning
+C1      22pF keramisk
+C2      22pF keramisk
+C3      0,47 uF tantal eller elektrolyt
+C4      0,47 uF tantal eller elektrolyt
+C5      10 uF elektrolyt
+C6      10 uF elektrolyt
+C7      10 uF elektrolyt
+C8      10 uF elektrolyt
+C9      10 uF elektrolyt
+D1      1N4148
+D2      1N4148
+IC1     74LS245
+IC2     74LS244
+IC3     74LS244
+IC4     6809
+IC5     MK4118 eller 4801
+IC6     Används ej
+IC7     Monitorprogram CBUG 4.x F000
+IC8     Monitorprogram CBUG 4.x F800
+IC9     555
+IC10    74LS10
+IC11    6888 eller 8T98
+IC12    74LS00
+IC13    74LS00
+IC14    74LS139
+IC15    74LS30
+IC16    74LS138
+IC17 - IC32      2114 eller 444 eller motsvarande
+P1      64 poligt Europakontaktdon A-C
+R1      4,7k
+R2      4,7k
+R3      4,7k
+R4      4,7k
+R5      4,7k
+R6      2,2k
+R7      1M
+R8      1M
+R9      4,7k
+T1      BC548
+X1      4 MHZ kristall
+1       Kretskort CÅ-812
+2       skruvar
+2       muttrar
+1       8-polig IC-sockel
+4       14-polig IC-sockel
+3       16-polig IC-sockel
+16      18-polig IC-sockel
+3       20-polig IC-sockel
+3       24-polig IC-sockel
+1       40-polig IC-sockel
+
+Not. Sockel ska EJ monteras för IC6
+
+

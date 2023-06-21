@@ -1,0 +1,64 @@
+CÅ-815 komponentförteckning
+C1      0,1 uF polyester
+C2      10 uF elektrolyt
+C3      2200 pF styrol
+C4      10 nF polyester
+C5      47 nF
+C6      0,47 uF tantal
+C7      47 nF
+D1      1N4148
+IC1     74LS245
+IC2     74LS245
+IC3     6845 (HD46505)
+IC4     74LS157
+IC5     74LS157
+IC6     74LS157
+IC7     74LS04
+IC8     74LS163
+IC9     74LS174
+IC10    6820 eller 6821
+IC11    HM6116
+IC12	74LS374
+IC13    MCM66790
+IC14    555
+IC15    555
+IC16    74LS30
+IC17    74LS02
+IC18    DM8602
+IC19    74LS74
+IC20    74LS00
+IC21    74LS74
+IC22    74LS02
+IC23    74LS165
+IC24    74LS86
+IC25    7406 (ingår ej)
+P1      64-polig Europakontakt A-C
+P2      26-polig kontakt
+R1      47k
+R2      4,7k
+R3      680 ohm
+R4      680 ohm
+R5      47k
+R6      1M
+R7      22 ohm
+R8      22k
+R9      47k
+R10     330 ohm
+R11     470 ohm
+R12     220 ohm
+R13     220 ohm
+R14     220 ohm
+R15     220 ohm
+R16     220 ohm
+R17     220 ohm
+R18     330 ohm
+R19     150 ohm
+T1      2N2369 eller liknande
+X1      16 MHz kristall
+1       Kretskort CÅ-815
+2       8-poliga IC-socklar
+8       14-poliga IC-socklar
+7       16-poliga IC-socklar
+3       20-poliga IC-socklar
+2       24-poliga IC-socklar
+2       40-poliga IC-socklar
