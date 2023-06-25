@@ -35,7 +35,7 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 
 ## Följande kort fanns till den "nya" RT-datorn:
 
-* CÅ-812A - CPU-kort
+* CÅ-812 - CPU-kort
 * CÅ-813 - kommunikation
 * CÅ-814 - minneskort
 * CÅ-815 - Video-terminalkort
