@@ -120,7 +120,7 @@
   120   E129               BYTECT  RMB    1         LOAD & PUNCH
   121   E12A               MCONT   RMB    1
   122   E12B               TEMP    RMB    2         TEMP MEMORY
-  123   E12D               BEGA    RMB    2         STARTADRESS VID DIMP MM
+  123   E12D               BEGA    RMB    2         STARTADRESS VID DUMP MM
   124   E12F               ENDA    RMB    2         STOPPADRESS VID DUMP MM
   125   E131               TILL    RMB    2         HJÄLPCELL VID KOP VER OCH MEM CHG
   126   E133               CKTMP   RMB    2
@@ -191,7 +191,7 @@
   191   F034 7D   E150     OUT10   TST    ESCFLG    VAR FÖREG ESCAPE
   192   F037 27   11               BEQ    OUT18
   193   F039 7F   E150             CLR    ESCFLG
-  194   F03C 81   40               CMPA   #$40      OM STÖRRE = RADADERSS
+  194   F03C 81   40               CMPA   #$40      OM STÖRRE = RADADRESS
   195   F03E 25   05               BLO    OUT15
   196   F040 17   0281             LBSR   POS100
   197   F043 20   1C               BRA    OUT090
@@ -368,11 +368,11 @@
   368   F19D CE   E137             LDU    #PIXBEG
   369   F1A0 AE   C4               LDX    0,U
   370   F1A2 30   88 50            LEAX   LLENGD,X
-  371   F1A5 AF   C4               STX    0,U       STORE NEW STARTADSRESS
+  371   F1A5 AF   C4               STX    0,U       STORE NEW STARTADRESS
   372   F1A7 86   0C       STOPIX  LDA    #12
   373   F1A9 20   E2               BRA    DISCU5
   374                      *
-  375   F1AB BE   E13B     SCRL50  LDX    ROLADR    HÄMTA STARY AV PIX
+  375   F1AB BE   E13B     SCRL50  LDX    ROLADR    HÄMTA START AV PIX
   376   F1AE A6   88 50    SCRL60  LDA    LLENGD,X
   377   F1B1 A7   80               STA    0,X+
   378   F1B3 BC   E141             CMPX   PIXEND
@@ -383,7 +383,7 @@
   383                      *
   384                      *
   385   F1C1 108E 0800     ERASE   LDY    #$800     ANTAL TECKEN PÅ SKÄRMEN
-  386   F1C5 8E   E800             LDX    #PIX      BÖRJN AV MINNET
+  386   F1C5 8E   E800             LDX    #PIX      BÖRJAN AV MINNET
   387   F1C8 BF   E135     ERAS10  STX    PEKARE
   388   F1CB BE   E135     ERAS20  LDX    PEKARE    HÄMTA ADRESS
   389   F1CE 86   20       ERAS50  LDA    #$20      SPACEKOD
@@ -858,7 +858,7 @@
   858                      *
   859   F853 8E   FF72             LDX    #KOMTAB-2
   860   F856 AD   95               JSR    ÄB,XÅ     GO AND WORK
-  861   F858 20   D3               BRA    CONTRL    RETURN TO MAIL LOOP
+  861   F858 20   D3               BRA    CONTRL    RETURN TO MAIN LOOP
   862                      *
   863                      * Mata ut ett tecken till PCI 2651
   864                      *
@@ -871,7 +871,7 @@
   871   F865 B7   E000             STA    PCIDR
   872   F868 39            PCIOU9  RTS
   873                      *
-  874                      * Ta in ett tecken frÅn PCI2651
+  874                      * Ta in ett tecken frÅn PCI 2651
   875                      *
   876                F869  PCIIN   EQU    *
   877   F869 34   04               PSHS   B
@@ -882,7 +882,7 @@
   882   F875 35   84               PULS   B,PC
   883                      *
   884                      *
-  885                      * RUTINER FÖR ATT GÄMTA IN TECKEN I A-ACK
+  885                      * RUTINER FÖR ATT HÄMTA IN TECKEN I A-ACK
   886                      *
   887   F877 8D   05       INCHE   BSR    INCH      GET INPUT CHARACTER
   888   F879 84   7F               ANDA   #$7F      IGNORE PARITY
@@ -947,7 +947,7 @@
   947                      *
   948                      * BYGG ADRESS I D & X
   949                      *
-  950   F8CC 8D   E9       BADDR   BSR    BYTE      HÖGTSA 8 BITARNA
+  950   F8CC 8D   E9       BADDR   BSR    BYTE      HÖGSTA 8 BITARNA
   951   F8CE 29   E4               BVS    INHEX9
   952   F8D0 34   02               PSHS   A         MSB
   953   F8D2 8D   E3               BSR    BYTE
@@ -1005,7 +1005,7 @@
  1005                      *
  1006   F925 84   0F       OUTHR   ANDA   #$0F      MASKA BORT HÖGRA DELEN
  1007   F927 8B   30       OUTHZ   ADDA   #$030     TILLVERKA ASCII
- 1008   F929 81   39               CMPA   #$39      STÖRRE ÖN 9
+ 1008   F929 81   39               CMPA   #$39      STÖRRE ÄN 9
  1009   F92B 23   02               BLS    OUTCH
  1010   F92D 8B   07               ADDA   #$7       FÖR A-F
  1011                      *
@@ -1153,7 +1153,7 @@
  1153                      *
  1154   FA1E 81   57       CHA400  CMPA   #'W       SKRIV IN OFFSET
  1155   FA20 26   0B               BNE    CHA500
- 1156   FA22 8E   E131             LDX    #TILL     SKRUT UT'ET
+ 1156   FA22 8E   E131             LDX    #TILL     SKRIV UT'ET
  1157   FA25 BD   F91B             JSR    OUT2HS
  1158   FA28 B6   E131             LDA    TILL      HÄR STÅR DET
  1159   FA2B 20   4C               BRA    NYDATC
@@ -1195,7 +1195,7 @@
  1195   FA74 BD   F8BB             JSR    BYTE2
  1196   FA77 29   0E               BVS    CHA50
  1197   FA79 A7   A0       NYDATC  STA    0,Y+      LAGRA I MINNET
- 1198   FA7B A1   3F               CMPA   -1,Y      FATSNADE DET?
+ 1198   FA7B A1   3F               CMPA   -1,Y      FASTNADE DET?
  1199   FA7D 27   08               BEQ    CHA50
  1200   FA7F BD   F17D     CHOFEL  JSR    BELL00
  1201   FA82 31   3F       CHOCON  LEAY   -1,Y      BACKA ETT STEG
@@ -1220,7 +1220,7 @@
  1220   FAA9 26   F9               BNE    PSUD1
  1221   FAAB 4F                    CLRA
  1222   FAAC 1F   8B               TFR    A,DP
- 1223   FAAE BE   E113             LDX    USEPC     DECREMET PC
+ 1223   FAAE BE   E113             LDX    USEPC     DECREMENT PC
  1224   FAB1 30   1F               LEAX   -1,X
  1225   FAB3 BF   E113             STX    USEPC
  1226   FAB6 8E   F43C             LDX    #TEXT22
@@ -1228,10 +1228,10 @@
  1228   FABC 8D   18               BSR    BRKP40    FINNS BREAK POINTS
  1229   FABE 27   10               BEQ    BRKP20
  1230                      *
- 1231                      * TAG BORT BREAK POINTS MÄR
+ 1231                      * TAG BORT BREAK POINTS NÄR
  1232                      * VI ÄR I CBUG MONITORN
  1233                      *
- 1234   FAC0 A6   02       BRKP00  LDA    2,X       BRKPT'S PÄ SAMMA ADRESS
+ 1234   FAC0 A6   02       BRKP00  LDA    2,X       BRKPT'S PÅ SAMMA ADRESS
  1235   FAC2 81   3F               CMPA   #$3F      MULTIDEFINIERADE BRKPT'S
  1236   FAC4 27   05               BEQ    BRKP10
  1237   FAC6 10AE 84               LDY    0,X
@@ -1331,7 +1331,7 @@
  1331   FB57 29   F5               BVS    LOAD35
  1332   FB59 BF   E113             STX    USEPC     LÄGG IN I PSEUDOSTACK
  1333                      *
- 1334                      * CONTINUE FRPOM BREAKPOINT
+ 1334                      * CONTINUE FROM BREAKPOINT
  1335                      *
  1336                FB5C  CONTIN  EQU    *
  1337                      *
@@ -1340,7 +1340,7 @@
  1340   FB5C FE   E115             LDU    USESP
  1341   FB5F C6   0C               LDB    #12
  1342   FB61 33   4C               LEAU   12,U      PEKA PÅ HÖGSTA ADRESSEN
- 1343   FB63 8E   E115             LDX    #USESP    PEKA PÅ USER RANM
+ 1343   FB63 8E   E115             LDX    #USESP    PEKA PÅ USER RAM
  1344   FB66 A6   82       PSEU10  LDA    0,-X
  1345   FB68 36   02               PSHU   A
  1346   FB6A 5A                    DECB
@@ -1462,9 +1462,9 @@
  1462                      *
  1463                      * DUMP RUTIN-
  1464                      * UTLAGD SOM SUBRUTIN FOR ATT KUNNA
- 1465                      * ANVÄNDAS I AVLSUNINGSSYFTE I EGNA
- 1466                      * PRGRAM. DÅ MÅSTE BEGA/ENDA LADDAS
- 1467                      * MED START RESP. STOPADRESSER.
+ 1465                      * ANVÄNDAS I AVLUSNINGSSYFTE I EGNA
+ 1466                      * PROGRAM. DÅ MÅSTE BEGA/ENDA LADDAS
+ 1467                      * MED START RESP. STOPPADRESSER.
  1468                      * BEGA MODIFIERAS AV RUTINEN
  1469                      *
  1470                      *
@@ -1473,7 +1473,7 @@
  1473   FC3D 7C   E14B             INC    PRIFLG    TILL PRINTERN
  1474   FC40 20   05               BRA    DUMP17
  1475                      *
- 1476   FC42 BD   F8F2     DUMP16  JSR    BEGENS    FIXA START & STOP
+ 1476   FC42 BD   F8F2     DUMP16  JSR    BEGENS    FIXA START & STOPP
  1477   FC45 29   5B               BVS    COMP99
  1478   FC47 B6   E12E     DUMP17  LDA    BEGA+1
  1479   FC4A 84   F0               ANDA   #$F0      FULL RAD
@@ -1487,7 +1487,7 @@
  1487   FC57 BD   F95E             JSR    PCRLF
  1488                      *
  1489                      * BÖRJA DUMPA
- 1490                      * FORMAT AAAA BB BB BB BB BB BB BB BB .ASII..
+ 1490                      * FORMAT AAAA BB BB BB BB BB BB BB BB .ASCII..
  1491                      *
  1492   FC5A 8E   E12D             LDX    #BEGA
  1493   FC5D 8D   62               BSR    OUT405    PRINTA ADRESSEN
@@ -1520,7 +1520,7 @@
  1520   FC86 26   EC               BNE    PD4000
  1521                      *
  1522   FC88 BF   E12D             STX    BEGA
- 1523   FC8B 8C   0000             CMPX   #0        GÅRTT RUNT FFFF ?
+ 1523   FC8B 8C   0000             CMPX   #0        GÅTT RUNT FFFF ?
  1524   FC8E 27   12               BEQ    COMP99
  1525                      *
  1526                      * KOMPAKTERA START/STOPP ADRESSER
@@ -1625,7 +1625,7 @@
  1625   FD30 27   CE               BEQ    BREART
  1626   FD32 A6   A4               LDA    0,Y
  1627   FD34 A1   84               CMPA   0,X       VERIFIERA
- 1628   FD36 27   13               BEQ    VERI20    HOPPA OM SAMMMA
+ 1628   FD36 27   13               BEQ    VERI20    HOPPA OM SAMMA
  1629                      *
  1630   FD38 8D   C7               BSR    ADDRDA    NNNN DD
  1631   FD3A BD   F91D             JSR    OUTS      SP
@@ -1914,10 +1914,10 @@
  1914                      *
  1915                      * INTERRUPT VECTORS JUMP TABLE
  1916                      *
- 1917   FF64 6E   9F E101  SIRQVK  JMP    ÄSIRQRÅ
- 1918   FF68 6E   9F E103  SWI1VK  JMP    ÄSWI1RÅ
- 1919   FF6C 6E   9F E105  SWI2VK  JMP    ÄSWI2RÅ
- 1920   FF70 6E   9F E107  SWI3VK  JMP    ÄSWI3RÅ
+ 1917   FF64 6E   9F E101  SIRQVK  JMP    [SIRQR]
+ 1918   FF68 6E   9F E103  SWI1VK  JMP    [SWI1R]
+ 1919   FF6C 6E   9F E105  SWI2VK  JMP    [SWI2R]
+ 1920   FF70 6E   9F E107  SWI3VK  JMP    [SWI3R]
  1921                      *
  1922                      * KOMMANDOTABELL
  1923                      *
@@ -1934,7 +1934,7 @@
  1934   FF88 FBF0                  FDB    SUBR
  1935   FF8A FCA3                  FDB    COPY
  1936   FF8C FEAD                  FDB    LDFLEX    LOAD FLEX FROM PROMKORT
- 1937   FF8E F9B6                  FDB    CHANGE    MINNEMANIPULERING
+ 1937   FF8E F9B6                  FDB    CHANGE    MINNESMANIPULERING
  1938   FF90 F903                  FDB    OUTRTS
  1939   FF92 FD5A                  FDB    NOLLFF
  1940   FF94 FDF8                  FDB    PROM00

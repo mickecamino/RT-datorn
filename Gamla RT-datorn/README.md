@@ -24,6 +24,8 @@
 * CÅ-8008 - 16 ingångars 8-bitars A/D-omvandlare
 * CÅ-8010 - EPROM-programmerare
 * CÅ-8013 - Korthållsmodem 300 baud
+* CÅ-8014 - Centronics-parallell
+* Cå-8015 - Ny version av klock-kort
 * CÅ-8016 - Ljudeffektskrets med SN76477
 * CÅ-8017 - Flexskivekort
 * CÅ-8018 - IEEE-488-bus anpassning
