@@ -768,7 +768,7 @@
   768                      *
   769   F48D 7F   E00D             CLR    PRIPIA+1
   770   F490 7F   E00F             CLR    PRIPIA+3
-  771   F493 CC   0004     PINIT   LDD    #$004
+  771   F493 CC   0004     PINIT   LDD    #$0004
   772   F496 FD   E00C             STD    PRIPIA
   773   F499 CC   FF3C             LDD    #$FF3C
   774   F49C FD   E00E             STD    PRIPIA+2
