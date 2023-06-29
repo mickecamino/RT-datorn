@@ -25,6 +25,8 @@ Kort för 16 st 2532 EPROM, detta ger 64 kB med permanent programminne.
 * CÅ-817 - Diskett-interface
 För anslutning av upp till 4 st 360 kB enkel eller dubbelsidiga diskettenheter.
 
+* CÅ-837 - Diskettinterface med stöd för Double Density
+
 * CÅ-831 - Terminalkort enkelt
 Hexadecimalt terminalkort med PIA för labbfunktioner.
 
