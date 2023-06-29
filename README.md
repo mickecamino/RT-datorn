@@ -20,6 +20,8 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 * CÅ-8008 - 16 ingångars 8-bitars A/D-omvandlare
 * CÅ-8010 - EPROM-programmerare
 * CÅ-8013 - Korthållsmodem 300 baud
+* CÅ-8014 - Centronics-parallell
+* Cå-8015 - Ny version av klock-kort med MSM5832
 * CÅ-8016 - Ljudeffektskrets med SN76477
 * CÅ-8017 - Flexskivekort
 * CÅ-8018 - IEEE-488-bus anpassning
@@ -41,5 +43,7 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 * CÅ-815 - Video-terminalkort
 * CÅ-816 - EPROM-kort
 * CÅ-817 - Diskett-interface
+* CÅ-837 - Diskettinterface med Double Density
 * CÅ-831 - Terminalkort enkelt
+* CÅ-833 - Nyare kommunikationskort/RTC med MSM5832, ICIA och Centronics-port
 * CÅ-834 - Minneskort med statiska RAM-kretsar

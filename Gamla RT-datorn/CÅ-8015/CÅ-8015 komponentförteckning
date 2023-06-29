@@ -1,0 +1,16 @@
+CÅ-8015 komponentförteckning
+C1 - 0,1 uF polyester
+C2 - 6-25 keramisk trimkondensator
+C3 - 22 pF keramisk kondensator
+C4-5 - 10 uF/25v elektrolyt
+D1-2 - 1N4148
+D3 - lysdion
+IC1 - MC 6821
+IC2 - MSM4832
+R1 - 220
+R2-10 - 10K
+R11 - 220
+R12-14 - 10K
+R15 - 220
+R16 - 100
+X1 - kristall 32,768 kHz
