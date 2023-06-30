@@ -28,6 +28,8 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 * CÅ-8020 - DEBUG-kort
 * CÅ-8025 - EPROM-kort
 * CÅ-8027 - Flyttalsprocessor AM9511
+* CÅ-8030 - Okänt kort, donerat av Åke Holm. Funktion okänd.
+* CÅ-8034 - Okänt kort, donerat av Åke Holm. Funktion okänd.
 * CÅ-8043 - Färg-tv som dataskärm
 * CÅ-8091 - Lab-kort med PIA
 * CÅ-8092 - Lab-kort för ACIA/SSDA/ADLC
@@ -38,8 +40,8 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 ## Följande kort fanns till den "nya" RT-datorn:
 
 * CÅ-812 - CPU-kort
-* CÅ-813 - kommunikation
-* CÅ-814 - minneskort
+* CÅ-813 - Kommunikation
+* CÅ-814 - Minneskort 48 kB med dynamiska RAM-kretsar.
 * CÅ-815 - Video-terminalkort
 * CÅ-816 - EPROM-kort
 * CÅ-817 - Diskett-interface

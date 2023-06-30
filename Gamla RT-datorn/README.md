@@ -32,6 +32,8 @@
 * CÅ-8020 - DEBUG-kort
 * CÅ-8025 - EPROM-kort
 * CÅ-8027 - Flyttalsprocessor AM9511
+* CÅ-8030 - Okänt kort, donerat av Åke Holm. Funktion okänd.
+* CÅ-8034 - Okänt kort, donerat av Åke Holm. Funktion okänd.
 * CÅ-8043 - Färg-tv som dataskärm
 * CÅ-8091 - Lab-kort med PIA
 * CÅ-8092 - Lab-kort för ACIA/SSDA/ADLC
