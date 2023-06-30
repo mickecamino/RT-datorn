@@ -1,0 +1,203 @@
+MONITORPROGRAM   CBUG 4
+CBUG4 är ett kombinerat monitor- och terminalprogram till
+"nya" RT-datorn uppbyggd kring ett CPU-kort CÅ-812 och ett
+terminalkort CÅ-815.
+
+CBUG 4 består av 2 st Eprom 2716, vilka placeras på kortet
+CÅ-812 i socklarna märkta F000 och F800. För att få CBUG 4
+att fungera, erfordras endast RAM mellan $ E100 - E3FF (IC5
+på kort CÅ-812). Skall Flex operativsystem användas, måste
+dock alla RAM-kretsarna (IC17-32) på kretskortet CÅ-812 monteras.
+
+Till kretskort CÅ-815 ansluts ett standard ACII-kodat tangent-
+bord och en videomonitor.
+
+Vid start skrivs "CBUG 4.3" ut och man har därefter nedan-
+stående kommandon att välja bland. På vissa kommandon skall
+start- och stoppadresser inmatas. Dessa är angivna som ex.vis
+aaaa bbbb.
+
+@   Gå till Flex varmstartsadress $ CD03. Fungerar endast om 
+    det på denna adress står $ 7E
+
+B   Visa adresserna till insatta brytpunkter. Om inte någon bryt-
+    punkt är insatt skrivs "0".
+
+C   Continue. Fortsätt programexekveringen eter brytpunkt. Vid
+    "C" läggs alla brytpunkter in i programmet, varefter pro-
+    cessorns register laddas från användarstacken.
+D   Dumpa minnesinnehållet på bildskärmen med 16 bytes per rad
+    mellan adresserna aaaa och bbbb.
+
+E   Extended instruktionssökning. sök efter de adresser mellan
+    aaaa och bbbb där opcode cc finns.
+
+F   "Bootstrap"-laddade för Flex 9. Kräver kort CÅ-817 (flex-
+    kontroll) och minst en flexskiveenhet.
+
+G   Gå till adress aaaa och exekvera program. Processorns re-
+    gister laddas från användarstacken och eventuella bryt-
+    punkter läggs in.
+
+H   Beräkna kontrollsumma mellan minnesadresserna aaaa och bbbb.
+
+I   Ändra innehållen på användarstacken. Först visas CC-registret.
+    Skall detta ej ändras tryck på ".". Skall det ändras skriv
+    in två hexadecimala tecken. Varje register visas med en bok-
+    stav (A, B, C, X, Y, U, S och PC). 16-bits registren fordrar
+    4 hexadecimala tecken.
+ 
+J   Subrutinanrop på adress aaaa. Processorns register laddas
+    först från användarstacken.
+
+K   Kopiera minnesinnehållet mellan aaaa och bbbb till cccc.
+    Om RAM ej finns på destinationsadressen, skrivs detta ut.
+
+L   Ladda Flex 9 från epromkort CÅ-816. Laddas från adress
+    $ 0C00 - $ 1FFF på epromkortet till $ C000 - $ DFFF i
+    ram.
+
+M   Minnesmanipulering på aaaa. Efter adressen skriv minnes-
+    innehållet ut. vill man ändra innehållet anger man det
+    nya värdet som två hexadecimala tecken. Om detta nya värde
+    fastnar i minnet. d v s då det finns RAM på den adressen,
+    skrivs nästa adressposition med sitt minnesinnehåll ut på
+    nästa rad. Om det nya värdet inte fastnar, det kan då vara
+    fråga om ROM eller ett kontrollregister på en perifierikrets,
+    skrivs ett frågetecken och samma adress med minnesinnehåll
+    på nästa rad. Med en punkt skrivs nästa minnesposition ut
+    utan att något ändras. Efter ett tryck på retur-tangenten
+    återgår programmet till kontrollslingan. Vill man titta
+    på föregående minnesposition trycker man på minustecken.
+    det går även att beräkna offset, vilket är behändigt vid
+    handassemblering av relativa adresser. Efter minnesinne-
+    hållet skriver man ett O (bokstaven O) följt av en 4-
+    ställig adress. Det beräknade offsetvärdet skriv ut i 
+    tvåkomponentform. programmet avgör själv om kort eller
+    lång offset skall användas.
+
+O   Fyll minnet mellan aaaa och bbbb med en byte cc.
+
+PL  Flytta data från epromkortet CÅ-816 (start = aaaa, slut =
+    bbbb) till ram.minnet (start cccc).
+
+PH  Beräkna kontrollsumman mellan adresserna aaaa och bbbb på
+    epromkortet.
+
+PR  Programslinga som kontinuerligt läser av epromkortet mellan
+    aaaa och bbbb. Avbryts med "Q". Används enbart vid felsök-
+    ning på kort CÅ-816
+
+Q   Mät ram-minnets storlek.
+
+R   Skriv ut registren i användarstacken.
+
+S   Sök efter 16 bitars värdet cccc mellan adresserna aaaa
+    och bbbb.
+
+U   Ta bort alla brytpunkter, även de som finns kvar, om re-
+    start-knappen har intryckts under programexekvering.
+
+V   Sätt in en brytpunkt på adress aaaa. Max 5 brytpunkter kan
+    sättas in.
+
+W   Minnestest mellan adresserna aaaa och bbbb. Vid varje felfri
+    testloop skriv "+" på skärmen. Avbryts med valfri tangent.
+
+Y   Verifiering av minnesinnehåll, adressangivelser som vid
+    "K".
+
+Z   Dumpa minnesinnehåll som "D" men utskrifter sker på skrivare
+    ansluten till kort CÅ-813.
+
+    Utskriften vid kommandona D, E, S, Y och X kan stoppas
+    med "0" (noll), återstartas med "9" och avbrytas med "Q"
+    eller "q".
+
+Användbara rutiner
+
+Följande rutiner kan användas i egna program. en del återfinns
+på två adresser. De med $ F800 och uppåt är indirekta subrutin-
+anrop och finns med endast för kompatibilitet med CBUG 2.
+
+$ F000    INCH    Hämta tecken från tangentbordet, paritetsbiten
+                  borttagen. Inget eko till bildskärmen.
+
+$ F003    INCHK   Test om något tecken finns att hämta från tan-
+{$ F8008}         gentbordet. Nollkondition = inget tecken.
+
+$ F006    OUTCH   Sänd ett tecken till bildskärmen.
+($ F80A)         
+
+$ F009    INCHA   Som INKEY med med små bokstäver görs om till stora.
+                  Eka ut tecknen till bildskärmen.
+
+$ F00C    CBUG    Återgå till monitorprogrammets kontrollslinga.
+($ F8002)
+
+$ F00F    PDATA   Skriv ut en textsträng. Avsluta med "4".
+                  X-reg. pekar på första tecknet.
+
+$ F012    OUT2HS  Skriv ut 2 hexadecimala tecken från en minnes-
+                  cell. X-reg. skall peka på minnescellen.
+
+$ F015    OUT4HS  Skriv ut 4 hexadecimala tecken.
+
+$ F018    PCRLF   Ny rad på bildskärmen.
+
+$ F01B    PRIOUT  Sänd ett tecken till skrivaren ansluten till
+                  kort CÅ-813.
+
+$ E101            Adress till IRQ-vektorns rutin.
+
+$ E103               "     "  SWI1    "      "
+
+$ E105               "     "  SWI2    "      "
+
+$ E107               "     "  SWI3    "      "
+
+Terminaldelen kan styras med följande kontrolltecken, som sänds
+till rutinen OUTCH.
+
+$ 1B + 01 - Page mode, utskriften scrollas ej utan börjar om upp-
+            till, när sidan är fullskriven.
+
+$ 1B + 02 - Tänd cursor
+
+$ 1B + 03 - Tänd snabbt blinkande cursor
+
+$ 1B + 04 - Tänd långsamt    "      "
+
+$ 1B + 05 - Radera skärmen + cursor home
+
+       07 - Bell, ger en tonpuls till tangentbordets högtalare
+
+       08 - Backspace
+
+   $ 0A - Line feed, radmatning
+
+   $ 0D - Return, cursorn återgår till vänsterkanten
+
+$ 1B + $ 10 - Normal scroll
+
+$ 1B + $ 15 - Släck cursorn
+
+$ 1B + $ 16 - Restore cursorn
+
+$ 1B + $ 17 - Restore och tänd cursor
+
+$ 1B + $ 18 - Save och släck cursor
+
+$ 1B + $ 19 - Save cursor
+
+$ 1B + $ 1A - Radera från cursorn till radens slut
+
+$ 1B + $ 1C - Byt ej ut koderna för [, \, ] etc mot Å, Ä, Ö
+
+$ 1B + $yy + $xx = cursorpositionering
+
+yy är ett hexadecimalt tal mellan $ 40 och $ 57 och anger på
+vilken rad cursorn skall stå.
+
+xx är ett hexadecimalt tal mellan $ 30 och $ 7F och anger i
+vilken kolumn (position på raden) cursorn ska stå.
