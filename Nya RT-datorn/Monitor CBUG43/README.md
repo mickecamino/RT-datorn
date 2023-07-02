@@ -4,7 +4,7 @@
 
 
 ## COMMANDS IN CBUG 4.3
-* É	Varmstart i FLEX 9.0
+* @	Varmstart i FLEX 9.0
 * B	Display Breakpoints
 * C	Continue
 * D	Dumpa i HEX och ASCII 16 bytes/rad
@@ -30,13 +30,28 @@
 * Y Verifiering
 * Z Dumpa i HEX och ASCII 16 bytes/rad på printern
 
+~~
 Källkoden finns i cbug43.src i 8-bitars ASCII, dvs, åäöÅÄÖ är 8-bitar tecken. För att få 7-bitar **måste** följande tecken ändras innan kompilering görs:  
-å -> }, ä -> {, ö -> |, Å -> ], Ä -> [, Ö -> \
+å -> }, ä -> {, ö -> |, Å -> ], Ä -> [, Ö -> \ ~~  
 
-Rad 1917 till 1920 är ett bra exempel på varför detta ska göras.
+Källkoden är nu i 7-bitars ASCII utan TAB-tecken.  
+Den är också ändrad jämfört med listningen så alla ```0,X```, ```0,Y```, ```0,S``` och ```0,U``` är ändrade till ```,X```, ```,Y```, ```,S``` och ```,U``` för att kunna kompileras med A09.  
+Detta påverkar inte ASMB  
+Jag har också verifierat att den genererade .BIN-filen är bitkompatibel med koden från de dumpade eprommarna.
 
-Den kompilerade listan cbug43.lst är identisk med den listning på pyjamaspapper jag fått tag på.  
-Den skarpögde kan notera att raderna 160, 1077 och 1888 har ett > tecken framför, detta är TSC-kompilatorn som markerar att man kan optimera koden.  
+Kommandot för att kompilera cbug43.src med A09 till .BIN och .LST är:
+```
+./a09 cbug43.src -lcbug43.lst -bcbug43.bin -oTSC -oNOS -oNMU -oNUM
+```
+OBS: Tyvärr fungerar inte A09 med fill character och optionen
+```
+FILCHR  TEXT   $FF
+```
+En snabbfix finns här: [https://github.com/Arakula/A09/pull/14/files]
+
+Om koden kompileras i FLEX ASMB:  
+Kommandot: ```ASMB,cbug43.src,+SGN```
+Den skarpögde kan notera att den genererade listan från ASMB på raderna 160, 1077 och 1888 har ett > tecken framför, detta är ASMB som markerar att man kan optimera koden.  
 Saxat ur manualen FLEX Assembler:  
 EXCESSIVE BRANCH OR JUMP INDICATOR  
 A mechanism has been included in the assembler to inform the programmer  
