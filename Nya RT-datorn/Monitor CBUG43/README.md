@@ -30,10 +30,6 @@
 * Y Verifiering
 * Z Dumpa i HEX och ASCII 16 bytes/rad på printern
 
-~~
-Källkoden finns i cbug43.src i 8-bitars ASCII, dvs, åäöÅÄÖ är 8-bitar tecken. För att få 7-bitar **måste** följande tecken ändras innan kompilering görs:  
-å -> }, ä -> {, ö -> |, Å -> ], Ä -> [, Ö -> \ ~~  
-
 Källkoden är nu i 7-bitars ASCII utan TAB-tecken.  
 Den är också ändrad jämfört med listningen så alla ```0,X```, ```0,Y```, ```0,S``` och ```0,U``` är ändrade till ```,X```, ```,Y```, ```,S``` och ```,U``` för att kunna kompileras med A09.  
 Detta påverkar inte ASMB  
