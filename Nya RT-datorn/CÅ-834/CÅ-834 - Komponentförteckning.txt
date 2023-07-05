@@ -1,0 +1,13 @@
+CÅ-834 Minneskort
+Komponentförteckning
+IC1  -  74LS00
+IC2  -  74LS244
+IC3  -  74LS244
+IC4  -  74LS245
+IC5  -  74LS138
+IC6  -  74LS138
+IC7  -  74LS138
+IC8-IC31  -  6116 
+R1   -  10K
+C1   -  470uF/16v
+C2   -  470uF/16v
