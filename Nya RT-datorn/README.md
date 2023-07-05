@@ -4,7 +4,7 @@
 
 ## Följande kort fanns till den "nya" RT-datorn:
 
-* CÅ-812A - CPU-kort
+* CÅ-812 - CPU-kort
 På processorkortet finns ett statiskt RAM som ligger på adress $C000 - DFFF.
 Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att ligga mellan $F000 och FFFF. På kortet sker även avkodning av periferikretsarna som finns på $E000 och $E0FF Ett extra RAM ligger mellan $E100 och $E3FF vilket med fördel kan användas av monitor och terminalprogram utan konflikt med operativsystemet Flex
 
@@ -22,13 +22,20 @@ Videoterminalkortet med 24 rader om 80 tecken. Ingång för ASCII-tangentbord oc
 * CÅ-816 - EPROM-kort
 Kort för 16 st 2532 EPROM, detta ger 64 kB med permanent programminne.
 
-* CÅ-817 - Diskett-interface
+* CÅ-817 - Flexskivekort
 För anslutning av upp till 4 st 360 kB enkel eller dubbelsidiga diskettenheter.
-
-* CÅ-837 - Diskettinterface med stöd för Double Density
 
 * CÅ-831 - Terminalkort enkelt
 Hexadecimalt terminalkort med PIA för labbfunktioner.
+
+* CÅ-833 - kommunikation
+Ett nyare kort I/O heter CÅ-833 och det ersätter CÅ-813.
+Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp
+(Centronics) och en realtidsklocka med batteriuppbackning.
+
+* CÅ-834 - 48KB minneskort med statiska RAM-kretsar 6116.
+
+* CÅ-837 - Flexskivekort med stöd för Double Density
 
 * CÅ-834 - minneskort för Statiska RAM-kretsar och/eller EPROM.
 Nytt kort med plats för 24 st 2k minnes-kretsar, 6116 och/eller 2716 EPROM
