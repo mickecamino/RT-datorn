@@ -1,0 +1,34 @@
+CÅ-837 Flexskivekort
+Komponentförteckning
+IC1  - WD2797
+IC2  - 74LS244
+IC3  - 74LS245
+IC4  - 74LS138
+IC5  - 74LS175
+IC6  - 74LS38
+IC7  - 74LS74
+IC8  - 74LS240
+IC9  - 74LS138
+IC10 - 74LS367
+IC11 - 9602
+IC12 - 74LS02
+IC13 - 74LS02
+IC14 - 74LS00
+IC15 - 74LS04
+(IC16 - 74LS324)
+
+C1  -  0,1uF
+C2  -  0,22uF
+C3  -  47uF
+C4  -  47pF
+C5  -  5-65pF trimmer
+
+R1  -  50K trimpot
+R2  -  10K trimpot
+R3  -  1K
+R4  -  47K
+R5  -  47K
+R6  -  150
+R7  -  150
+R8  -  150
+R9  -  150
