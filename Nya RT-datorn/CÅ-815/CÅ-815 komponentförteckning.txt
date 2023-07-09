@@ -6,6 +6,7 @@ C4      10 nF polyester
 C5      47 nF
 C6      0,47 uF tantal
 C7      47 nF
+C8      10 uF elektrolyt
 D1      1N4148
 IC1     74LS245
 IC2     74LS245
