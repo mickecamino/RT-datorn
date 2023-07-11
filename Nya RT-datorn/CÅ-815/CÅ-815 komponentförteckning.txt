@@ -54,7 +54,7 @@ R16     220 ohm
 R17     220 ohm
 R18     330 ohm
 R19     150 ohm
-T1      2N2369 eller liknande
+T1      BC378, 2N2369 eller liknande
 X1      16 MHz kristall
 1       Kretskort CÅ-815
 2       8-poliga IC-socklar
