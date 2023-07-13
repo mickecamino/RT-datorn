@@ -1,5 +1,10 @@
 ## Följande artiklar publicerades i Radio & Television
 ```
+* Videoterminalen CÅ-790 (CÅ-6864)
+* Del 1 - RT 1979-8
+* Del 2 - RT 1979-9
+
+* CPU och perifierikort    
 * Del 1 - RT 1979-12  - CÅ-6819 CPU-kort
 * Del 2 - RT 1980-1   - CÅ-800 moderkort, CÅ-8001 ACIA (seriekort)
 * Del 3 - RT 1980-2   - CÅ-8004 Timer, CÅ-8091 PIA Labbkort
@@ -12,9 +17,9 @@
 ```
 
 ## Följande kort fanns till den "gamla" RT-datorn:
-* CÅ-800 - moderkort
+* CÅ-790  - Videoterminal (CÅ-6864)
+* CÅ-800  - moderkort
 * CÅ-6819 - CPU-kort
-* CÅ-6864 - Videoterminal
 * CÅ-8001 - ACIA, 2 st serieportar
 * CÅ-8002 - PIA, 2 parallella portar
 * CÅ-8003 - KCS-modem 300/1200 baud
