@@ -1,6 +1,6 @@
 ## Följande artiklar publicerades i Radio & Television
 ```
-* Videoterminalen CÅ-790 (CÅ-6864)
+* Videoterminalen CÅ-790
 * Del 1 - RT 1979-8
 * Del 2 - RT 1979-9
 
@@ -19,7 +19,7 @@
 ```
 
 ## Följande kort fanns till den "gamla" RT-datorn:
-* CÅ-790  - Videoterminal (CÅ-6864)
+* CÅ-790  - Videoterminal
 * CÅ-800  - moderkort
 * CÅ-6819 - CPU-kort
 * CÅ-8001 - ACIA, 2 st serieportar

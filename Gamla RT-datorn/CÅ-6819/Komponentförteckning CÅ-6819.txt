@@ -1,0 +1,49 @@
+Komponentförteckning CÅ-6819
+C1-4          - 22pF keramisk
+C5-6          - 47 uF 25v
+C7-12         - 10 uF 16v
+C13-15        - 0,1uF polyester
+C17-18        - 0,1uF polyester
+C16           - 0,47 uF 16v
+D1-2          - 1N4148
+IC1-3         - MC6887 eller 6885, 74LS367
+IC4-5         - MC6880 eller 8T26 *
+IC6           - 7905
+IC7           - 74LS367 eller 6885/6887
+IC8-8,37      - 74LS367 eller 6885/6887
+IC10-25       - 2114
+IC35,41-42    - 74LS08
+IC36          - MC6809
+IC38          - MC6908
+IC39          - 74LS00
+IC40          - 74LS138
+IC43          - 74LS239
+IC44-45,48    - 74LS30
+IC46          - 74LS10
+IC47          - 74LS20
+IC49          - 74LS74
+IC50          - MC1455 (555)
+R1            - 12 ohm 1W
+R2            - 7x4,7k motståndsnät
+R3-9          - 4,7k eller 5.1k
+R10-11,15-16  - 22k
+R12           - 100k
+R13           - 1M
+R14           - 2,2k
+S1            - 2-.pol omkopplade för kretskort
+S2            - 9-pol DIP-omkopplare
+T1            - BC548
+X1-2          - kristall 4 MHz
+1             - kretskort CÅ-6819
+1             - skruv ECS 3x5
+1             - mutter M3
+1             - IC-hållare 8-pol
+10            - IC-hållare 14-pol
+13            - IC-hållare 16-pol
+16            - IC-hållare 18 pol
+8             - IC-hållare 24-pol
+2             - IC-hållare 40-pol
+6             - kortslutningsbyglar
+6             - stiftpar till dito
+
+* OBS! IC4-5 kan vara ersatt med N8T28, och då måste IC6 och IC7 på moderkort CÅ-800 också vara av type N8T28 om datorn skall fungera.
