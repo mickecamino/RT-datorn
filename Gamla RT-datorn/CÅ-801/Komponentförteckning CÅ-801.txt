@@ -1,0 +1,42 @@
+Komponentförteckning CÅ-801 - moderkort
+C1-2          - 10uF 16v (tantal)
+C3            - 0,22uF 16v (tantal)
+C4            - 0,47uF 16v (tantal)
+C5            - 0,1uF polyester
+C6            - 47000 uF 16v
+C7            - 100uF 16v elektrolyt
+C8            - 22000uF 16v elektrolyt
+C9,11         - 47uF 16v elektrolyt
+C10           - 22oouF 16v elektrolyt
+D1-2          - 1N4148
+D3            - gul lysdiod
+D4-7          - 1N4002 eller liknande
+D8-9,11-12    - 1N5401 eller liknande
+D10           - BYW21 eller BYW61
+IC1           - MC6887 eller 6885
+IC2           - 74154
+IC3           - 74S04 eller 7404
+IC4           - 74S133
+IC5           - 74S86 eller 7486
+IC6-7         - MC6880, 8T26 eller 75136 
+IC8           - 74S10 eller 7410
+IC9           - 555
+IC10          - 78P05 10A stab
+IC11          - 78H12 5A stab
+IC12          - 7912
+J1-15         - 22-polig kortkontakt 0,156" delning
+J16-21        - 86-polig kortkontalt 0.156" delning
+R1-12         - 4,7k
+R13           - 2,2k
+R14-15        - 1M
+T1-2          - BC548 eller motsvarande
+1 st          - kretskort CÅ-801
+1 st          - IC-hållare 9-pin.
+3 st          - IC-hållare 14-pin.
+4 st          - IC-hållare 16-pin.
+1 st          - IC-hållare 24-pin.
+S1            - nätströmbrytare
+S2            - 1-pol. tryckknapp slutande
+S3            - 1-pol. tryckknaoo växlande
+Sr            - Säkring 1A trög
+1 st          - transformator CÅ-9288 (10A/5V)

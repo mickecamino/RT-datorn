@@ -1,0 +1,43 @@
+Komponentförteckning CÅ-800 - moderkort
+C1-2          - 10uF 16v (tantal)
+C3            - 0,68uF 16v (tantal)
+C4            - 0,22uF polyester
+C5            - 39nF eller 47nF polyester
+D1            - 1N4148
+D2-5          - 1N4002 eller motsvarande
+D6-9          - 1N5401 eller motsvarande
+IC1           - MC6887 eller 6885
+IC2           - 74154
+IC3           - 74S04
+IC4           - 74S133
+IC5           - 74S86
+IC6-7         - MC6880 eller 8T26
+IC8           - 74S10
+IC9           - MC1455 (555)
+J1-15         - 22-polig kortkontakt 0,156" delning
+J16-21        - 86-polig kortkontalt 0.156" delning
+R1-2,16-18    - 4,7k eller 5,1k
+R13           - 2,2k
+R14-15        - 1M
+T1-2          - BC548 eller motsvarande
+1 st          - kretskort CÅ-800
+1 st          - IC-hållare 9-pin.
+3 st          - IC-hållare 14-pin.
+4 st          - IC-hållare 16-pin.
+1 st          - IC-hållare 24-pin.
+
+komponenter till nätdelen
+C6            - 47 000 uF 16v (trafo CÅ-9288)
+                100 000 uF 16v (trafo CÅ-9488)
+C7            - 100uF 6v elektrolyt
+C8            - 22 000 uF 25v elektrolyt
+C9,11         - 47uF 25v elektroly
+C10           - 2 200 uF 25v elektrolyt
+IC10          - 78P05 10A stab
+IC11          - 78H12 5A stab
+IC12          - 7912
+S1            - nätströmbrytare
+S2            - 1-pol. tryckknapp slutande
+S3            - 1-pol. tryckknaoo växlande
+1 st          - transformator CÅ-9288 (10A/5V) eller
+                transformator CÅ-9488 (20A/5V)
