@@ -8,8 +8,9 @@ Den "gamla" som publicerades i ett antal artiklar i tidningen Radio & Television
 Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 
 ## Följande kort fanns till den "gamla" RT-datorn:
-* CÅ-790  - Videoterminal (CÅ-6864)
-* CÅ-800  - moderkort
+* CÅ-790  - Videoterminal
+* CÅ-800  - Första versionen av moderkortet
+* CÅ-801  - Andra versionen av moderkortet
 * CÅ-6819 - CPU-kort
 * CÅ-8001 - ACIA, 2 st serieportar
 * CÅ-8002 - PIA, 2 parallella portar

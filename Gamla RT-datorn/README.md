@@ -20,7 +20,7 @@
 
 ## Följande kort fanns till den "gamla" RT-datorn:
 * CÅ-790  - Videoterminal
-* CÅ-800  - Första versionen moderkortet
+* CÅ-800  - Första versionen av moderkortet
 * CÅ-801  - Andra versionen av moderkortet
 * CÅ-6819 - CPU-kort
 * CÅ-8001 - ACIA, 2 st serieportar
