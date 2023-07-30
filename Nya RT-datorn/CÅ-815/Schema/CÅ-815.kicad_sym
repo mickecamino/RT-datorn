@@ -215,11 +215,11 @@
       )
     )
   )
-  (symbol "C64AC" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+  (symbol "RT-bus" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
     (property "Reference" "P" (at 0 83.82 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "C64AC" (at 8.89 0 90)
+    (property "Value" "RT-bus" (at 8.89 0 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "" (at 0 0 0)
@@ -228,13 +228,13 @@
     (property "Datasheet" "" (at 0 0 0)
       (effects (font (size 1.27 1.27)))
     )
-    (symbol "C64AC_0_1"
+    (symbol "RT-bus_0_1"
       (rectangle (start -5.08 82.55) (end 7.62 -82.55)
         (stroke (width 0) (type solid))
         (fill (type background))
       )
     )
-    (symbol "C64AC_1_1"
+    (symbol "RT-bus_1_1"
       (pin passive line (at -12.7 34.29 0) (length 7.62)
         (name "E400" (effects (font (size 1.27 1.27))))
         (number "10A" (effects (font (size 1.27 1.27))))
