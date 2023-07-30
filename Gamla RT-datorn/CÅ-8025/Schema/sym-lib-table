@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "CÅ-8025")(type "KiCad")(uri "${KIPRJMOD}/CÅ-8025.kicad_sym")(options "")(descr ""))
+)
