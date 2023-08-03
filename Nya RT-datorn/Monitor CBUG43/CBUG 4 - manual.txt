@@ -63,7 +63,7 @@ M   Minnesmanipulering på aaaa. Efter adressen skriv minnes-
     fastnar i minnet. d v s då det finns RAM på den adressen,
     skrivs nästa adressposition med sitt minnesinnehåll ut på
     nästa rad. Om det nya värdet inte fastnar, det kan då vara
-    fråga om ROM eller ett kontrollregister på en perifierikrets,
+    fråga om ROM eller ett kontrollregister på en periferikrets,
     skrivs ett frågetecken och samma adress med minnesinnehåll
     på nästa rad. Med en punkt skrivs nästa minnesposition ut
     utan att något ändras. Efter ett tryck på retur-tangenten
@@ -133,7 +133,7 @@ $ F009    INCHA   Som INKEY med med små bokstäver görs om till stora.
                   Eka ut tecknen till bildskärmen.
 
 $ F00C    CBUG    Återgå till monitorprogrammets kontrollslinga.
-($ F8002)
+($ F802)
 
 $ F00F    PDATA   Skriv ut en textsträng. Avsluta med "4".
                   X-reg. pekar på första tecknet.
