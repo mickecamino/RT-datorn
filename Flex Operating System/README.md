@@ -14,7 +14,7 @@ OBS! Du behöver någon av hårdvaruenheterna för att använda GreaseWeazle
 
 flex.cfg: konfigurationsfilen finns i denna mapp.  
 
-För att läsa disketten anslut en diskettstationupp till GreaseWeazly, stoppa i skivan du vill kopiera, glöm inte skrivskyddet på skivan.  
+För att läsa disketten anslut en diskettstation till GreaseWeazly, stoppa i skivan du vill kopiera, glöm inte skrivskyddet på skivan.  
 Börja med att läsa skivan som en enkelsidig, enkel densitet, 35 spår:  
 gw read --diskdefs flex.cfg --format flex.sssd.35 flex.img  
   
