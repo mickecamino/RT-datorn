@@ -1,4 +1,4 @@
-Komponentförteckning:
+﻿Komponentförteckning:
 Cl,3        47 uF 25 V el.lyt
 C2,8,14     1O uF el 6,8 uF tantal
 C4          100 pF keramisk
@@ -6,7 +6,7 @@ C5          47 pF styrol
 C6          22 uF tantal
 C7          100 pF styrol
 C9          47 uF tantal
-C 10,11     2200 pF styrol
+C10,11      2200 pF styrol
 C12,13      0,1 uF pol.
 D1          5,1 V 1 W zenerdiod
 D2          1N4148
@@ -15,9 +15,9 @@ IC1,2       MC6880 el motsv
 IC3,12,16   74LS00
 IC4         74LS138
 IC5         FD 1771
-IC6,8,10    74L502
-IC7         74L5175
-IC9,20      DM 8602
+IC6,8,10    74LS02
+IC7         74LS175
+IC9,20      DM8602N
 ICll        4049  
 IC13,17     74LS74 
 IC14        7438

@@ -1,4 +1,4 @@
-Komponentförteckning CÅ-6819
+﻿Komponentförteckning CÅ-6819
 C1-4          - 22pF keramisk
 C5-6          - 47 uF 25v
 C7-12         - 10 uF 16v
@@ -14,7 +14,7 @@ IC8-8,37      - 74LS367 eller 6885/6887
 IC10-25       - 2114
 IC35,41-42    - 74LS08
 IC36          - MC6809
-IC38          - MC6908
+IC38          - MC6808
 IC39          - 74LS00
 IC40          - 74LS138
 IC43          - 74LS239

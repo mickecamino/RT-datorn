@@ -1,4 +1,4 @@
-Komponentförteckning CÅ-801 - moderkort
+﻿Komponentförteckning CÅ-801 - moderkort
 C1-2          - 10uF 16v (tantal)
 C3            - 0,22uF 16v (tantal)
 C4            - 0,47uF 16v (tantal)
@@ -7,7 +7,7 @@ C6            - 47000 uF 16v
 C7            - 100uF 16v elektrolyt
 C8            - 22000uF 16v elektrolyt
 C9,11         - 47uF 16v elektrolyt
-C10           - 22oouF 16v elektrolyt
+C10           - 2200uF 16v elektrolyt
 D1-2          - 1N4148
 D3            - gul lysdiod
 D4-7          - 1N4002 eller liknande
