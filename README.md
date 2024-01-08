@@ -45,7 +45,7 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 * CÅ-815 - Video-terminalkort
 * CÅ-816 - EPROM-kort
 * CÅ-817 - Diskett-interface
-* CÅ-837 - Diskettinterface med Double Density
 * CÅ-831 - Terminalkort enkelt
 * CÅ-833 - Nyare kommunikationskort/RTC med MSM5832, ACIA och Centronics-port
 * CÅ-834 - Minneskort med statiska RAM-kretsar
+* CÅ-837 - Diskettinterface med Double Density
