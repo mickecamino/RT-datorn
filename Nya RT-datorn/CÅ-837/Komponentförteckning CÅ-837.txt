@@ -1,4 +1,4 @@
-CÅ-837 Flexskivekort
+﻿CÅ-837 Flexskivekort
 Komponentförteckning
 IC1  - WD2797
 IC2  - 74LS244
@@ -23,8 +23,8 @@ C3  -  47uF
 C4  -  47pF
 C5  -  5-65pF trimmer
 
-R1  -  50K trimpot
-R2  -  10K trimpot
+R1  -  50K trimpot Bourns 3006Y
+R2  -  10K trimpot Bourns 3006Y
 R3  -  1K
 R4  -  47K
 R5  -  47K
