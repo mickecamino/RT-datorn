@@ -1,0 +1,134 @@
+*       NAM     PROM
+*
+        OPT     PAG
+*
+* PROGRAMMET L[SER NED PROMBASERADE PROGRAM
+* TILL RAM
+*
+* F\RUTS[TTER PROM P] E040
+* H[R ANV[NDS F\LJANDE:
+* PROMKORT P] ADRESS $E040
+* RAM P] ADRESS $E800-$EAFF
+*
+* PROGRAMMET I PROM SKALL HA F\LJANDE UTFORMN.:
+* BYTE 1 OCH 2 =SISTA PROMADRESS
+* BYTE 3 OCH 4 =F\RSTA RAMADRESS
+* BYTE 5 OCH 6 =TRANSFERADRESS
+*
+* PROGRAMMET KAN B\RJA P] VALFRI PLATS I PROM:ET
+* OCH FORTS[TTA IN I F\LJANDE PROM.
+*
+* SKRIVET F\R ]KES PROMKORT C]-8025
+* AV GUNNAR EJEMOH
+*
+* OBS! KORTETS PIN 21 [NDRAS TILL KORTBUSSENS A1
+* ANV[ND 2732 PROM.
+*
+* KALLA UPP PROGRAMMET MED GET.PROM
+*
+*
+PROM    EQU    $E040
+COMTAB  EQU    $E800
+JMPTAB  EQU    $E900
+LADDA   EQU    $EA00
+RAM     EQU    JMPTAB+$F0
+WARMS   EQU    $CD03
+*
+        ORG    RAM
+PRMSTA  RMB    2
+PRMST0  RMB    2
+RAMSTA  RMB    2
+TRNSFR  RMB    2
+SLASK1  RMB    2
+SLASK2  RMB    2
+SLASK3  RMB    1
+SLASK4  RMB    2
+HOGFLG  RMB    1
+*
+* L[GG IN ADRESS TILL KOMMANDOTABELL I FLEX
+*
+        ORG    $CC12
+        FCB    $E8
+*
+        ORG    COMTAB
+* H[R SKRIVS ALLA KOMMANDON IN SOM LIGGER I PROM
+* EFTER SISTA KOMMANDOT SKRIVS 0
+*
+        FCC    'CAT'
+        FCB    0
+        FDB    JMPTAB
+        FCC    'DIR'
+        FCB    0
+        FDB    DIR
+*
+        ORG    JMPTAB
+* H[R FINNS STARTADR. TILL ALLA PROGRAM I PROM
+*
+        PSHS   X,Y,A
+        LDX    #$0000
+STORE   STX    PRMSTA      1:A PROMADR.
+        JMP    LADDA
+*
+DIR     PSHS   X,Y,A
+        LDX    #$0450
+        BRA    STORE
+*
+*
+        ORG    LADDA
+* H[R L[SER VI IN STOPPADR. I PROM
+* STARADR. I RAM OCH TRANSFERADR.
+*
+        LDY    #PRMST0
+        LDX    PRMSTA
+LADDA2  BSR    LESPRM
+        BSR    LESPRM
+        CMPY   #SLASK1
+        BNE    LADDA2
+*
+* H[R L[SES SJ[LVA PROGRAMMET IN
+*
+        LDX    PRMST0
+        LEAX   1,X
+        STX    SLASK1
+        LDX    PRMSTA
+        LDY    RAMSTA
+        LEAX   6,X
+        STX    PRMSTA
+LADDA3  BSR    LESPRM
+        CPX    SLASK1
+        BNE    LADDA3
+        PULS   X,A,Y
+        JMP    [TRNSFR]
+*
+LESPRM  STX    SLASK4
+        STX    SLASK2
+        LDA    SLASK2
+        ANDA   #$08
+        STA    HOGFLG
+        LDA    SLASK2
+        ANDA   #$F0
+        LSRA
+        STA    SLASK3
+        LDA    SLASK2
+        ANDA   #$F0
+        ORA    SLASK3
+        STA    SLASK2
+        LDX    SLASK2
+        STX    PROM
+        LDA    HOGFLG     [R ADR > 7FF?
+        BNE    HOG        JA D] S[TTER VI ADR. BIT 1
+        LDA    PROM
+        BRA    MER
+HOG     LDA    PROM+2     DVS. VI L[SER \VRE PROMHALVA
+MER     STA    ,Y+
+        LDX    SLASK4
+        LEAX   1,X
+        STX    SLASK4
+        RTS
+*
+        END
+        
+
+
+
+  
