@@ -26,6 +26,7 @@ B   Visa adresserna till insatta brytpunkter. Om inte någon bryt-
 C   Continue. Fortsätt programexekveringen eter brytpunkt. Vid
     "C" läggs alla brytpunkter in i programmet, varefter pro-
     cessorns register laddas från användarstacken.
+
 D   Dumpa minnesinnehållet på bildskärmen med 16 bytes per rad
     mellan adresserna aaaa och bbbb.
 
@@ -124,7 +125,7 @@ $ F000    INCH    Hämta tecken från tangentbordet, paritetsbiten
                   borttagen. Inget eko till bildskärmen.
 
 $ F003    INCHK   Test om något tecken finns att hämta från tan-
-{$ F8008}         gentbordet. Nollkondition = inget tecken.
+{$ F808}          gentbordet. Nollkondition = inget tecken.
 
 $ F006    OUTCH   Sänd ett tecken till bildskärmen.
 ($ F80A)         
