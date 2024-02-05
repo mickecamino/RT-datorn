@@ -1,0 +1,154 @@
+5 REM Efter ide fr}n CREATIVE COMPUTING
+7 PRINT CHR$(27):PRINT CHR$(5)
+10 PRINT"*** D J U R ***"
+20 PRINT:PRINT:PRINT
+40 PRINT"Spela gissa djuret"
+50 PRINT"T{nk p} ett djur och l}t datorn"
+55 PRINT"gissa vilket "
+60 PRINT
+62 E9=1
+65 ON ERROR GOTO 4000
+66 M9=200:REM djurareans storlek
+70 DIM A$(M9)
+80 GOSUB 1000
+110 N=VAL(A$(0))
+120 REM Huvud kontrollen
+125 PRINT
+130 INPUT "T{nker Du p} ett djur";A$
+150 IF LEFT$(A$,1)<>"J" THEN 2000
+160 K=1
+170 GOSUB 390
+180 IF LEN(A$(K))=0 THEN 999
+190 IF LEFT$(A$(K),2)="#Q"THEN 170
+200 PRINT "[r det en ";RIGHT$(A$(K),LEN(A$(K))-2);
+210 INPUT A$
+220 A$=LEFT$(A$,1)
+230 IF A$="J" THEN PRINT"Varf|r inte prova ett annat djur+":GOTO 120
+240 INPUT"Djuret Du t{nkte p} var en";V$
+250 PRINT"Var v{nlig och skriv in en fr}ga"
+255 PRINT"som g|r en";V$
+260 PRINT"skjiljbar fr}n en";RIGHT$(A$(K),LEN(A$(K))-2)
+270 INPUT X$
+280 PRINT"F|r en";V$;"skulle svaret bli";
+290 INPUT A$
+300 A$=LEFT$(A$,1):IF A$<>"J" AND A$<>"N" THEN 280
+310 IF A$="J" THEN B$="N"
+320 IF A$="N" THEN B$="J"
+330 Z1=VAL(A$(0))
+340 A$(0)=MID$(STR$(Z1+2),2,LEN(STR$(Z1+2))-2)
+350 A$(Z1)=A$(K)
+360 A$(Z1+1)="#E"+V$
+364 E1$=MID$(STR$(Z1+1),2,LEN(STR$(Z1+1))-2)
+366 E2$=MID$(STR$(Z1),2,LEN(STR$(Z1))-2)
+370 A$(K)="#Q"+X$+"#"+A$+E1$+"#"+B$+E2$+"#"
+380 GOTO 120
+390 REM Subrutin f|r fr}gor
+400 Q$=A$(K)
+410 FOR Z=3 TO LEN(Q$)
+415 IF MID$(Q$,Z,1)<>"#" THEN PRINT MID$(Q$,Z,1);:NEXT Z
+420 INPUT C$
+430 C$=LEFT$(C$,1)
+440 IF C$<>"J" AND C$<>"N" THEN 410
+450 T$="#"+C$
+455 FOR X=3 TO LEN(Q$)-1
+460 IF MID$(Q$,X,2)=T$ THEN 480
+470 NEXT X
+475 STOP
+480 FOR Y=X+1 TO LEN(Q$)
+490 IF MID$(Q$,Y,1)="#" THEN 510
+500 NEXT Y
+505 STOP
+510 K=VAL(MID$(Q$,X+2,Y-X-2))
+520 RETURN
+530 DATA"4","#QKan det simma#J2#N3#","#EFisk","#EF}gel"
+600 PRINT"Djur som jag redan kan {r:"
+605 X=0
+610 FOR I=1 TO M9
+620 IF LEFT$(A$(I),2)<>"#E" THEN 650
+624 PRINT TAB(13*X);
+630 FOR Z=3 TO LEN(A$(I))
+640 IF MID$(A$(I),Z,1)<>"#" THEN PRINT MID$(A$(I),Z,1);:NEXT Z
+645 X=X+1:IF X>2 THEN X=0:PRINT
+650 NEXT I
+660 PRINT
+670 PRINT
+680 GOTO 120
+1000 REM <INITTERA>
+1010 REM Finns bibliotek?
+1020 E9=2
+1022 P1$="DJURBIBL.SYS"
+1024 P2$="DJURTEMP.SYS"
+1030 OPEN OLD P1$ AS 1
+1033 INPUT LINE #1,A$(0)
+1035 REM <FANNS. L[S NED ALLT>
+1040 E9=3
+1044 F9=1
+1050 I=1
+1060 INPUT LINE #1,A$(I)
+1070 I=I+1
+1080 IF I>M9 THEN 1100
+1090 GOTO 1060
+1100 REM < Max minne>
+1110 PRINT P1$;"f|r stor."
+1120 PRINT"eller A$<> f|r liten. Ut|ka M9."
+1130 STOP
+1400 REM <Spara biblioteket>
+1410 E9=4
+1420 OPEN NEW P2$ AS2
+1430 FOR I=0 TO VAL (A$(0))-1
+1440 PRINT #2,A$(I)
+1450 NEXT I
+1460 REM <D|da gamla biblioteket>
+1470 E9=5
+1474 CLOSE 2
+1480 IF F9<>1 THEN 1500
+1494 KILL P1$
+1500 RENAME P2$,P1$
+1510 STOP
+1600 REM <1:a g}ngen>
+1610 FOR I=0 TO 3
+1620 READ A$(I)
+1630 NEXT I
+1640 RETURN
+2000 REM <SEQ>Kolla vad han vill
+2010 PRINT
+2020 PRINT"Du har nu f|ljande alternativ:"
+2030 PRINT" EXIT <Avsluta>"
+2040 PRINT" LIST <Skriv djur jag l{rt mig"
+2050 PRINT" GISSA <Gissa mera djur>"
+2060 INPUT"Du v{ljer: ",A$
+2065 A$=LEFT$(A$,2)
+2070 IF A$="EX" THEN 1400
+2080 IF A$="LI" THEN 600
+2090 IF A$="GI" THEN 120
+2100 GOTO 2010
+4000 REM <Fel hantering>
+4010 ON E9 GOTO 4100,4200,4300,4400,4500
+4100 REM <\vriga fel>
+4110 ON ERROR G0T0 0
+4120 STOP
+4200 REM <Bibliotek fanns ej>
+4210 IF ERR=4 THEN RESUME 1600
+4220 GOTO 4110
+4300 REM <EOF>
+4310 IF ERR<>8 THEN 4110
+4320 CLOSE 1
+4330 RESUME 120
+4400 REM <Spara nya biblioteket>
+4410 IF ER=7 THEN 4460
+4420 IF ERR<>3 THEN 4110
+4430 REM <Temp filen fanns redan>
+4440 KILL P2$
+4444 RESUME 1400:REM Prova igen
+4460 REM <Disk full>
+4470 PRINT"Skivan full.F|r att spara senaste"
+4474 PRINT"biblioteket f}r du s{tta i en ny"
+4480 PRINT"skiva eller strunta i det"
+4490 INPUT "NY I NU (NY) /STRUNTA <ST>: ";AS
+4492 A$=LEFT$<A$,2>
+4494 IF A$="NY" THEN RESUME 1400
+4496 IF A$="ST" THEN STOP
+4498 GOTO 4460
+4500 REM <Den fanns inte>
+4510 RESUME 1500
+9999 END
