@@ -1,0 +1,229 @@
+*
+* PROGRMMET S[TTER UPP TIDKRETSEN MC-6840
+* F\R INTERUPT VARJE SEKUND
+* OCH ST[LLER TIDE, SOM SEDAN
+* VISAS I \VRE H\GRA H\RNET
+* P] SK[RMEN
+* UR MPU-LAREN NR.2 1981
+* OBS: [NDRAR P] IRQ-VEKTORN,G]R EJ ATT K\RA SAMTIDIGT
+* SOM PRINTER-SPOLING.
+*
+* ERIK NORDMARK 81-04-12
+*
+* SYSTEMREFERENSER
+*
+ACIA    EQU    $E008
+WARMS   EQU    $CD03
+INBUFF  EQU    $CD1B
+PSTRNG  EQU    $CD1E
+PCRLF   EQU    $CD24
+NXTCH   EQU    $CD27
+GETHEX  EQU    $CD42
+INHNLR  EQU    $D3E7
+IRQVEK  EQU    $D3EB
+*
+* VEKTORADRESSER I CBUG
+*
+PDATA   EQU    $F80C     IGNORE TTYSET
+*
+* LOKALA REFERENSER
+*
+VER     EQU    1
+DEL1    EQU    $F439     KAN BEH\VA [NDRAS VID KALIBRERING
+DEL2    EQU    7
+PTM     EQU    $E030     ADRESS TILL TIDKRETSEN
+*
+* PROGRAMMET TIME
+*
+        ORG    $C100
+TIME    BRA    T100
+VN      FCB    VER
+*
+* KOLLA OM DET ETT 'N' I
+* LINEBUFFERTEN => DISABLE TID
+* OCH ]TERST[LL IRQ-VEKTORN
+*
+T100    JSR    NXTCH     H[MTA N[STA TECKEN
+        CMPA   #'N       ST[NG AV ?
+        BEQ    DIS
+*
+* BEG[R IN TIDSANGIVELSE
+*
+        ORCC   #$10      DISABLE IRQ
+        LDX    #TEXT2    RENSA 2 \VERSTA RADERNA
+        JSR    [PDATA]
+T140    LDX    #TEXT1    'TID(TT,MM,SS) = '
+        JSR    PSTRNG
+        JSR    INBUFF    TA IN TIDEN
+        JSR    GETHEX    TIMMAR
+        BCS    T140      FELAKTIGT TAL
+        TSTB
+        BEQ    T140      INGET TAL
+        TFR    X,D
+        CMPB   #$24
+        BHS    T140      F\R STOR TID
+        STB    TID
+        JSR    GETHEX    MINUTER
+        BCS    T140      FELAKTIGT TAL
+        TSTB
+        BEQ    T140      INGET TAL
+        TFR    X,D
+        CMPB   #$60
+        BHS    T140      F\R STOR TID
+        STB    TID+1
+        JSR    GETHEX    SEKUNDER
+        BCS    T140      FELAKTIGT TAL
+        TSTB
+        BEQ    T140      INGET TAL
+        TFR    X,D
+        CMPB   #$60
+        BHS    T140      F\R STOR TID
+        STB    TID+2
+*
+* FLYTTA IRQ-VEKTORERNA
+*
+        LDX    [IRQVEK]
+        STX    TEMPVE    SPARA DEN GAMLA
+* FLEX ]TERST[LLER INTERRUPT-VEKTORERNA
+* VID VARMSTART D[RF\R [NDRAS
+* ADRESSEN TILL FLEX's INTERRUPTHANDLER
+*
+        LDX    INHNLR
+        STX    TEMPAD
+        LDX    #IRQRUT   PEKA P] INTERRUPTRUTINEN
+        STX    [IRQVEK]
+        STX    INHNLR
+*
+* INITIERA TIDKRETSEN
+*
+        LDX    #PTM
+        LDD    #$4182
+        STA    1,X       A=$41
+        STB    ,X        B=$82
+        LDD    #DEL1
+        STD    2,X
+        LDD    #DEL2
+        STD    4,X
+        ANDCC  #$EF      ENABLE IRQ
+        JMP    WARMS
+*
+* ST[NG AV TIDEN OCH ]TERST[LL
+* IRQ-VEKTORN
+*
+DIS     LDX    #TEXT3    ]TERST[LL SCROLLING
+        JSR    [PDATA]
+        LDX    TEMPVE    H[MTA F.D VEKTORN
+        STX    [IRQVEK]
+        LDX    TEMPAD
+        STX    INHNLR
+        LDX    #PTM
+        LDA    #1
+        STA    1,X       ADRESS 0=TIMER 1
+        STA    ,X        RESET TIMERS
+        JMP    WARMS
+*
+* TEXTSTR[NGAR
+*
+TEXT1   FCC   'TID (TT,MM,SS) ? ',4
+** TEXT2 F\RKLARINGAR
+* SAVE POINTER, HOME, SCROLLA FR]N
+* RAD 2, CLEAR LINE, CURSOR DOWN,
+* CLEAR LINE, RESTORE POINTER.
+*
+TEXT2   FCC    $1B,$19,$1B,$C,$1B,$22,$1B,3,$1B,$17,$1B,3,$1B,$16,4
+*
+** TEXT3 F\RKLARINGAR
+* SCROLLA FR]N RAD 0
+*
+TEXT3   FCC    $1B,$20,4
+*
+* SLUT P] INITIERINGSRUTIN
+*
+*
+*
+* INTRRUPTRUTIN
+* \KA TIDEN OCH PRINTA DEN
+*
+* LIGGER L[NGST UPP I UTILITY-AREAN
+* UTRYMMET ANV[NDS AV NEWDISK
+*
+        ORG    $C600     SLUTET P] UTILITYAREAN
+TEMPVE  RMB    2
+TEMPAD  RMB    2
+TID     RMB    3
+*
+* NOLLST[LL INTERRUPTFLAGGAN
+*
+IRQRUT  LDX    #PTM
+        LDA    1,X
+        LDD    4,X
+*
+* \KA TIDEN MED 1
+*
+        LEAX   TID,PCR
+        LDB    #2        VARVR[KNARE
+IR120   LDA    B,X
+        ADDA   #1        \KA
+        DAA              DECIMALA TIDER
+        STA    B,X
+        CMPA   #$60
+        BLO    IR130     KLAR MED \KNINGAR
+        CLR    B,X       58,59,0...
+        DECB             FLER VARV
+        BPL    IR120
+IR130   TSTB
+        BNE    IR140     \KADES TIMTAL\ET?
+        CMPA   #$24      \VER 24 TIMMAR?
+        BLO    IR140
+        CLR    B,X       NOLLA TIMTALET
+IR140 EQU *
+*
+* TESTA OM UPPTAGEN ACIA
+* OM UPPTAGEN HOPPA \VER UTSKRIFT
+*
+IR200   LDA    ACIA
+        BITA   #8
+        BNE    RETURN
+*
+* PLACERA TIDEN I TECKENSTR[NG
+*
+        LEAX   TID,PCR
+        LEAY   TIM,PCR   PEKARE I STR[NGEN
+        CLRB             VARVR[KNARE
+IR400   LDA    B,X
+        PSHS   A
+        LSRA
+        LSRA
+        LSRA
+        LSRA
+        ADDA   #$30      KONVERTERA TILL ASCII
+        STA    ,Y+
+        PULS   A
+        ANDA   #$0F      MASKA
+        ADDA   #$30
+        STA    ,Y++
+        INCB
+        CMPB   #3
+        BLO    IR400
+        LEAX   TEXT4,PCR
+        JSR    [PDATA]
+RETURN  RTI
+*
+* TEXTSTR[NG I VILKEN TIDEN L[GGS IN
+*
+** TEXT4 F\RKLARINGAR
+* SAVE POINTER, RAD 0-POSITION $1E
+* SCROLLA FR]N RAD 2.''TID''
+* RESTORE POINTER
+*
+TEXT4   FCC    $1B,$19,$1B,$40,$5E,$1B,$22
+TIM     RMB    2
+        FCC    '.'
+MIN     RMB    2
+        FCC    '.'
+SEC     RMB    2
+        FCC    $1B,$16,4
+*
+* SLUT P] PROGRAMMET TIME
+*
+        END    TIME
