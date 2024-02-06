@@ -1,0 +1,397 @@
+* * ADRESSREGISTER av ]ke Sten{ng * *
+
+Det h{r programmet {r det f|rsta adressregistret i MPU-laren f|r TSC-basic och random datafil,
+men hoppas att det inte {r det sista.
+L|sningarna {r ju som alltid m}nga och det finns f|rst}s smartare s{tt att l|sa detta problem.
+Om Du har ett adressprogram s} l}t oss f} se det!
+
+F|r den som |nskar finns en upps{ttning av programmen p} PD-68, eller
+skicka en diskett och adresserat kuvert till:
+
+]ke Sten{ng
+Ljungbergsv. 25
+564 00  Bankeryd
+------------------------------------------------------------
+
+   Inneh}llsf|rteckning:
+A) Allm{n beskrivning.
+B) Anv{nda variabler.
+C) Detaljbeskrivning.
+D) Annan terminal {n CT-82.
+E) F|rslag till l{mpliga filer p} disketterna i drive 0 och drive 1.
+F) Bin{rfil f|r SORT/MERGE. Sorterar ],[,\\ i r{tt ordning.
+G) Adresslista fr}n DEL-1, subrutin 3000.
+H) Adresslista med SORT/MERGE i bokstavsordning.
+I) Adresslista fr}n DEL-2, subrutin 3000.
+J) Listning av samtliga basicprogram.
+   HUVUD-1.BAS
+   DEL-1  .BAS
+   HUVUD-2.BAS
+   DEL-2  .BAS
+------------------------------------------------------------
+ 1
+A) * * Allm{n beskrivning * *
+
+Program 1. F|r max 320 namn (1 namn/sektor)
+Program 2. F|r max 640 namn (2 namn/sektor)
+
+Adressregistren {r avsedda f|r FLEX 2.0, TSC:s basic, minifloppy, CT-82 terminal och en printer (CENTRONICS 779).
+Anv{ndarminnet m}ste vara 32 k plus minne f|r DOS.
+F|r den som har annan terminal {n CT-82, se punkt D).
+P} Centronics 779 {r teckenbredden st{llbar med en potentiometer.
+Har man bara en teckenbredd m}ste rutinerna 3000 i DEL-1 och DEL-2 arrangeras om.
+Programmen {r skrivna som kundregister, men {r l{tta att {ndra till
+medlemsregister eller annat register!
+
+Varje adressregister best}r av tv} BASIC programm, HUVUD-program och DEL-program plus en DATA-fil.
+Man kan g} fr}n det ena basicprogrammet till det andra genom ett kommando.
+
+HUVUD-programmet har hand om inmatning av nya namn, {ndring av variabler och borttagning av ett eller flera namn.
+Rutinerna LISTNING och ETT NAMN I TAGET kan visas p} sk{rm.
+Ingen printerrutin finns i HUVUD-programmet.
+
+DEL-programmet {r endast ett utskriftsprogramm, antingen till printer eller p} sk{rm.
+Rutinen LISTNING VERTIKALT kan anv{ndas f|r etiketter (en rad).
+LISTNING ETT NAMN/TV} RADER kan anv{ndas f|r en fullst{ndig lista p} alla namn.
+
+Inget av registren har automatisk ut|kning av datafilens sektorer.
+Man f}r vid uppstartning reda p} hur m}nga sektorer som finns i datafilen och om den beh|ver ut|kas.
+S{kerhet finns ocks} s} att man inte kan mata in fler namn {n det finns sektorer, ut|kning beg{rs d}!
+Man f}r p} detta s{tt full kontroll |ver datafilens storlek.
+
+Datafilen kan sorteras enligt n{stan varje |nskem}l, t.ex i bokstavsordning (eller annan ordning), efter postnummer eller
+telefonnummer osv.
+F|r denna sortering anv{nds TSC:s SORT/MERGE.
+Att sortera inom basicprogrammen och med 32 k minne vore f|rst}s smart!
+Kanske n}gon har en l|sning p} detta, t.ex. med "nycklar"!?
+I punkt H) har parametrarna f|r sorteringen satts i en bin{rfil som
+kallas PARA-1A f|r HUVUD-1.BAS.
+Kommandot f|r sortering i punkt H) blir d}: +++P,PSORT,0.PARA-1A,REG-1.DAT.
+Filerna p} disketterna m}ste d} vara ordnade enl punkt E).
+
+Om max antal namn skall skrivas in, f}r disketten endast inneh}lla COPY.CMD och CAT.CMD
+plus datafilen som d} l{mpligen ut|kas till full storlek vid f|rsta uppstartningen.
+En kort presentation av de b}da adressregistrens kapacitet f|ljer nu:
+
+Adressregister f|r 320 namn.
+Varje kund anv{nder 1 sektor=252 tecken.
+Vid inmatningen tilldelas kunden ett unikt nummer.
+Om kunden tas bort blir numret vakant till n{sta inmatning av ny kund.
+Datum f|r varje inmatning skrivs automatiskt in f|r varje kund.
+I detta register finns det plats f|r fler variabler d} 87 tecken i varje
+sektor inte anv{nds i programmet.
+
+Programmets inmatningsrutin inneh}ller:
+Efter- o f|rnamn ell f|retag  max 30 tecken
+C/O                           max 20 tecken
+Gata ell Box                  max 30 tecken
+Postadress                    max 25 tecken
+Tel nr                        max 13 tecken
+Land                          max 25 tecken
+Reserv                        max 87 tecken
+
+Adressregister f|r 640 namn.
+Varje kund anv{nder 1/2 sektor=126 tecken.
+Vid inmatningen tilldelas kunden ett unikt nummer.
+Om kunden tas bort blir numret vakant till n{sta inmatning av ny kund.
+Datum skrivs ej in (f}r ej plats).
+
+Programmets inmatningsrutin inneh}ller:
+Efter- o f|rnamn ell f|retag  max 30 tecken
+C/O                           max 20 tecken
+Gata ell Box                  max 30 tecken
+Postadress                    max 25 tecken
+Tel nr                        max 13 tecken
+------------------------------------------------------------
+
+B) * * Anv{nda variabler * *
+
+A,A$,AA$,A1$ = KUNDNUMMER (med b|rjan fr}n 1001)
+  B$,BB$,A1$ = NAMN eller F\\RETAG
+  C$,CC$,C1$ = C/O
+  D$,DD$,D1$ = GATA eller BOX
+  E$,EE$,E1$ = POSTADRESS
+  F$,FF$,F1$ = LAND
+  G$,GG$,G1$ = TEL NR
+
+      TR,TR$ = Totala antal anv{nda records, inkl subrecords och borttagn.
+      BO,BO$ = Antal borttagningar.
+      SE,SE$ = Antal sektorer i datafilen.
+
+  S$,SS$,S1$ = Datumstr{ng utan f|r- o efterspace, ]]-MM-DD.
+      YY,YY$ = ]r
+      MM,MM$ = M}n
+      DD,DD$ = Dag
+
+          KA = Kundantal
+          Z4 = Ut|kningsvariabel f|r sektorer i datafilen.
+          Z5 = Recordr{knare
+           E = Recordnummer
+           S = V{ljer subrecord 1 eller 2 i program 2.
+         DA$ = Datafilens namn i rad 85.
+         FA$ = Firmans namn i rad 86.
+         AN$ = Anv{ndarens namn ell firma i rad 87
+          AN = R{knar tecken i AN$
+         CR$ = S{tter 0D sist i varje record f|r SORT/MERGE.
+          UT = Om UT=1 m}ste datafilen ut|kas.
+           H = Menyvariabel
+           G = Till sk{rm eller printer.
+         (Y) = F|r minnesintagning.
+    B,D,Q,Q1 = R{knare f|r minnesintag. D ger antal namn till minne.
+          SI = Sidnummer
+         W,U = FOR NEXT variabel.
+         AB$ = INPUTLINE variabel (div).
+
+       T1-T5 = TAB-variabler i rutin 3000, rad 3315:
+                                                            SID (T1=88)
+NAMN         GATA (T3=31)         POSTADRESS (T4=62)        C/O (T5=88)
+KUNDNR       DATUM                TEL NR                    LAND
+------------------------------------------------------------
+
+C) * * Detaljbeskrivning * *
+
+Rad 35-45: St{ller CT-82 i mode 82*20, baude 38400, keyp.=numerisk.
+Rad 50: DP=0
+Rad 55-75: G|r en datumstr{ng utan f|r- o efterspace, ]]-MM-DD.
+
+Rad 90,100,300-320: Programmet s|ker f|rst efter en gammal datafil och om inte den finns
+g}r programmet genom rad rad 90 till rad 300.
+D{r st{ngs den |ppnade filen och OPEN g|r en ny fil av storleken 4 sektorer
+och SE s{tts d} till 10 sektorer som i rad 315 skrivs in i:
+          program 1 i RECORD 1, SE$
+          program 1 i RECORD 2, subrecord 1 RB$
+
+Rad 120: FIELD. I program 1 anv{nds FIELD en g}ng vid programmets uppstartning. I program 2 m}ste FIELD initieras varje
+g}ng subrecord skall {ndras.
+D{rf|r {r FIELD som RETURN-rutin.
+F|r |kad snabbhet i inmatningen av nya namn finns en separat FIELD i 3161.
+
+Genom att st{lla S=1 eller 2 kan man f} FIELD att v{lja subrecord 1 ell 2.
+I FIELD "126 ASZ$" f}r varje subrecord 126 tecken.
+
+Rad 140-150: Tomma eller tidigare inskrivna variabler f|r:
+TR= Totala antalet anv{nda RECORDS,inkl subrecords o borttagning(ar)
+    som |kas i inmatningsrutinen.
+BO= Antal borttagningar.
+SE= Antal sektorer i datafilen som skrivs in dels vid f|rsta upp-
+    startningen i rad 315 och senare vid varje ut|kning i 190-200.
+TR minus BO blir kundantalet KA.
+Rad 153,162: Se INMATNING.
+Rad 164: Om SE <= totala RECORDS + 10 (som ut|kningsreserv), s}
+visas "B\\R DATAFILEN UT\\KAS".
+
+S\\KT RECORD:
+I program 1 st{lls RECORD enkelt genom t.ex,
+Z5=3:E=Z5:GET #1, RECORD E
+I program 2 m}ste {ven subrecord 1 eller 2 best{mmas enl:
+Oj{mnt kundnummer= subrecord 1
+J{mnt  kundnummer= subrecord 2
+        Subrecord= S     S=1   S=2
+                          kundnr
+            RECORD 1     1       2
+            RECORD 2     3       4
+            RECORD 3     5       6
+            RECORD 4     7       8
+                         osv
+ex. rutinen EN KUND I TAGET:
+
+I rad 1100 (Z5=A-1000) f}r man ett tal som {r ett kundnummer minus 1000.
+Om talet {r st|rre {n TR g}r programmet tillbaks till 1080, annars unders|ks
+i rad 1110 om talet {r oj{mnt "IF Z5/2<>INT(Z5/2) osv".
+Vid oj{mnt tal blir subrecord=1 och s|kt RECORD blir d} det oj{mna talet
++1 dividerat med 2. (Z5+1)/2.
+D{refter g}r programmet till FIELD (GOSUB 120) f|r initiering.
+
+Om talet {r j{mnt s} st{lls i rad 1120 S=2 och talet divideras med 2
+s} har man s|kt RECORD och subrecord.
+
+LISTNING VERTIKALT:
+F|r att slippa ha floppyn ig}ng hela tiden tar programmet in 25 namn i minnet,
+rad 2300-2390 och skickar sedan ut dessa namn till sk{rm eller printer.
+Rad 2335-2340 ordnar s} att listningen ej |verstiger kundantalet KA.
+
+INMATNING:
+Programmet g}r olika v{gar beroende p} om det {r 1) F|rsta inmatningen
+ 2) Annan inmatning (utan BO), 3) Om n}gon borttagning skett.
+
+Inmatningen hindras helt om vissa flaggor st{llts!
+Om KA=0 kan endast inmatningsrutinen anv{ndas!
+
+1) F|rsta inmatning: Genom rad 3020 st{lls RECORD och kundnummer (i program 2 {ven subrecord).
+I rad 3100 f|rs 20 namn (eller mindre) till minnet och sedan |ver till disketten.
+Genom LSET skrivs de olika variablerna in p} disketten fr}n inmatningsrutinen 3300.
+TR$, BO$, SE$, Z$ och RB$(program 2) s{tts tomma i varje RECORD d{rf|r att inget f{lt
+f}r best} av null om datafilen skall anv{ndas i SORT/MERGE.
+Till sist skrivs aktuella data till TR, BO, SE in i resp RECORD enl FIELD-listningen.
+
+2) Annan inmatning: Om inmatning skett tidigare och ingen borttagning finns
+s} g}r programmet till 3025 resp 3025,3026 (program 2).
+TR {r nu st|rre {n 0 s} d{rf|r anv{nds samma unders|kning (i program 2) som i EN KUND I TAGET f|r att hitta RECORD resp subrecord.
+H{r m}ste dock RECORDS och subrecords |kas med 1, d} det ju {r f|ljande RECORD som skall anv{ndas.
+
+3) Om borttagning skett tidigare anv{nds rutinen 3030-3085(3090).
+H{r sker en sekventiell s|kning i 3045(3046).
+Ny inmatning i det vakanta numret sker sedan p} vanligt s{tt.
+Rutinen anv{nds s} l{nge n}got vakant nummer finns (rad 3080 resp 3085).
+F|r att kunna skriva in nya namn efter borttagning och filen {r slut
+(UT=1) finns rad 3002,3102.
+Genom att hoppa |ver 3007 (som st{nger f|r inmatning vid UT=1) kan nu
+ett nytt namn l{sas in p} ett vakant nummer.
+Ett stopp m}ste dock s{ttas i 3102, annars kan man forts{tta att l{sa in helt nya namn
+efter en inmatning i borttagningsrutinen.
+I 3085 s{tts ju TR+1 och genom att d} s{tta TR+5 i 3102 s} {r stoppet klart
+och ny inmatning i 3105 kan aldrig n}s.
+Fr}n 3211 g}r programmet direkt till 520 (MENY), d} man i detta fall
+inte beh|ver veta om datafilen {r slut eftersom vakant(a) nummer finns.
+
+Inmatningsrutinen 3300: Rad 3305-3327 skrivs ut direkt och sedan g}r
+cursorn till f|rsta variabeln.
+Snedstreck (/) visar max tecken som kan anv{ndas.
+I rad 3330 g}r cursorn upp 5 resp 6 rader och sedan till h|ger 46 steg,
+och i 3335 kopplas cursorn till.
+Aktuell variabel skrivs nu in och cursorn st{ngs av.
+D{refter g}r cursorn en rad ner, 46 till h|ger osv.
+
+Programmen 1 och 2 kan ta emot max 320 resp 640 namn.
+F|r att hindra vidare inmatning (disketten slut), s} s{tts flaggor f|r detta i 162,3005,3132.
+
+Inmatningen f}r ju inte heller |verstiga antal sektorer i datafilen.
+Detta r{knas ut och flaggor s{tts f|r att f|rhindra inmatning och ursp}rning i 153,3007,3133 och i 3212.
+Om inmatning |nskas i detta fall beg{rs ut|kning av datafilen.
+DOS-systemet ger datafilen 2 tomma sektorer allra f|rst i filen och kan ej anv{ndas f|r data.
+Sj{lva basicprogrammen s{tter som s{kerhet 2 tomma sektorer sist i varje datafil.
+D{rf|r " +4 " i dessa flaggrutiner.
+
+BORTTAGNING: Samtliga variabler enl inmatningsrutinen 3300 s{tts h{r tomma.
+BO |kas med 1 vid varje borttagning och BO skrivs in i resp RECORD.
+
+[NDRING: Varje inmatningsvariabel kan {ndras i denna rutin.
+
+LISTNING, ETT NAMN/TV] RADER: Principen med sekventiell s|kning {r densamma som i LISTNING,VERTIKALT.
+Utskriften {r till f|r 72 raders papper i bana.
+Sidnumrering ing}r.
+------------------------------------------------------------
+D) * * Annan terminal {n CT-82 * *
+
+[ndra enl f|ljande i HUVUD-programmen:
+Ta bort rad 35-45.
+Ta bort rad 2040.
+2700 IF C=KA THEN 520
+10010 END
+
+[ndra enl f|ljande i DEL-programmen:
+Ta bort rad 35-45.
+2070 IF G=1 THEN 2300
+3070 IF G=1 THEN 3300
+10010 END
+Ta bort rad 2882 och 3882.
+
+Ta bort 3300-3375 och 5800-5890 och ers{tt med f|ljande:
+F|r HUVUD-1.BAS g{ller hela rutinerna enl nedan.
+F|r HUVUD-2.BAS , ta bort 3360-3365 och 5880-5890.
+3300 PRINT:PRINT"* * INMATNING * *":PRINT
+3305 PRINT"NR";A
+3310 INPUT "MAX 30 TECKEN!  EFTER- o F\\RNAMN ell F\\RETAG ";BB$
+3315 IF LEN(BB$)>30 THEN PRINT CHR$(7):PRINT">30 G\\R OM":GOTO 3310
+3320 PRINT "MAX 20 TECKEN!  C/O (skriv {v C/O).......... ";:INPUT LINE CC$
+3325 IF LEN(CC$)>20 THENP RINT CHR$(7):PRINT">20 G\\R OM":GOTO 3320
+3330 PRINT "MAX 30 TECKEN!  GATA ell BOX (skriv {v BOX). ";:INPUT LINE DD$
+3335 IF LEN(DD$)>30 THEN PRINT CHR$(7):PRINT">30 G\\R OM":GOTO 3330
+3340 PRINT "MAX 25 TECKEN!  POSTADRESS.................. ";:INPUT LINE EE$
+3345 IF LEN(EE$)>25THEN PRINT CHR$(7):PRINT">25 G\\R OM":GOTO 3340
+3350 PRINT "MAX 13 TECKEN!  TEL NR...................... ";:INPUT LINE GG$
+3355 IF LEN(GG$)>13THEN PRINT CHR$(7):PRINT">13 G\\R OM":GOTO 3350
+3360 PRINT "MAX 25 TECKEN!  LAND........................ ";:INPUT LINE FF$
+3365 IF LEN(FF$)>25 THEN PRINT CHR$(7):PRINT">25 G\\R OM":GOTO 3360
+3370 PRINT:PRINT"TRYCK RETURN F\\R FORTSATT INMATNING!"
+3375 PRINT "SKRIV 'S' F\\R SLUT!";:INPUT LINEAB$:PRINT:RETURN
+
+5800 PRINT B$;"  -[NDRAS TILL";
+5810 INPUT BB$:LSET B$=BB$:RETURN
+5820 PRINT C$;"  -[NDRAS TILL";
+5830 INPUT LINE CC$:LSET C$=CC$:RETURN
+5840 PRINT D$;"  -[NDRAS TILL";
+5850 INPUT LINE DD$:LSET D$=DD$:RETURN
+5860 PRINT E$;"  -[NDRAS TILL";
+5870 INPUT LINE EE$:LSET E$=EE$:RETURN
+5875 PRINT G$;"  -[NDRAS TILL";
+5876 INPUT LINE GG$:LSET G$=GG$:RETURN
+5880 PRINT F$;"  -[NDRAS TILL";
+5890 INPUT LINE FF$:LSET F$=FF$:RETURN
+
+5800-5890 b|r kanske begr{nsas enl INMATNING med max tecken!
+------------------------------------------------------------
+
+E) * * F|rslag till l{mpliga filer i drive 0 och drive 1. * *
+
+CATALOG OF DRIVE NUMBER 0
+DISK: ADRESS-1  #1
+
+ NAME   TYPE  SIZE  PRT
+
+ERRORS  .SYS     9
+FLEX2   .SYS    25
+PRINT   .SYS     1
+CAT     .CMD     5
+LIST    .CMD     3
+COPY    .CMD     5
+TTYSET  .CMD     2
+RENAME  .CMD     1
+DELETE  .CMD     2
+ASN     .CMD     1
+BUILD   .CMD     1
+P       .CMD     1
+EXEC    .CMD     1
+DATE    .CMD     2
+LINK    .CMD     1
+NEWDISK .CMD     7
+MAKEDISK.TXT     1
+BASIC   .CMD    56
+RENUMBER.CMD     2
+CT-82   .CMD     1    (\\nskad uppstartning av CT-82 terminal)
+TIME    .CMD     1
+STARTUP .TXT     1    (t.ex.  ASN,W=1,S=0:BASIC,0.HUVUD-1 )
+COLL    .BIN     1
+SRTMRG  .SYS    19
+SORT    .CMD    14
+PSORT   .CMD     3
+HUVUD-1 .BAC    36    (Kompilerat program)
+DEL-1   .BAC    22
+PARA-1A .BIN     2
+
+SECTORS LEFT = 114
+
+
+CATALOG OF DRIVE NUMBER 1
+DISK: REG-1  #2
+
+ NAME   TYPE  SIZE  PRT
+
+COPY    .CMD     5
+CAT     .CMD     5
+REG-1   .DAT   326
+
+SECTORS LEFT = 4
+-------------------------------------------------------------
+F) * * Bin{rfil f|r SORT/MERGE * *
+
+               * NAME: COLL.BIN
+               * ALTERNATE COLLATING SEQUENCE FILE FOR SORT/MERGE
+               * RIGHT SORT OF SWEDISH ],[,\\. By ]. Sten{ng
+               *
+                        OPT    NOG
+ 0600                   ORG    $0600
+ 0600 41                FCC    /ABCDEFGHIJKLMNOPQRSTUVWXYZ][\\/
+ 061D 61                FCC    /abcdefghijklmnopqrstuvwxyz}{|/
+ 063A 30                FCC    /0123456789/
+ 0644 21                FCC    /!"#$%&'()*+/
+ 064F 2C                FCB    $2C,$2D,$2E,$2F
+ 0653 3A                FCC    /:;<=>?@/
+ 065A 5E                FCC    /^_/
+ 065C 60                FCB    $60,$7E,$7F
+ 065F 00                FCB    0,1,2,3,4,5,6,7,8,9,10,11,12
+ 066C 0D                FCB    13,14,15,16,17,18,19,20,21,22
+ 0676 17                FCB    23,24,25,26,27,28,29,30,31
+                        END
+
+NO ERROR(S) DETECTED
