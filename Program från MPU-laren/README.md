@@ -1,3 +1,74 @@
 # Program från MPU-laren
 ## Samling av de program som presenterades i MPU-laren 
 Här finns de program som presenterades i MPU-laren från # 1 - 1978 till sista numret #1 - 1990 
+## Samling av de program som presenterades i MPU-laren 
+### 1978-1
+```
+MONLAND.BAS - Klassiskt spel - landa en månlandare på månen
+MASTER.BAS  - Mastermind - textbaserat
+```
+### 1978-2
+```
+EIGHTMEN.BAS - Arkadspel
+```
+### 1978-3
+```
+FODELSED.BAS - Arkadspel
+```
+### 1978-4
+```
+QUEST.BAS - Adventurespel
+HEX.BAS - Omvandla HEX till DECIMALT
+```
+### 1980-1
+```
+DJUR.BAS - Gissa djuret
+DJURBIBL.SYS - Biblioteket till DJUR.BAS
+```
+### 1980-2
+```
+GENEO.BAS - Släktforskningsprogram
+WHIST.BAS - Kortspel
+```
+### 1980-3
+```
+OTHELLO.BAS - Spelet Othello
+```
+### 1980-4
+```
+INFO.TXT - Adressregister, info text, OBS! Läs denna för info om programmet
+EJCT-82.TXT - Adressregister, annan terminal än CT-92
+DEL-1.BAS - Adressregister, delprogram-1
+DEL-2.BAS - Adressregister, delprogram-2
+HUVUD-1.BAS - Adressregister, huvudprogram-1
+HUVUD-2.BAS - Adressregister, huvudprogram-2
+
+SHOOTSTA.BAS - Skjuta stjärnor - rymdspel
+KYRKA.BAS - skriver ut en kyrka i ASCII-grafik på en matrisskrivare
+### 1981-1
+GOBANG.BAS - Luffarschack med 19 x 19 rutor
+PATCHTS    - Patchar en byte på specifikt spår och sektor 
+```
+### 1981-2
+```
+CLOCK.ASM - IRQ-baserat klockprogram
+```
+### 1981-3
+```
+LOTTO.BAS - Lottoprogram
+RELOCATE.ASM - Program för relokering av binärfiler
+```
+### 1981-4
+```
+MASTER.BAS - Mastermind
+MATEMATIK.BAS - Matematikspel
+```
+### 1983-2
+```
+PROM.ASM - Program som läser ner läser ned prombaserade program till ram
+PROM.TXT - Förklaring till PROM.ASM
+```
+### 1984-2
+```
+PIA.BAS - Programinitiering av PIA
+```
