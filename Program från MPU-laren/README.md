@@ -45,7 +45,9 @@ HUVUD-2.BAS - Adressregister, huvudprogram-2
 
 SHOOTSTA.BAS - Skjuta stjärnor - rymdspel
 KYRKA.BAS - skriver ut en kyrka i ASCII-grafik på en matrisskrivare
+```
 ### 1981-1
+```
 GOBANG.BAS - Luffarschack med 19 x 19 rutor
 PATCHTS    - Patchar en byte på specifikt spår och sektor 
 ```
