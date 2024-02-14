@@ -1,0 +1,48 @@
+Här är ett litet Basicprogram för bokföring. Programmet heter BOK8
+och lagrar informationen på filen "UTG.DAT". Om inte lagringsfilen 
+existerar skapas den första gången man väljer inmatning vid
+huvudmenyn. Därav följer att man SKALL välja INMATNING vid första
+tillfället man kör BOK8.
+
+Programmet är tänkt att användas för lagring av information och för
+att få en snabb summering av olika poster för en viss period.
+
+Programmet är uppbyggt med menyer enl:
+
+MENY
+
+1. INMATNING
+2. LISTNING
+3. SUMMERING
+4. ÄNDRING
+9. AVSLUTA
+
+Under INMATNING följer sedan interaktiv inmatning av:
+DATUM
+POSTRUBrik
+BELOPP
+
+LISTNING ger som resultat att allt som är lagrat i "UTG.DAT" listas
+på skärmen
+
+SUMMERING innehåller en undermeny enl:
+
+1. TOTALA SUMMAN
+2. SUMMAN AV LIKA POSTER - ALLA
+3. SUMMAN AV LIKA POSTER - VISSA
+
+Samtliga SUMMERINGsrutiner innehåller en förfrågan om vilken tidsperiod
+som avses.
+Punkt ett tala för sig själv.
+Punkt två ger som resultat att alla poster skrivs ut på skärmen och om
+två eller flera poster är lika summeras deras belopp och den posten skrivs
+bara ut en gång med det summerade beloppet.
+
+Under punkt tre får man skriva in de vissa poster man vill ha utskrivna,
+och de övriga kommer summerade under övrigt.
+
+Totala summan skrivs även ut på punkt två och tre.
+
+Trycker man 4 i huvudmenyn för ÄNDRING frågas efter vilket datum man vill
+ändra i och sedan skrivs det gamla ut på skärmen varefter man får skriva
+in det nya. 

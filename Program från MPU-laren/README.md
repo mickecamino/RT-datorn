@@ -65,6 +65,10 @@ RELOCATE.ASM - Program för relokering av binärfiler
 MASTER.BAS - Mastermind
 MATEMATIK.BAS - Matematikspel
 ```
+### 1982-2
+```
+LOGG.BAS - Loggprogram för amatörradio
+```
 ### 1983-2
 ```
 PROM.ASM - Program som läser ner läser ned prombaserade program till ram
@@ -74,3 +78,9 @@ PROM.TXT - Förklaring till PROM.ASM
 ```
 PIA.BAS - Programinitiering av PIA
 ```
+### 1984-3
+```
+BOK8.BAS - Enkelt bokföringsprogram
+BOK8.TXT - Information om programmet.
+```
+
