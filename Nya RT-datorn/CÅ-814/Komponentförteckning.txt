@@ -1,0 +1,37 @@
+Komponentförteckning CÅ-814
+OBS! Skapad från ett foto av CÅ-814, det kan förekomma felaktigheter
+
+IC1         MC3242
+IC2         MC3480
+IC3         7474
+IC4         DM8602
+IC5         DM8602
+IC7         74LS138
+IC8         74LS30
+IC9         74LS02
+IC10        75136, 6880 eller 8T26
+IC11        75136, 6880 eller 8T26
+IC13 - 36   4116
+IC37        74LS04
+IC38        74LS00
+
+R1          4,7k
+R2          18k
+R3          2,4k 1%
+R4          3,6k 1%
+R5          4,42k 1%
+R6          8,06k 1%
+R8 - 16     22 ohm
+R17         47 ohm 1/2 Watt
+R18         22 ohm
+
+D1          Zenerdiod 5 volt
+
+C (28 st)   0,1 uF polyester
+C1          470 pF styrol
+C2          0,1 uF polyester
+C3          47 pF styrol
+C4 - 6      100pF styrol
+C7 - 11     10 uF 16v
+C12         220 pF styrol
+         
