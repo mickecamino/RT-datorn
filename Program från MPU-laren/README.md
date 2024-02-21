@@ -36,51 +36,51 @@ OTHELLO.BAS - Spelet Othello
 ```
 ### 1980-4
 ```
-INFO.TXT - Adressregister, info text, OBS! Läs denna för info om programmet
-EJCT-82.TXT - Adressregister, annan terminal än CT-92
-DEL-1.BAS - Adressregister, delprogram-1
-DEL-2.BAS - Adressregister, delprogram-2
-HUVUD-1.BAS - Adressregister, huvudprogram-1
-HUVUD-2.BAS - Adressregister, huvudprogram-2
+INFO.TXT      - Adressregister, info text, OBS! Läs denna för info om programmet
+EJCT-82.TXT   - Adressregister, annan terminal än CT-92
+DEL-1.BAS     - Adressregister, delprogram-1
+DEL-2.BAS     - Adressregister, delprogram-2
+HUVUD-1.BAS   - Adressregister, huvudprogram-1
+HUVUD-2.BAS   - Adressregister, huvudprogram-2
 
-SHOOTSTA.BAS - Skjuta stjärnor - rymdspel
-KYRKA.BAS - skriver ut en kyrka i ASCII-grafik på en matrisskrivare
+SHOOTSTA.BAS  - Skjuta stjärnor - rymdspel
+KYRKA.BAS     - skriver ut en kyrka i ASCII-grafik på en matrisskrivare
 ```
 ### 1981-1
 ```
-GOBANG.BAS - Luffarschack med 19 x 19 rutor
-PATCHTS    - Patchar en byte på specifikt spår och sektor 
+GOBANG.BAS    - Luffarschack med 19 x 19 rutor
+PATCHTS.TXT   - Patchar en byte på specifikt spår och sektor 
 ```
 ### 1981-2
 ```
-CLOCK.ASM - IRQ-baserat klockprogram
+CLOCK.ASM     - IRQ-baserat klockprogram
 ```
 ### 1981-3
 ```
-LOTTO.BAS - Lottoprogram
-RELOCATE.ASM - Program för relokering av binärfiler
+LOTTO.BAS     - Lottoprogram
+RELOCATE.ASM  - Program för relokering av binärfiler
 ```
 ### 1981-4
 ```
-MASTER.BAS - Mastermind
+MASTER.BAS    - Mastermind
 MATEMATIK.BAS - Matematikspel
 ```
 ### 1982-2
 ```
-LOGG.BAS - Loggprogram för amatörradio
+LOGG.BAS      - Loggprogram för amatörradio
 ```
 ### 1983-2
 ```
-PROM.ASM - Program som läser ner läser ned prombaserade program till ram
-PROM.TXT - Förklaring till PROM.ASM
+PROM.ASM      - Program som läser ner läser ned prombaserade program till ram
+PROM.TXT      - Information om PROM.ASM
 ```
 ### 1984-2
 ```
-PIA.BAS - Programinitiering av PIA
+PIA.BAS       - Programinitiering av PIA
 ```
 ### 1984-3
 ```
-BOK8.BAS - Enkelt bokföringsprogram
-BOK8.TXT - Information om programmet.
+BOK8.BAS      - Enkelt bokföringsprogram
+BOK8.TXT      - Information om programmet.
 ```
 
