@@ -55,7 +55,7 @@ K   Kopiera minnesinnehållet mellan aaaa och bbbb till cccc.
     Om RAM ej finns på destinationsadressen, skrivs detta ut.
 
 L   Ladda Flex 9 från epromkort CÅ-816. Laddas från adress
-    $ 0C00 - $ 1FFF på epromkortet till $ C000 - $ DFFF i
+    $ 0C00 - $ 1FFF på epromkortet till $ CC00 - $ DFFF i
     ram.
 
 M   Minnesmanipulering på aaaa. Efter adressen skriv minnes-
