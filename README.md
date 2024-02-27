@@ -1,3 +1,4 @@
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/mickecamino/RT-datorn/blob/main/README-en.md)
 # RT-datorn
 ## En 6809-dator designad av Åke Holm (CÅ-Elektronik) på 80-talet. Den presenterades i tidningen Radio & Television, därav namnet RT-datorn.
 ### Med tillstånd av Åke Holm att publicera alla detaljer om RT-datorn
