@@ -1,4 +1,4 @@
-[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/mickecamino/RT-datorn/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-se-blue.svg)](https://github.com/mickecamino/RT-datorn/blob/main/README.md)
 # RT-computer (RT-datorn)
 ## A 6809 based computer designed by Åke Holm (CÅ-Elektronik) in the 1980'a It was presented in the Swedish magazine Radio & Television, hence the name RT-computer.
 ### With permission from Åke Holm to publish all details about this computer.
