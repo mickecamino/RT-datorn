@@ -54,6 +54,7 @@ PATCHTS.TXT   - Patchar en byte på specifikt spår och sektor
 ### 1981-2
 ```
 CLOCK.ASM     - IRQ-baserat klockprogram
+SYSTES.ASM    - Systemtest av FLEX 9
 ```
 ### 1981-3
 ```
