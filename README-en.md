@@ -25,9 +25,9 @@ The "new" that was only presented in a generic article in the Swedish magazine E
 * CÅ-8014 - Centronics-parallel interface
 * Cå-8015 - New version of the digital clock now with MSM5832
 * CÅ-8016 - Sound effects with SN76477
-* CÅ-8017 - Floppy controller with WS1771
+* CÅ-8017 - Floppy controller with WD1771
 * CÅ-8018 - IEEE-488-bus
-* CÅ-8020 - DEBUGcard
+* CÅ-8020 - DEBUG-card
 * CÅ-8025 - EPROM-card
 * CÅ-8027 - Floating point processor AM9511
 * CÅ-8030 - Unknown card, donated by Åke Holm. Function unknown.
@@ -48,5 +48,5 @@ The "new" that was only presented in a generic article in the Swedish magazine E
 * CÅ-817 - Floppy controller with WD1771
 * CÅ-831 - Terminal card simple
 * CÅ-833 - Newer I/O, RTC with MSM5832, ACIA and Centronics-port
-* CÅ-834 - Memory card with statis RAM
+* CÅ-834 - Memory card with static RAM
 * CÅ-837 - Floppy contreoller with WD2792 (Double Density)
