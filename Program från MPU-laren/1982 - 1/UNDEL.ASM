@@ -1,0 +1,210 @@
+         NAM UNDELETE DISK FILE
+         PAG
+********************************************************
+* UNDELETE DISK FILE UTILITY
+* FOR FLEX 9.0 6809.
+*
+* WRITTEN BY
+* WALLACE A. WATSON
+* 4815 E. 97TH AVE.
+* TAMPA, FL. 33617
+* JANUARY 12, 1980
+*
+* 'UNDELETE' DISK UTILITY ALLOWS RECOVERY OF A DELETED
+* DISK FILE ON DISKETTE IN DRIVE NUMBER SPECIFIED IN
+* DRIVE SPEC. ON COMMAND LINE.
+*
+* FORMAT: UNDEL(,DRIVE)
+* DRIVE SPEC IS OPTIONAL
+* DEFAULT IS TO WORKING DRIVE
+* UNDELETE WILL PROMPT FOR A NEW FILE NAME.
+**********************************************************
+  OPT PAG
+
+* DOS EQUATES
+*
+WARMS   EQU    $CD03     DOS WARM START ENTRY
+GETCHR  EQU    $CD15     INPUT A CHARACTER
+PUTCHR  EQU    $CD18     PUT CHARACER ROUTINE
+INBUFF  EQU    $CD1B     INPUT INTO LINE BUFFER
+PSTRNG  EQU    $CD1E     PRINT STRING ROUTINE
+PCRLF   EQU    $CD24     PRINT CR & LF
+NXTCH   EQU    $CD27     NEXT BUFFER CHAR
+GETFIL  EQU    $CD2D     GET FILE SPEC
+SETEXT  EQU    $CD33     SET DEFAULT NAME EXT
+OUTDEC  EQU    $CD39     OUTPUT DECIMAL NUMBER
+OUTHEX  EQU    $CD3C     OUTPUT HEX NUMBER
+RPTERR  EQU    $CD3F     REPORT DISK ERROR
+WASN    EQU    $CC0C     WORKING DRIVE NO.
+SPC     EQU    $20       ASCII SPACE
+*
+* FMS EQUATES
+*
+FMS     EQU    $D406     FMS CALL ENTRY
+FMSCLS  EQU    $D403     FMS CLOSE ENTRY
+*
+* SYSTEM EQUATES
+*
+FCB     EQU    $C840     SYSTEM FCB
+*
+        ORG    0
+
+RECFLG  RMB    1
+HDRFLG  RMB    1
+VARLEN  RMB    0
+
+* START UNDELETE UTILITY *
+        ORG    $C100
+UNDEL   BRA    UNDE1     BRANCH AROUND VN & TEMPS
+VN      FCB    1         VERSION NUMBER (1)
+UNDE1   LEAS   -VARLEN,S RESERVE VARIABLE SPACE ON STACK
+        LEAU   0,S       SET POINTER TO USER STACK
+        CLRA
+        STA    RECFLG,U  RECOVERED FILES FLAG
+        STA    HDRFLG,U  HEADER FLAG
+        JSR    PCRLF     PRINT CR & LF
+UNDE15  JSR    NXTCH     INPUT CHAR FROM LINE BUFFER
+        CMPA   #SPC      IS CHAR A SPACE?
+        BEQ    UNDE15    YES, IGNORE
+        BCS    UNDE25    CARRY SET,MUST BE EOL OR CR.
+        CMPA   #'9       LESS THAN 9?
+        BLS    UNDE2
+        LBRA   ERR1      REPORT ERROR
+UNDE2   CMPA   #'0       GREATER THAN 0?
+        BPL    UNDE3
+        LBRA   ERR1
+UNDE25  LDA    WASN      GET WORKING DRIVE
+UNDE3   ANDA   #3
+        LDX    #FCB
+        STA    3,X
+UNDE35  LDX    #FCB
+        LDA    #6        GET OPEN CODE
+        STA    0,X
+        JSR    FMS
+        LBNE   ERR2
+UNDE5   LBSR   GETIR     GET INFO RECORD
+        BNE    UNDE6
+        TST    FCB+4     POINT TO FILE NAME
+        BPL    UNDE5     WANT ONLY DELETED FILE
+        TST    HDRFLG,U  WANT HEADING?
+        BNE    UNDE55
+        LBSR   UNDEH     PRINT HEADER LINE
+        JSR    PCRLF
+UNDE55  LEAX   RECMSG,PCR GET 'RECOVER' MSG
+        JSR    PSTRNG
+        LDX    #FCB+4    POINT TO NAME
+        LDB   #8
+        LBSR   PRNAM     PRINT NAME
+        LDA    #'.
+        JSR    PUTCHR
+        LDB    #3
+        LBSR   PRNAM
+        LBSR   OUT2SP    PRINT SPACES
+        LDX    #FCB+17   OUTPUT START
+        LBSR   OUTPNT
+        LBSR   OUT2SP
+        LDX    #FCB+19   OUTPUT END
+        LBSR   OUTPNT
+        LBSR   OUTSP
+        LDX    #FCB+21
+        LDB    #1
+        JSR    OUTDEC    OUTPUT SIZE
+        LBSR   OUTSP
+        LDA    #'?
+        JSR    PUTCHR
+UNDE56  JSR    GETCHR
+        CMPA   #'Y       WANT TO RECOVER FILE?
+        BEQ    UNDE9
+        CMPA   #'N       IF NO GET NEXT ENTRY
+        BEQ    UNDE5
+        LDA    #8        LOAD BACKSPACE (^H)
+        JSR    PUTCHR
+        LDA    #'        LOAD SPACE CHARACTER
+        JSR    PUTCHR
+        LDA    #8        BACKSPACE (^H) AGAIN
+        JSR    PUTCHR
+        BRA    UNDE56
+UNDE6   LDA    1,X       END OF FILE REACHED?
+        CMPA   #8
+        LBNE   ERR2
+        JSR    PCRLF
+        TST    RECFLG,U  ANY FILES RECOVERED?
+        BEQ    UNDE7
+        LEAX   ENDFIL,PCR GET 'RECOVERED FILE(S)' MSG
+        BRA    UNDE75
+UNDE7   LEAX   NODFIL,PCR GET 'NO DELETED FILES' MSG
+UNDE75  JSR    PSTRNG
+        JMP    WARMS
+
+UNDE9   LEAX   GETNAM,PCR GET 'NAME' MSG
+        JSR    PSTRNG
+        JSR    INBUFF    INPUT NEW NAME
+        LDX    #FCB+49
+UNDE10  JSR    GETFIL    GET FILE SPEC
+        BCS    ERR1
+        LDX    #FCB
+        LDA    #13       SETUP RENAME CODE
+        STA    0,X
+        JSR    FMS
+        BNE    ERR2
+        LDA    #1
+        STA    RECFLG,U
+        LBRA   UNDE35      GET NEXT DIR ENTRY
+UNDEH   LEAX   UNSTR,PCR GET 'RECOVER FILE' MSG
+        JSR    PSTRNG
+        LDX    #FCB+2    POINT TO DRIVE NO.
+        CLR    0,X
+        CLRB
+        JSR    OUTDEC    PRINT IT.
+        JSR    PCRLF
+        LEAX   HDR,PCR   GET HEADER MSG
+        JSR    PSTRNG
+        LDA    #1
+        STA    HDRFLG,U
+        RTS
+OUT2SP  LDA    #SPC      PRINT 2 SPACES
+        JSR    PUTCHR
+OUTSP   LDA    #SPC      PRINT SPACE
+        JMP    PUTCHR
+OUTPNT  JSR    OUTHEX    OUTPUT DIGIT
+        LDA    #'-
+        JSR    PUTCHR    PRINT MINUS SIGN
+        LEAX   1,X
+        JMP    OUTHEX    PRINT NEXT DIGIT
+
+* GET INFO RECORD
+
+GETIR   LDX    #FCB      POINT TO FCB
+        LDA    #7        GET IR CODE
+        STA    0,X
+        JMP    FMS
+
+* PRINT NAME FILE
+
+PRNAM   LDA    ,X+       GET CHARACTER
+        BNE    PRNAM3    NULL?
+        LDA    #SPC      SET UP SPACE CHAR
+PRNAM3  JSR    PUTCHR    PRINT CHAR
+        DECB
+        BNE    PRNAM
+        RTS
+
+* ERROR ROUTINES
+
+ERR1    LEAX   SYST,PCR  POINT TO STRING
+        JSR    PSTRNG    PRINT IT
+        BRA    ERR3
+ERR2    JSR    RPTERR    REPORT DISK ERROR
+ERR3    JMP    WARMS
+
+* PRINT STRINGS
+
+UNSTR   FCC    'DELETED FILE(S) ON DRIVE ',4
+HDR     FCC    '         NAME   TYPE  BEGIN   END    SIZE',4
+RECMSG  FCC    'RECOVER *',4
+ENDFIL  FCC    'RECOVERY COMPLETE',4
+NODFIL  FCC    'NO DELETED FILES',4
+GETNAM  FCC    '    NAME: ',4
+SYST    FCC    'SYNTAX ERROR',7,4
+
+        END    UNDEL
