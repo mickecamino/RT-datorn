@@ -75,6 +75,7 @@ VOXMEM1.ASM   - Program som talar - kräver VS-1 Speaker Board - alternativ rös
 ```
 ### 1982-2
 ```
+BACKUP.ASM    - Backup-program - backup från en flooppy till en annan (0 till 1)
 LOGG.BAS      - Loggprogram för amatörradio
 ```
 ### 1983-2
