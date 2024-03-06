@@ -21,11 +21,20 @@ gw read --diskdefs flex.cfg --format flex.sssd.35 flex.img
 Öppna sedan imagen med HcXFloppyEmulator, klicka på Load Raw Image, Load Raw File, bläddra efter filen du precis skapade, klicka sen på Track Analyzer.  
 Håll musen över tredje gröna fältet och skriv av värdena för position $26 och $27, omvandla från HEX till decimalt och ni ser max antal spår och sektorer.  
 
-| Pos 26  | Pos 27  |     Typ av diskett      | Konfig för GW |
-| ------- | ------- | ----------------------- | ------------- |
-|   $22   |   $0A   | 35 spår, enkelsidig     | flex.sssd.35  |
-|   $27   |   $0A   | 40 spår, enkelsidig     | flex.sssd.40  |
-|   $27   |   $14   | 40 spår, dubbelsidig    | flex.dssd.40  |
+| Pos 26  | Pos 27      |     Typ av diskett                     | Konfig för GW |
+| ------- | ----------- | ---------------------------------------| ------------- |
+|   $22   |   $0A (10)  | 35 spår, enkelsidig                    | flex.sssd.35  |
+|         |             |                                        |               |
+|   $27   |   $0A (10)  | 40 spår, enkelsidig                    | flex.sssd.40  |
+|   $27   |   $12 (18)  | 40 spår, enkelsidig, dubbel densitet   |               |
+|   $27   |   $14 (20)  | 40 spår, dubbelsidig                   | flex.dssd.40  |
+|   $27   |   $24 (36)  | 40 spår, dubbelsidig, dubbel densitet  |               |
+|         |             |                                        |               |
+|   $4F   |   $0A (10)  | 80 spår, enkelsidig                    |               |
+|   $4F   |   $12 (18)  | 80 spår, enkelsidig, dubbel densitet   |               |
+|   $4F   |   $14 (20)  | 80 spår, enkelsidig                    |               |
+|   $4F   |   $24 (36)  | 80 spår, enkelsidig, dubbel densitet   |               |
+
   
 Tabellen kommer att utökas och flex.cfg kommer att få fler definitioner.
 
