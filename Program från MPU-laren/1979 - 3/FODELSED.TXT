@@ -1,0 +1,8 @@
+Programmet frågar efter:
+Dagens datum
+Ditt namn
+Hur gammal du är
+Vilken månad du är född
+Vilket datum du är född
+
+Därefter presenteras en hel del info om dig.

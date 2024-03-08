@@ -4,31 +4,32 @@ Här finns de program som presenterades i MPU-laren från # 1 - 1978 till sista 
 ## Samling av de program som presenterades i MPU-laren 
 ### 1978-1
 ```
-MONLAND.BAS - Klassiskt spel - landa en månlandare på månen
 MASTER.BAS  - Mastermind - textbaserat
+MONLAND.BAS - Klassiskt spel - landa en månlandare på månen
 ```
-### 1978-2
+### 1979-2
 ```
 EIGHTMEN.BAS - Arkadspel
 ```
-### 1978-3
+### 1979-3
 ```
-FODELSED.BAS - Arkadspel
+FODELSED.BAS - Datuminformation
+FODELSED.TXT - Information om programmet
 ```
-### 1978-4
+### 1979-4
 ```
-QUEST.BAS - Adventurespel
-HEX.BAS - Omvandla HEX till DECIMALT
+QUEST.BAS     - Adventurespel
+HEX.BAS       - Omvandla HEX till DECIMALT
 ```
 ### 1980-1
 ```
-DJUR.BAS - Gissa djuret
-DJURBIBL.SYS - Biblioteket till DJUR.BAS
+DJUR.BAS      - Gissa djuret
+DJURBIBL.SYS  - Biblioteket till DJUR.BAS
 ```
 ### 1980-2
 ```
-GENEO.BAS - Släktforskningsprogram
-WHIST.BAS - Kortspel
+GENEO.BAS     - Släktforskningsprogram
+WHIST.BAS     - Kortspel
 ```
 ### 1980-3
 ```
@@ -92,4 +93,7 @@ PIA.BAS       - Programinitiering av PIA
 BOK8.BAS      - Enkelt bokföringsprogram
 BOK8.TXT      - Information om programmet.
 ```
-
+### Program från MPU-laren #3-1984
+```
+DSKSPD.CMD - Program för mätning av hastigheten på en floppy. Anpassat för CÅ-8017
+```
