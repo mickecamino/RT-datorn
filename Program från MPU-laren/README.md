@@ -50,7 +50,7 @@ KYRKA.BAS     - skriver ut en kyrka i ASCII-grafik på en matrisskrivare
 ### 1981-1
 ```
 GOBANG.BAS    - Luffarschack med 19 x 19 rutor
-PATCHTS.TXT   - Patchar en byte på specifikt spår och sektor 
+PATCHTS.ASM   - Patchar en byte på specifikt spår och sektor 
 ```
 ### 1981-2
 ```
@@ -65,7 +65,7 @@ RELOCATE.ASM  - Program för relokering av binärfiler
 ### 1981-4
 ```
 MASTER.BAS    - Mastermind
-MATEMATIK.BAS - Matematikspel
+MATEMAT.BAS   - Matematikspel
 ```
 ### 1982-1	
 ```
@@ -95,5 +95,5 @@ BOK8.TXT      - Information om programmet.
 ```
 ### Program från MPU-laren #3-1984
 ```
-DSKSPD.CMD - Program för mätning av hastigheten på en floppy. Anpassat för CÅ-8017
+DSKSPD.ASM - Program för mätning av hastigheten på en floppy. Anpassat för CÅ-8017
 ```
