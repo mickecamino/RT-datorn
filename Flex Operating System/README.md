@@ -1,60 +1,27 @@
 # Flex Operating System
-## Hur man läser FLEX-skivor med hjälp av GreaseWeazly
-Följande verktyg hämtas och installeras/packas upp:  
-  
-SWTPC 6808/6809 Emulator: http://www.evenson-consulting.com/swtpc/default.htm  
-Gå till Download / Upgrades och hämta hem ZIP-filen eller EXE-filen Complete Setup  
-  
-HxC Floppy Emulator: https://hxc2001.com/download/floppy_drive_emulator  
-Bläddra ner till Software och ladda hem filen HxCFloppyEmulator_soft.zip  
-  
-GreaseWeazle: https://github.com/keirf/greaseweazle/wiki  
-Ladda hem Host Tools och installera  
-OBS! Du behöver någon av hårdvaruenheterna för att använda GreaseWeazle 
+## Drivrutiner och annat för att kunna starta RT-datorn
+RT-datorn, både den gamla (i 6809 läge) och den nya, ska köra Flex 9.1.  
+Då original Flex 9.1 kör I/O via serieporten på adress $E004/$E005 fungerar detta inte på RT-datorn.  
+En Quick-And-Dirty lösning är att boota Flex 9.1, vänta tills diskettstationen slocknat + 5 sekunder.  
+Tryck sedan Reset för att komma in i CBUG-monitor.  
+Tryck D för att dumpa minne, skriv D3E0 D3FF och se om det står $E005 och $E004 i någon adress.  
+Kör M och modifiera adresserna till $E009 och $E008.  
+Skriv G CD00 och du ska få +++ på skärmen.  
 
-flex.cfg: konfigurationsfilen finns i denna mapp.  
+Nu kan du mata in IO.ASM i en texteditor och assemblera den med följande rad:  
+```
+ASMB IO.ASM +LSGY  
+```
+Du ska nu spara ner drivrutinen för diskettkontrollern med följande kommando:  
+```
+SAVE DISK,DE00,DFFF  
+```
+Skapa ny Flex för RT-datorn:  
+```
+APPEND FLEX.COR,DISK.BIN,IO.BIN,RTFLEX.SYS  
+LINK RTFLEX.SYS 
+```
+Tryck Reset, och boot flex med F
+Du ska nu få en prompt med fråga om datum. Mata in dagens datum med mellanslag mellan månad, dag och år, t.ex 03 11 24, tryck Enter.
+Du ska nu få upp +++
 
-För att läsa disketten anslut en diskettstation till GreaseWeazly, stoppa i skivan du vill kopiera, glöm inte skrivskyddet på skivan.  
-Börja med att läsa skivan som en enkelsidig, enkel densitet, 35 spår:  
-gw read --diskdefs flex.cfg --format flex.sssd.35 flex.img  
-  
-Öppna sedan imagen med HcXFloppyEmulator, klicka på Load Raw Image, Load Raw File, bläddra efter filen du precis skapade, klicka sen på Track Analyzer.  
-Håll musen över tredje gröna fältet och skriv av värdena för position $26 och $27, omvandla från HEX till decimalt och ni ser max antal spår och sektorer.  
-
-| Pos 26  | Pos 27      |     Typ av diskett                     | Konfig för GW |
-| ------- | ----------- | ---------------------------------------| ------------- |
-|   $22   |   $0A (10)  | 35 spår, enkelsidig                    | flex.sssd.35  |
-|         |             |                                        |               |
-|   $27   |   $0A (10)  | 40 spår, enkelsidig                    | flex.sssd.40  |
-|   $27   |   $12 (18)  | 40 spår, enkelsidig, dubbel densitet   |               |
-|   $27   |   $14 (20)  | 40 spår, dubbelsidig                   | flex.dssd.40  |
-|   $27   |   $24 (36)  | 40 spår, dubbelsidig, dubbel densitet  |               |
-|         |             |                                        |               |
-|   $4F   |   $0A (10)  | 80 spår, enkelsidig                    |               |
-|   $4F   |   $12 (18)  | 80 spår, enkelsidig, dubbel densitet   |               |
-|   $4F   |   $14 (20)  | 80 spår, enkelsidig                    |               |
-|   $4F   |   $24 (36)  | 80 spår, enkelsidig, dubbel densitet   |               |
-
-  
-Tabellen kommer att utökas och flex.cfg kommer att få fler definitioner.
-
-Tredje sektorn innehåller System Information Record (SIR) och den har följande layout:
-
-| offset(hex) | size(hex) | contents
-| ----------- | --------- | ------------------------- |
-|    $10      |    $0B    |  Volume Label             |
-|    $1B      |    $01    |  Volume Number High byte  |
-|    $1C      |    $01    |  Volume Number Low byte   |
-|    $1D      |    $01    |  First User Track         |
-|    $1E      |    $01    |  First User Sector        |
-|    $1F      |    $01    |  Last User Track          |
-|    $20      |    $01    |  Last User Sector         |
-|    $21      |    $01    |  Total Sectors High byte  |
-|    $22      |    $01    |  Total Sectors Low byte   |
-|    $23      |    $01    |  Creation Month           |
-|    $24      |    $01    |  Creation Day             |
-|    $25      |    $01    |  Creation Year            |
-|    $26      |    $01    |  Max Track                |
-|    $27      |    $01    |  Max Sector               |
-
-Position $26 och $27 innehåller värde för antalet spår och sektorer, baserat på det kan man få fram vilken typ av diskett det är.

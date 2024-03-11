@@ -93,7 +93,7 @@ PIA.BAS       - Programinitiering av PIA
 BOK8.BAS      - Enkelt bokföringsprogram
 BOK8.TXT      - Information om programmet.
 ```
-### Program från MPU-laren #3-1984
+### 1985-3
 ```
 DSKSPD.ASM - Program för mätning av hastigheten på en floppy. Anpassat för CÅ-8017
 ```
