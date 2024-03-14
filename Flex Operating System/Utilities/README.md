@@ -1,7 +1,7 @@
 # Utilities
 ## En samling av olika Flex-program
 ```
-DISKIDEN.ASM  -   Visar information om lagringskapacitet på disketter, kan ändra volymamn och version.
+DISKIDEN.ASM  -   Visar information om lagringskapacitet på disketter, kan ändra volymnamn och version.
 ```
 Exempel på vilken information som erhålles:
 ```
