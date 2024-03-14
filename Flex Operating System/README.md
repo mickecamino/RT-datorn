@@ -21,7 +21,8 @@ Skapa ny Flex för RT-datorn:
 APPEND FLEX.COR,DISK.BIN,IO.BIN,RTFLEX.SYS  
 LINK RTFLEX.SYS 
 ```
-Tryck Reset, och boot flex med F
+Tryck Reset, och boota flex med F
 Du ska nu få en prompt med fråga om datum. Mata in dagens datum med mellanslag mellan månad, dag och år, t.ex 03 11 24, tryck Enter.
 Du ska nu få upp +++
 
+I mappen Utilities har jag samlat lite olika program som är "bra att ha".
