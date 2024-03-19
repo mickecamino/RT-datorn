@@ -1,0 +1,21 @@
+Komponentförteckning CÅ-8005
+C1          0,1 uF polyester
+C2          10 uF 16v
+C3          100 uF 16v
+C5          22pF keramisk
+C6          10.40 pF trimkondensator
+D1          Röd lysdiod
+D2-3        1N4148
+IC1         MC 6821
+IC2         MM 5318
+IC3         MM 5369
+R1          220 ohm
+R2-21       10k
+R22         4,7M
+R23-28      1K
+T1-16       BC 548
+X1          3,579545 MHz kristall
+1 st        Kretskort CÅ-8005
+1 st        IC-hållare 8 pol
+1 st        IC-hållare 28 pol
+1 st        IC-hållare 40-pol
