@@ -6,8 +6,8 @@
 
 * CÅ-812 - CPU-kort  
 På processorkortet finns ett statiskt RAM som ligger på adress $C000 - DFFF.  
-Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att ligga mellan $F000 och FFFF. På kortet sker även avkodning av periferikretsarna som finns på $E000 och $E0FF Ett extra RAM ligger mellan $E100 och $E3FF vilket med fördel kan användas av monitor och terminalprogram utan konflikt med operativsystemet Flex.
-På kortet sker även avkodning av perifierikretsarna som finns på $E000 - $E0FF.
+Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att ligga mellan $F000 och FFFF. På kortet sker även avkodning av perifierikretsarna som finns på $E000 - $E0FF. Ett extra RAM ligger mellan $E100 och $E3FF vilket med fördel kan användas av monitor och terminalprogram utan konflikt med operativsystemet Flex.
+
 
 * CÅ-813 - kommunikation  
 Det nya kortet för seriekommunikation heter CÅ-813 och det ersätter de äldre korten 8001, 8014 och 8015.  
@@ -22,13 +22,15 @@ Terminalkortet är en helt ny konstruktion. Det är en sk. minnesmappad terminal
 Bildminnet ligger mellan $E800 och $EFFF och processorn på kort 812 tar hand om terminalfunktionerna. All teckenhantering mellan "dator"- och "terminaldel" sker utan inblandning av seriekommunikationskretsar. Förloppet är därför mycket snabbare än tidigare. Terminalens teckenuppsättning är svensk. 
 
 * CÅ-816 - EPROM-kort  
-Kort för 16 st 2532 EPROM, detta ger 64 kB med permanent programminne.
+Det nya EPROM-kortet heter 816 och har plats för 16 EPROM-kretsar av typ 2532 som vardera rymmer 4 kbit. Man kan alltså ha upp till 64 kbit fast (resident) programminne i datorn. 
+Där kan man lagra t.ex. operativsystem eller basic-tolk. Hela minnet når man genom att gå til en adress. Med en programrutin flyttar man så net data från EPROM-minnet till datorns arbetsminne.
+Kortet ersätter 8025-kortet.  
 
 * CÅ-817 - Flexskivekort  
-För anslutning av upp till 4 st 360 kB enkel eller dubbelsidiga diskettenheter.
+Drivkretsarna för flexskiveminnet finns på kortet 817 som helt motsvarar det i byggboken beskriva kortet 8017. Det är avsett för anslutning av upp till fyra enkel- eller dubbelsidiga drivenheter (5 1/4") med enkel (ej dubbel) packningstäthet.
 
 * CÅ-831 - Terminalkort enkelt  
-Hexadecimalt terminalkort med PIA för labbfunktioner.
+Den enkla hexadecimala terminalen 8006 har fått en efterföljare 831 som förutom lysdiodsindikatorer och tangentbord även har en PIA-krets för labuppkopplingar.
 
 * CÅ-833 - kommunikation  
 Ett nyare kort I/O som ersätter CÅ-813.  
