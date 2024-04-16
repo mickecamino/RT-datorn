@@ -9,7 +9,7 @@ Se även CÅ-833
 
 Ny information:  
 Detta kort såldes med olika komponentval:  
-CÅ-813A - Kort med avkodning - detta är grund-kitet bestående av kretskort och avkodningskretsar. 
+CÅ-813A - Kort med avkodning - detta är grund-kitet bestående av kretskort och avkodningskretsar.  
 CÅ-813D - Realtidsklocka - alla komponenter för att få realtidsklocka  
 CÅ-813S - Seriekommunikation - alla komponenter för att få seriekommunikation  
 CÅ-813P - Printerutgång - alla komponenter för att få printerutgång 
