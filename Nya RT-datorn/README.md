@@ -12,8 +12,7 @@ Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att 
 * CÅ-813 - kommunikation  
 Det nya kortet för seriekommunikation heter CÅ-813 och det ersätter de äldre korten 8001, 8014 och 8015.  
 Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp (Centronics) och en realtidsklocka med batteriuppbackning.
-Anslutningen av skrivare sker med en 60-polig flatkabelkontakt. Av dessa ledare går 36 till skrivaren och 24 till V24-kontakten.
-
+Anslutningen av skrivare sker med en 60-polig flatkabelkontakt. Av dessa ledare går 36 till skrivaren och 24 till V24-kontakten.  
 Ny information:  
 Detta kort såldes med olika komponentval:  
 CÅ-813A - Kort med avkodning - detta är grund-kitet bestående av kretskort och avkodningskretsar. 
