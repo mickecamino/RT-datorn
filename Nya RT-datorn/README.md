@@ -14,6 +14,13 @@ Det nya kortet för seriekommunikation heter CÅ-813 och det ersätter de äldre
 Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp (Centronics) och en realtidsklocka med batteriuppbackning.
 Anslutningen av skrivare sker med en 60-polig flatkabelkontakt. Av dessa ledare går 36 till skrivaren och 24 till V24-kontakten.
 
+Ny information:  
+Detta kort såldes med olika komponentval:  
+CÅ-813A - Kort med avkodning - detta är grund-kitet bestående av kretskort och avkodningskretsar. 
+CÅ-813D - Realtidsklocka - alla komponenter för att få realtidsklocka  
+CÅ-813S - Seriekommunikation - alla komponenter för att få seriekommunikation  
+CÅ-813P - Printerutgång - alla komponenter för att få printerutgång 
+
 * CÅ-814 - minneskort  
 Minneskortet 814 ersätter CÅ-6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerligt i stället för som tidigare med 32 kHz. Minneskortet är på 48 kB.
 
