@@ -1,0 +1,15 @@
+Komponentförteckning CÅ-816A
+C1-4    10uF el.lyt.
+IC1     74LS244
+IC2-3   74LS374
+IC4-7   74LS138
+IC8-23  2532 EPROM
+P1      64 pol. europadon med skruv
+1       kretskort CÅ-816A
+1       korthandtag med nitar
+4       16 pol. IC-sockel
+3       20 pol.    "
+16      24 pol.    "
+
+Kortet är fast adresserat till $E0B0,
+men kan ändras till E0C0 eller E0D0.
