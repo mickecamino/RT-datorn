@@ -1,0 +1,55 @@
+CÅ-813 Komponentförteckning
+Detta kort såldes med olika bestyckning.
+
+CÅ-813A - Kort med avkodning - detta är grund-kitet bestående av kretskort och avkodningskretsar.
+CÅ-813D - Realtidsklocka - alla komponenter för att få realtidsklocka.
+CÅ-813S - Seriekommunikation - alla komponenter för att få seriekommunikation.
+CÅ-813P - Printerutgång - alla komponenter för att få printerutgång.
+
+Komponenter som ingår i CÅ-813A:
+C4,C6       10 uF el. lyt.
+IC1         74LS245
+IC2-3       74LS138
+IC4         74LS00
+P1          64 pol. europadon m skruv
+P2          60 pol. kontakt
+1 st        kretskort CÅ-813
+1 st        14 pol. IC-sockel 
+2 st        16 pol.     "
+1 st        20 pol.     "
+
+Komponenter som ingår i CÅ-813D:
+B1          ackumulator P3-M11
+C1          22 pF keramisk
+C2          trimkond 6-25 pF
+C3          10 uF el. lyt.
+D1-2        1N4148
+IC5         6820 el. 6821
+IC6         MSM5832
+IC7         (används ej)
+R1          220 ohm
+R2          100 ohm
+R3          10k motståndsnät
+X1          kristall 32,768 kHz
+1           10 pol. IC-sockel
+1           40 pol.     "
+
+Komponenter som ingår i CÅ-813S:
+C7-8        47 uF el. lyt.
+IC8         6551
+IC10        1488
+IC11        1489
+R4-7        27k
+X2          kristall 1.8432MHz
+7           stiftpar
+7           byglar
+2           14 pol. IC-sockel
+1           28 pol.     "
+
+Komponenter som ingår i CÅ-813P:
+C5          10 uF el. lyt.
+IC9         6820 el. 6821
+IC12-13     74LS244
+2           20 pol. IC-sockel
+1           40-pol.     "
+<
