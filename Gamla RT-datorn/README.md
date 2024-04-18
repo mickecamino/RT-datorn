@@ -50,18 +50,18 @@
 
 ### Kortens placering i moderkortet bestämmer dess adress:
 RT-datorns addressering
-* J1  - E000-E000F = CÅ-8001 ACIA
-* J2  - E010-E001F = CÅ-8017 Flexskivekort
-* J3  - E020-E002F = 
-* J4  - E030-E003F = CÅ-8004 Timer 6840
-* J5  - E040-E004F = 
-* J6  - E050-E005F = CÅ-8005 RTC
-* J7  - E060-E006F = CÅ-8010 EPROM-programmerare
-* J8  - E070-E007F = 
-* J9  - E080-E008F = CÅ-8008 A/D-omvandlare
-* J10 - E090-E009F = 
-* J11 - E0A0-E00AF = 
-* J12 - E0B0-E00BF = CÅ-8003 kassettmodem
-* J13 - E0C0-E00CF = CÅ-8025 EPROM-kort
-* J14 - E0D0-E00DF = 
-* J15 - E0E0-E00EF = CÅ-8006 HEX-terminalkort
+* J1  - E000-E00F = CÅ-8001 ACIA
+* J2  - E010-E01F = CÅ-8017 Flexskivekort
+* J3  - E020-E02F = 
+* J4  - E030-E03F = CÅ-8004 Timer 6840
+* J5  - E040-E04F = 
+* J6  - E050-E05F = CÅ-8005 RTC
+* J7  - E060-E06F = CÅ-8010 EPROM-programmerare
+* J8  - E070-E07F = 
+* J9  - E080-E08F = CÅ-8008 A/D-omvandlare
+* J10 - E090-E09F = 
+* J11 - E0A0-E0AF = 
+* J12 - E0B0-E0BF = CÅ-8003 kassettmodem
+* J13 - E0C0-E0CF = CÅ-8025 EPROM-kort
+* J14 - E0D0-E0DF = 
+* J15 - E0E0-E0EF = CÅ-8006 HEX-terminalkort
