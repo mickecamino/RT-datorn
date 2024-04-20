@@ -13,11 +13,11 @@ Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att 
 Det nya kortet för seriekommunikation heter CÅ-813 och det ersätter de äldre korten 8001, 8014 och 8015.  
 Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp (Centronics) och en realtidsklocka med batteriuppbackning.
 Anslutningen av skrivare sker med en 60-polig flatkabelkontakt. Av dessa ledare går 36 till skrivaren och 24 till V24-kontakten.  
-
 Se även CÅ-833
 
 * CÅ-814 - minneskort  
-Minneskortet 814 ersätter CÅ-6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerligt i stället för som tidigare med 32 kHz. Minneskortet är på 48 kB.
+Minneskortet 814 ersätter CÅ-6848. Det är helt identiskt med undantag av att "refreshen" för de dynamiska minneskretsarna sker kontinuerligt i stället för som tidigare med 32 kHz. Minneskortet är på 48 kB.  
+Se äen CÅ-834
 
 * CÅ-815 - Video-terminalkort  
 Terminalkortet är en helt ny konstruktion. Det är en sk. minnesmappad terminal med 24 rader om vardera 80 tecken. På kortet finns en CRT-kontrollkrets (Motorola MC 6845), bildminne samt en PIA för anslutning av tangentbord över en 26-polig kontakt. Den har samma koppling som den i byggboken beskrivna terminalen.
@@ -25,7 +25,7 @@ Bildminnet ligger mellan $E800 och $EFFF och processorn på kort 812 tar hand om
 
 * CÅ-816 - EPROM-kort  
 Det nya EPROM-kortet heter 816 och har plats för 16 EPROM-kretsar av typ 2532 som vardera rymmer 4 kbit. Man kan alltså ha upp till 64 kbit fast (resident) programminne i datorn. 
-Där kan man lagra t.ex. operativsystem eller basic-tolk. Hela minnet når man genom att gå til en adress. Med en programrutin flyttar man så net data från EPROM-minnet till datorns arbetsminne.
+Där kan man lagra t.ex. operativsystem eller basic-tolk. Hela minnet når man genom att gå til en adress. Med en programrutin flyttar man så net data från EPROM-minnet till datorns arbetsminne.  
 Kortet ersätter 8025-kortet.  
 
 * CÅ-817 - Flexskivekort  

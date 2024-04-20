@@ -5,6 +5,6 @@ Kortet har tre funktioner:
 2. Skrivarutgång av parallelltyp (Centronics)
 3. Realtidsklocka med bateribackup, baserad på kretsen MSM5832
  
-Detta kort skiljer sig från CÅ-813 som hade en programmerbar seriekrets INS2651, ersatt i detta kort med MC6850 och MC14411.
+Detta kort skiljer sig från CÅ-813 som hade en programmerbar seriekrets INS2651, CÅ-813A som hade en programmerbar seriekrets 6551, ersatt i detta kort med MC6850 och MC14411.
  
 Schema är skapat från kretskortet.
