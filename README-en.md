@@ -13,6 +13,7 @@ The "new" that was only presented in a generic article in the Swedish magazine E
 * CÅ-800  - First version of the motherboard
 * CÅ-801  - Second version of the motherboard
 * CÅ-6819 - CPU-board
+* CÅ-6848 - Memory biard with 48 kB dynamic RAM
 * CÅ-8001 - ACIA, 2 serial ports
 * CÅ-8002 - PIA, 2 parallell ports
 * CÅ-8003 - KCS-modem 300/1200 baud
