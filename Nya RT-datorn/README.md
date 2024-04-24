@@ -25,7 +25,7 @@ Bildminnet ligger mellan $E800 och $EFFF och processorn på kort 812 tar hand om
 
 * CÅ-816 - EPROM-kort  
 Det nya EPROM-kortet heter 816 och har plats för 16 EPROM-kretsar av typ 2532 som vardera rymmer 4 kbit. Man kan alltså ha upp till 64 kbit fast (resident) programminne i datorn. 
-Där kan man lagra t.ex. operativsystem eller basic-tolk. Hela minnet når man genom att gå til en adress. Med en programrutin flyttar man så net data från EPROM-minnet till datorns arbetsminne.  
+Där kan man lagra t.ex. operativsystem eller Basic-tolk. Hela minnet når man genom att gå till en adress. Med en programrutin flyttar man så ned data från EPROM-minnet till datorns arbetsminne.  
 Kortet ersätter 8025-kortet.  
 
 * CÅ-817 - Flexskivekort  

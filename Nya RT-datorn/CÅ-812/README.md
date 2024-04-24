@@ -1,3 +1,3 @@
 # CÅ-812 CPU-kort
 På processorkortet finns ett statiskt RAM som ligger på adress $C000 - DFFF.
-Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att ligga mellan $F000 och FFFF. På kortet sker även avkodning av periferikretsarna som finns på $E000 och $E0FF Ett extra RAM ligger mellan $E100 och $E3FF vilket med fördel kan användas av monitor och terminalprogram utan konflikt med operativsystemet Flex
+Dessutom finns det två socklar där man kan plugga in EPROM som då kommer att ligga mellan $F000 och FFFF. På kortet sker även avkodning av periferikretsarna som finns på $E000 och $E0FF. Ett extra RAM ligger mellan $E100 och $E3FF vilket med fördel kan användas av monitor och terminalprogram utan konflikt med operativsystemet Flex

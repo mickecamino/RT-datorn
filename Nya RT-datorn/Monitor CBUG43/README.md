@@ -15,7 +15,7 @@
 * I Ändra registren på användarstacken
 * J Gå till subrutin och skriv ut registren
 * K Kopiera minnesinnehåll
-* L Ladda FLEX 9.6 från EPROM (Not. Kan vara felskrivet, bör vara FLEX 9.0)
+* L Ladda FLEX 9.x från EPROM
 * M Minnesmanipulering
 * O fyll ett visst minnesblock med en byte
 * PL Ladda från promkort
