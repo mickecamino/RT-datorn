@@ -12,7 +12,7 @@ För att lagra kommandot ASN i EPROM tar man reda på hur många bytes det progr
 ASN ska lagras i minnet på adress $C100 och startas på adress $C100.  
 
 Om detta är första programmet som skall lagras i EPROM börjar man på adress $0000 i prommet.  
-$F5 + $6 (6 bytes för tabellen) = $FB, Byte 1 blir då $00 och byte 2 blir $FB = sista positionen i EPPROM för programmet ASN.  
+$F5 + $6 (6 bytes för tabellen) = $FB, Byte 1 blir då $00 och byte 2 blir $FB = sista positionen i EPROM för programmet ASN.  
 Byte 3 blir $C1 och byte 4 blir $00, samma sak med byte 5 och 6.  
   
 Från position 0000 i EPROM ser det då ut så här:  
@@ -28,6 +28,6 @@ Nästa program som skall lagras i EPROM startar då med 6 bytes från adress $00
   
 RAM-minnet på 1kb används av programmet PROM som laddas via STARTUP.TXT med kommandot GET .PROM, programmet laddas i minnet på adresserna $E400, $E500 och $E600.  
   
-Observera att adress-området $0C00 - $1FFF i EPROM #1 (IC8) är reserverat för FLEX.SYS som då kan laddas via CBUG-kommandot L.  
+Observera att adress-området $0C00 - $25FF i EPROM #1 (IC8) är reserverat för FLEX.SYS som då kan laddas via CBUG-kommandot L. OBS! Kräver patchad CBUG.  
   
 Originalprogrammet [PROM finns här](https://github.com/mickecamino/RT-datorn/tree/main/Program%20fr%C3%A5n%20MPU-laren/1983%20-%202)

@@ -1,5 +1,5 @@
-Komponentförteckning CÅ-836
-IC1          74LS144
+﻿Komponentförteckning CÅ-836
+IC1          74LS244
 IC2,3        74LS374
 IC4,6        74LS138
 IC7          74LS21
