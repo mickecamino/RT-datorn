@@ -1,0 +1,9 @@
+Komponentförteckning CÅ-836
+IC1          74LS144
+IC2,3        74LS374
+IC4,6        74LS138
+IC7          74LS21
+IC8,9,10     27C512
+IC 11        6116
+P1           64 pol. Europakontakt a-c
+

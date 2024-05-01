@@ -50,4 +50,5 @@ The "new" that was only presented in a generic article in the Swedish magazine E
 * CÅ-831 - Terminal card simple
 * CÅ-833 - Newer I/O, RTC with MSM5832, ACIA and Centronics-port
 * CÅ-834 - Memory card with static RAM
+* CÅ-836 - New 192 kb EPROM-card with 1 kb RAM
 * CÅ-837 - Floppy contreoller with WD2792 (Double Density)

@@ -50,4 +50,5 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 * CÅ-831 - Terminalkort enkelt
 * CÅ-833 - Nyare kommunikationskort/RTC med MSM5832, ACIA och Centronics-port
 * CÅ-834 - Minneskort med statiska RAM-kretsar
+* CÅ-836 - Nytt designat 192 kb EPROM-kort med 1 kb RAM 
 * CÅ-837 - Diskettinterface med Double Density
