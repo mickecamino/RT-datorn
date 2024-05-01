@@ -13,7 +13,7 @@ ASN ska lagras i minnet på adress $C100 och startas på adress $C100.
 
 Om detta är första programmet som skall lagras i EPROM börjar man på adress $0000 i prommet.  
 $F5 + $6 (6 bytes för tabellen) = $FB, Byte 1 blir då $00 och byte 2 blir $FB = sista positionen i EPPROM för programmet ASN.  
-Byte 3 blir $C1 och byte 4 blir $00, sama sak med byte 5 och 6.  
+Byte 3 blir $C1 och byte 4 blir $00, samma sak med byte 5 och 6.  
   
 Från position 0000 i EPROM ser det då ut så här:  
 |    tabell     | programmet ASN |          FB = sista positionen för ASN
