@@ -17,8 +17,8 @@ Byte 3 blir $C1 och byte 4 blir $00, samma sak med byte 5 och 6.
   
 Från position 0000 i EPROM ser det då ut så här:  
 ```
-|    tabell     | programmet ASN |          FB = sista positionen för ASN  
-00 FB C1 00 C1 00 02 C1 00 ...   | 04 16 C1 00  
+|    tabell       | programmet ASN |          FB = sista positionen för ASN  
+00 FB C1 00 C1 00 02 C1 00 ...     | 04 16 C1 00  
 ```  
 Ett FLEX-program börjar med HEX 02 och adressen till var i minnet programmet skall lagras.  
 För ASN står det 02 C1 00.  
