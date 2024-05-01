@@ -28,3 +28,5 @@ Nästa program som skall lagras i EPROM startar då med 6 bytes från adress $00
 RAM-minnet på 1kb används av programmet PROM som laddas via STARTUP.TXT med kommandot GET .PROM, programmet laddas i minnet på adresserna $E400, $E500 och $E600.  
   
 Observera att adress-området $0C00 - $1FFF i EPROM #1 (IC8) är reserverat för FLEX.SYS som då kan laddas via CBUG-kommandot L.  
+  
+Originalprogrammet [PROM finns här](https://github.com/mickecamino/RT-datorn/tree/main/Program%20fr%C3%A5n%20MPU-laren/1983%20-%202)
