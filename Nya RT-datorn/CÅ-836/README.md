@@ -1,5 +1,5 @@
 # CÅ-836 - EPROM-kort med RAM
-Ett nytt designat kort för 3 st 27512 EPROM, detta ger 192 kb med permanent programminne. Detta kort kan lagra t.ex. operativsystemet Flex och Basic-tolk. Med en programrutin flyttar man så ned data från EPROM-minnet till datorns arbetsminne. Kortet ersätter CÅ-816.  
+Ett nydesignat kort för 3 st 27512 EPROM, detta ger 192 kb med permanent programminne. Detta kort kan lagra t.ex. operativsystemet Flex och Basic-tolk. Med en programrutin flyttar man så ned data från EPROM-minnet till datorns arbetsminne. Kortet ersätter CÅ-816.  
   
   
 Programmen i EPROM'en skall ha följande utformning: (observera att detta inte refererar till t.ex. byte 0 och 1 i prommet utan till byte 0 och 1 för varje program)  
@@ -28,6 +28,6 @@ Nästa program som skall lagras i EPROM startar då med 6 bytes från adress $00
   
 RAM-minnet på 1kb används av programmet PROM som laddas via STARTUP.TXT med kommandot GET .PROM, programmet laddas i minnet på adresserna $E400, $E500 och $E600.  
   
-Observera att adress-området $0C00 - $25FF i EPROM #1 (IC8) är reserverat för FLEX.SYS som då kan laddas via CBUG-kommandot L. OBS! Kräver patchad CBUG.  
+Observera att adress-området $0C00 - $1FFF i EPROM #1 (IC8) är reserverat för FLEX.SYS som då kan laddas via CBUG-kommandot L.  
   
 Originalprogrammet [PROM finns här](https://github.com/mickecamino/RT-datorn/tree/main/Program%20fr%C3%A5n%20MPU-laren/1983%20-%202)
