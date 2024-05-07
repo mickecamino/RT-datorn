@@ -1,7 +1,7 @@
 # CÅ-836 - EPROM-kort med RAM
-Ett nydesignat kort för 3 st 27512 EPROM, detta ger 192 kb med permanent programminne. Detta kort kan lagra t.ex. operativsystemet Flex, de flesta utilities som används i FLEX och större program som BASIC, XBASIC, ASMB etc. Med en programrutin flyttar man så ned data från EPROM-minnet till datorns arbetsminne. Kortet ersätter CÅ-816.  
+Ett nydesignat kort för 3 st 27512 EPROM, detta ger 192 kb med permanent programminne. Detta kort kan lagra t.ex. operativsystemet Flex, de flesta utilities som används i FLEX och större program som BASIC, XBASIC, ASMB etc. Med en programrutin flyttar man ned data från EPROM-minnet till datorns arbetsminne. Kortet ersätter CÅ-816.  
   
-Det program ska användas för detta kommer att laddas upp här när det är testat och fungerande.  
+Programmet för att hämta programmen från EPROM kallas PROM.BIN, källkoden för detta finns här med namnet PROM.ASM.  
   
 Programmen som ska lagras på kortet är vanliga standard .CMD-filer, laddprogrammet läser .CMD-filen på samma sätt som FLEX gör.    
 Ett FLEX-program har fyra startbytes:  

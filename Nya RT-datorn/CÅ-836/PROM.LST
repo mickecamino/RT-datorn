@@ -1,0 +1,307 @@
+                               NAM     PROM
+                      *
+                      * PROGRAMMET L[SER NED PROMBASERADE CMD-FILER
+                      * TILL RAM
+                      * SKRIVET AV MIKAEL KARLSSON 2024-05-04
+                      *
+                      * BASERAT P] PROM.ASM UR MPU-LAREN
+                      * NR 2 1983, SKRIVET AV GUNNAR EJEMOH
+                      *
+                      * F\RUTS[TTER PROM P] KORT 836
+                      * EPROM P] $E0B0, $E0C0 och $E0D0
+                      * RAM P] ADRESS $E400-E4FF
+                      *
+                      * PROGRAMMET I PROM [R STANDARD CMD-FILER
+                      *
+                      * KALLA UPP PROGRAMMET MED GETPROM
+                      * I STARTUP.TXT
+                      *
+                      * VERSION 1.0 2024-05-06
+                      * VERSION 1.1 2024-05-07
+                      *
+ E0B0                 EPROM   EQU     $E0B0     BASADRESS F\R EPROM
+ E400                 COMTAB  EQU     $E400     KOMMANDO-TABELLEN
+ E500                 JMPTAB  EQU     $E500     HOPP-TABELLEN
+ E700                 LADDA   EQU     $E700     SJ[LVA PROGRAMMET
+ E5F0                 RAM     EQU     JMPTAB+$F0 PLATS F\R VARIABLER
+ 0002                 PROMVAL EQU     2         EPROMV[LJARE
+ CD03                 WARMS   EQU     $CD03     FLEX VARMSTART
+                      *
+                              ORG     RAM       LITE VARIABLER
+ E5F0                 PRMSTA  RMB     2         CMD-FILENS STARTDARESS I EPROMET
+ E5F2                 RAMSTO  RMB     2         VART I RAM DET SKA SPARAS
+ E5F4                 TRNSFR  RMB     2         TRANSFERADRESS
+                      *
+                      * L[GG IN ADRESS TILL KOMMANDOTABELL I FLEX
+                      *
+                              ORG     $CC12     HAKA P] I FLEX
+ CC12 E4                      FCB     $E4       TABELL I RAM P] $E400
+                      *
+                              ORG     COMTAB
+                      * H[R SKRIVS ALLA KOMMANDON IN SOM LIGGER I PROM
+                      * EFTER SISTA KOMMANDOT SKRIVS 0
+                      *
+ E400 41534E                  FCC     'ASN'
+ E403 00                      FCB     0
+ E404 E500                    FDB     JMPTAB
+ E406 434154                  FCC     'CAT'
+ E409 00                      FCB     0
+ E40A E50D                    FDB     CAT
+ E40C 434F5059                FCC     'COPY'
+ E410 00                      FCB     0
+ E411 E516                    FDB     COPY
+ E413 44415445                FCC     'DATE'
+ E417 00                      FCB     0
+ E418 E51F                    FDB     DATE
+ E41A 44454C455445            FCC     'DELETE'
+ E420 00                      FCB     0
+ E421 E528                    FDB     DELETE
+ E423 564552494659            FCC     'VERIFY'
+ E429 00                      FCB     0
+ E42A E531                    FDB     VERIFY
+ E42C 56455253494F4E          FCC     'VERSION'
+ E433 00                      FCB     0
+ E434 E53A                    FDB     VERSION
+ E436 4C495354                FCC     'LIST'
+ E43A 00                      FCB     0
+ E43B E543                    FDB     LIST
+ E43D 545459534554            FCC     'TTYSET'
+ E443 00                      FCB     0
+ E444 E54C                    FDB     TTYSET
+ E446 4E45574449534B          FCC     'NEWDISK'
+ E44D 00                      FCB     0
+ E44E E555                    FDB     NEWDISK
+ E450 444952                  FCC     'DIR'
+ E453 00                      FCB     0
+ E454 E55E                    FDB     DIR
+ E456 44495252                FCC     'DIRR'
+ E45A 00                      FCB     0
+ E45B E567                    FDB     DIRR
+ E45D 4449534B494445          FCC     'DISKIDEN'
+ E465 00                      FCB     0
+ E466 E570                    FDB     DISKIDEN
+ E468 415050454E44            FCC     'APPEND'
+ E46E 00                      FCB     0
+ E46F E579                    FDB     APPEND
+ E471 4255494C44              FCC     'BUILD'
+ E476 00                      FCB     0
+ E477 E582                    FDB     BUILD
+ E479 4F                      FCC     'O'
+ E47A 00                      FCB     0
+ E47B E58C                    FDB     OCMD
+ E47D 53415645                FCC     'SAVE'
+ E481 00                      FCB     0
+ E482 E596                    FDB     SAVE
+ E484 52454E414D45            FCC     'RENAME'
+ E48A 00                      FCB     0
+ E48B E5A0                    FDB     RENAME
+ E48D 41534D42                FCC     'ASMB'
+ E491 00                      FCB     0
+ E492 E5AA                    FDB     ASMB
+ E494 584241534943            FCC     'XBASIC'
+ E49A 00                      FCB     0
+ E49B E5B4                    FDB     XBASIC
+ E49D 45444954                FCC     'EDIT'
+ E4A1 00                      FCB     0
+ E4A2 E5BE                    FDB     EDIT
+ E4A4 4445425547              FCC     'DEBUG'
+ E4A9 00                      FCB     0
+ E4AA E5C8                    FDB     DEBUG
+ E4AC 00                      FCB     0
+                      *
+                              ORG     JMPTAB
+                      *
+                      * H[R FINNS STARTADRESSER TILL ALLA PROGRAMEN
+                      * SOM [R LAGRADE I EPROM
+                      * X SKA INNEH]LLA STARTADRESSEN F\R PROGRAMMET
+                      * I EPROMET
+                      *
+ E500 3476                    PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
+ E502 8E0000                  LDX     #$0000    STARTADRESSEN
+ E505 DE01                    LDU     1         VILKET EPROM?
+ E507 BFE5F0          STORE   STX     PRMSTA    L[GG I PRMSTA
+ E50A 7EE700                  JMP     LADDA     HOPPA
+                      *
+ E50D 3476            CAT     PSHS    X,Y,A,B,U
+ E50F 8E00F6                  LDX     #$00F6
+ E512 DE01                    LDU     1
+ E514 20F1                    BRA     STORE
+                      *
+ E516 3476            COPY    PSHS    X,Y,A,B,U
+ E518 8E03A8                  LDX     #$03A8
+ E51B DE01                    LDU     1
+ E51D 20E8                    BRA     STORE
+                      *
+ E51F 3476            DATE    PSHS    X,Y,A,B,U
+ E521 8E07DB                  LDX     #$07DB
+ E524 DE01                    LDU     1
+ E526 20DF                    BRA     STORE
+                      *
+ E528 3476            DELETE  PSHS    X,Y,A,B,U
+ E52A 8E08EF                  LDX     #$08EF
+ E52D DE01                    LDU     1
+ E52F 20D6                    BRA     STORE
+                      *
+ E531 3476            VERIFY  PSHS    X,Y,A,B,U
+ E533 8E0A4C                  LDX     #$0A4C
+ E536 DE01                    LDU     1
+ E538 20CD                    BRA     STORE
+                      *
+ E53A 3476            VERSION PSHS    X,Y,A,B,U
+ E53C 8E0AE4                  LDX     #$0AE4
+ E53F DE01                    LDU     1
+ E541 20C4                    BRA     STORE
+                      *
+ E543 3476            LIST    PSHS    X,Y,A,B,U
+ E545 DE01                    LDU     1
+ E547 8E2000                  LDX     #$2000
+ E54A 20BB                    BRA     STORE
+                      *
+ E54C 3476            TTYSET  PSHS    X,Y,A,B,U
+ E54E 8E2041                  LDX     #$2041
+ E551 DE01                    LDU     1
+ E553 20B2                    BRA     STORE
+                      *
+ E555 3476            NEWDISK PSHS    X,Y,A,B,U
+ E557 8E23F8                  LDX     #$23F8
+ E55A DE01                    LDU     1
+ E55C 20A9                    BRA     STORE
+                      *
+ E55E 3476            DIR     PSHS    X,Y,A,B,U
+ E560 8E2C71                  LDX     #$2C71
+ E563 DE01                    LDU     1
+ E565 20A0                    BRA     STORE
+                      *
+ E567 3476            DIRR    PSHS    X,Y,A,B,U
+ E569 8E30BC                  LDX     #$30BC
+ E56C DE01                    LDU     1
+ E56E 2097                    BRA     STORE
+                      *
+ E570 3476            DISKIDEN PSHS    X,Y,A,B,U
+ E572 8E34FF                  LDX     #$34FF
+ E575 DE01                    LDU     1
+ E577 208E                    BRA     STORE
+                      *
+ E579 3476            APPEND  PSHS    X,Y,A,B,U
+ E57B 8E39E7                  LDX     #$39E7
+ E57E DE01                    LDU     1
+ E580 2085                    BRA     STORE
+                      *
+ E582 3476            BUILD   PSHS    X,Y,A,B,U
+ E584 8E3C0A                  LDX     #$3C0A
+ E587 DE01                    LDU     1
+ E589 16FF7B                  LBRA    STORE     NOT! LBRA BEH\VS FR.O.M NU
+                      *
+ E58C 3476            OCMD    PSHS    X,Y,A,B,U
+ E58E 8E3CCB                  LDX     #$3CCB
+ E591 DE01                    LDU     1
+ E593 16FF71                  LBRA    STORE
+                      *
+ E596 3476            SAVE    PSHS    X,Y,A,B,U
+ E598 8E3E2F                  LDX     #$3E2F
+ E59B DE01                    LDU     1
+ E59D 16FF67                  LBRA    STORE
+                      *
+ E5A0 3476            RENAME  PSHS    X,Y,A,B,U
+ E5A2 8E3FB6                  LDX     #$3FB6
+ E5A5 DE01                    LDU     1
+ E5A7 16FF5D                  LBRA    STORE
+                      *
+ E5AA 3476            ASMB    PSHS    X,Y,A,B,U
+ E5AC 8E3FFA                  LDX     #$3FFA
+ E5AF DE01                    LDU     1
+ E5B1 16FF53                  LBRA    STORE
+                      *
+ E5B4 3476            XBASIC  PSHS    X,Y,A,B,U
+ E5B6 8E6EDB                  LDX     #$6EDB
+ E5B9 DE01                    LDU     1
+ E5BB 16FF49                  LBRA    STORE
+                      *
+ E5BE 3476            EDIT    PSHS    X,Y,A,B,U
+ E5C0 8EBBA0                  LDX     #$BBA0
+ E5C3 DE01                    LDU     1
+ E5C5 16FF3F                  LBRA    STORE
+                      *
+ E5C8 3476            DEBUG   PSHS    X,Y,A,B,U
+ E5CA 8E0000                  LDX     #$0000
+ E5CD DE02                    LDU     2         ANDRA EPROMET
+ E5CF 16FF35                  LBRA    STORE
+                      *
+                      *
+                              ORG     LADDA
+                      *
+ E700 BEE5F0          LOAD1   LDX     PRMSTA    STARTADRESSEN I EPROM
+                      *
+ E703 8D36            LOAD2   BSR     LESPRM    H[MTA 1 BYTE, L[GG I A
+ E705 8102                    CMPA    #2        [R DET 02? DVS. START OF RECORD?
+ E707 2712                    BEQ     LESREC    JA; L[S D] IN RECORDET OCH DATA
+ E709 8116                    CMPA    #$16      [R DET TRANSFER ADRESS?
+ E70B 8D2E                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN MSB
+ E70D B7E5F4                  STA     TRNSFR    SPARA MSB
+ E710 8D29                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN LSB
+ E712 B7E5F5                  STA     TRNSFR+1  SPARA LSB
+ E715 3576                    PULS    X,Y,A,B,U ]TERST[LL REGISTER
+ E717 6E9FE5F4                JMP     [TRNSFR]  OCH HOPPA TILL STARTADRESSEN
+                      *
+                      * L[S FLEX FILE RECORD
+                      *
+ E71B 8D1E            LESREC  BSR     LESPRM    H[MTA RAM-ADRESSEN MSB
+ E71D 1F89                    TFR     A,B       LAGRA I B
+ E71F 8D1A                    BSR     LESPRM    H[MTA RAM-ADRESSEN LSB
+ E721 1E89                    EXG     A,B       V[ND P] DET S] DET BLIR R[TT
+ E723 FDE5F2                  STD     RAMSTO    SPARA I RAMSTO
+ E726 8D13                    BSR     LESPRM    H[MTA ANTAL BYTES I RECORD
+ E728 1F89                    TFR     A,B       LAGRA DET I B
+                      *
+                      * KLART MED FLEX FILE RECORD
+                      * LADDA NU NER PROGRAMMET FR]N EPROM TILL RAM
+                      *
+ E72A 8D0F            LESRCD2 BSR     LESPRM    H[MTA EN BYTE FR]N PROGRAMMET
+ E72C 10BEE5F2                LDY     RAMSTO    VAR SKA DET SPARAS?
+ E730 A7A0                    STA     0,Y+      SPARA DET I MINNET, \KA Y
+ E732 10BFE5F2                STY     RAMSTO    SPARA N[STA ADRESS
+ E736 5A                      DECB              [R VI NERE P] 0?
+ E737 26F1                    BNE     LESRCD2   NEJ; FORTS[TT TILLS VI [R DET.
+ E739 20C8                    BRA     LOAD2     JA, LETA EFTER FLER RECORDS
+                      *
+                      * SUBRUTIN SOM L[SER EN BYTE FR}N DET NYA EPROM-
+                      * KORTET 836 P} ADRESS $E0B0, $E0C0 ELLER $E0D0
+                      * IN: X-REG - ADRESSEN I EPROM ATT L[SA FR]N
+                      *     U-REG - VILKET EPROM SOM SKA L[SAS
+                      *
+                      * RETURNERAR: A-REG - EN BYTE DATA FR]N EPROMET
+                      *
+ E73B 119302          LESPRM  CMPU    PROMVAL   VILKET EPROM SKA ANV[NDAS
+ E73E 2504                    BLO     PROM1     MINDRE [N 2 = PROM #1
+ E740 270A                    BEQ     PROM2     LIKA MED 2 = PROM #2
+ E742 2E10                    BGT     PROM3     ST\RRE [N 2 = PROM #3
+                      *
+ E744 BFE0B0          PROM1   STX     EPROM     F\RSTA EPROMET
+ E747 B6E0B0                  LDA     EPROM     L[S DATA
+ E74A 200E                    BRA     LAGRA     LAGRA I RAM
+ E74C BFE0C0          PROM2   STX     EPROM+$10 ANDRA EPROMET
+ E74F B6E0C0                  LDA     EPROM+$10 L[S DATA
+ E752 2006                    BRA     LAGRA     LAGRA I RAM
+ E754 BFE0D0          PROM3   STX     EPROM+$20 TREDJE EPROMET
+ E757 B6E0D0                  LDA     EPROM+$20 L[S DATA
+                      *
+ E75A 3001            LAGRA   INX               N[STA POSITION
+ E75C 39                      RTS               ]TERG]
+                      *
+                              END
+
+SYMBOL TABLE
+    APPEND 02 E579      ASMB 02 E5AA     BUILD 02 E582       CAT 02 E50D
+    COMTAB 00 E400      COPY 02 E516      DATE 02 E51F     DEBUG 02 E5C8
+    DELETE 02 E528       DIR 02 E55E      DIRR 02 E567  DISKIDEN 02 E570
+      EDIT 02 E5BE     EPROM 00 E0B0    JMPTAB 00 E500     LADDA 00 E700
+     LAGRA 02 E75A    LESPRM 02 E73B   LESRCD2 02 E72A    LESREC 02 E71B
+      LIST 02 E543     LOAD1 02 E700     LOAD2 02 E703   NEWDISK 02 E555
+      OCMD 02 E58C    PRMSTA 02 E5F0     PROM1 02 E744     PROM2 02 E74C
+     PROM3 02 E754   PROMVAL 00 0002       RAM 00 E5F0    RAMSTO 02 E5F2
+    RENAME 02 E5A0      SAVE 02 E596     STORE 02 E507    TRNSFR 02 E5F4
+    TTYSET 02 E54C    VERIFY 02 E531   VERSION 02 E53A     WARMS 00 CD03
+    XBASIC 02 E5B4
+41 SYMBOLS
+
+0 error(s), 0 warning(s)
