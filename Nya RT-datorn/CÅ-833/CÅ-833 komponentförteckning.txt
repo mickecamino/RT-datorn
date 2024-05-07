@@ -1,6 +1,44 @@
 CÅ-833 komponentförteckning
+Detta kort såldes med olika bestyckning.
+
+CÅ-833A - Kort med avkodning - detta är grund-kitet bestående av kretskort och avkodningskretsar.
+CÅ-833D - Realtidsklocka - alla komponenter för att få realtidsklocka.
+CÅ-833S - Seriekommunikation - alla komponenter för att få seriekommunikation.
+CÅ-833P - Printerutgång - alla komponenter för att få printerutgång.
+
+Komponenter som ingår i CÅ-813A:
+C4,C6       10 uF el. lyt.
+IC1         74LS245
+IC2-3       74LS138
+IC4         74LS00
+P1          64 pol. europadon m skruv
+P2          60 pol. kontakt
+1 st        kretskort CÅ-813
+1 st        14 pol. IC-sockel 
+2 st        16 pol. "
+1 st        20 pol. "
+
+Komponenter som ingår i CÅ-813D:
+B1          ackumulator P3-M11
+C1          22 pF keramisk
+C2          trimkond 6-25 pF
+C3          10 uF el. lyt.
+D1-2        1N4148
+IC5         6820 el. 6821
+IC6         MSM5832
+IC7         (används ej)
+R1          220 ohm
+R2          100 ohm
+R3          10k motståndsnät
+
+Komponenter som ingår i CÅ-813S:
+
+
+Komponenter som ingår i CÅ-813P:
+
+
 BT1                  Batteri ej laddningsbart
-C1, C2, C4, C6, C7   10 uF elektrolyt
+C1, C2, C7   10 uF elektrolyt
 C2                   6-25pF trimkondensator
 C3                   22 pF keramisk
 D1, D2               1N4148
