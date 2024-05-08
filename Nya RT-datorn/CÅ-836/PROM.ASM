@@ -116,109 +116,111 @@ TRNSFR  RMB     2         TRANSFERADRESS
 * X SKA INNEH]LLA STARTADRESSEN F\R PROGRAMMET
 * I EPROMET
 *
+* FLEX 9.1 LIGGER MELLAN $0000 - $18D7
+*
         PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
-        LDX     #$0000    STARTADRESSEN
+        LDX     #$18D8    STARTADRESSEN
         LDU     1         VILKET EPROM?
 STORE   STX     PRMSTA    L[GG I PRMSTA
         JMP     LADDA     HOPPA
 *
 CAT     PSHS    X,Y,A,B,U
-        LDX     #$00F6
+        LDX     #$19CE
         LDU     1
         BRA     STORE
 *
 COPY    PSHS    X,Y,A,B,U
-        LDX     #$03A8
+        LDX     #$1C80
         LDU     1
         BRA     STORE
 *
 DATE    PSHS    X,Y,A,B,U
-        LDX     #$07DB
+        LDX     #$20B3
         LDU     1
         BRA     STORE
 *
 DELETE  PSHS    X,Y,A,B,U
-        LDX     #$08EF
+        LDX     #$21C7
         LDU     1
         BRA     STORE
 *
 VERIFY  PSHS    X,Y,A,B,U
-        LDX     #$0A4C
+        LDX     #$2324
         LDU     1
         BRA     STORE
 *
 VERSION PSHS    X,Y,A,B,U
-        LDX     #$0AE4
+        LDX     #$23BC
         LDU     1
         BRA     STORE
 *
 LIST    PSHS    X,Y,A,B,U
+        LDX     #$243A
         LDU     1
-        LDX     #$2000
         BRA     STORE
 *
 TTYSET  PSHS    X,Y,A,B,U
-        LDX     #$2041
+        LDX     #$267B
         LDU     1
         BRA     STORE
 *
 NEWDISK PSHS    X,Y,A,B,U
-        LDX     #$23F8
+        LDX     #$2832
         LDU     1
         BRA     STORE
 *
 DIR     PSHS    X,Y,A,B,U
-        LDX     #$2C71
+        LDX     #$30AB
         LDU     1
         BRA     STORE
 *
 DIRR    PSHS    X,Y,A,B,U
-        LDX     #$30BC
+        LDX     #$34F6
         LDU     1
         BRA     STORE
 *
 DISKIDEN PSHS    X,Y,A,B,U
-        LDX     #$34FF
+        LDX     #$3939
         LDU     1
         BRA     STORE
 *
 APPEND  PSHS    X,Y,A,B,U
-        LDX     #$39E7
+        LDX     #$3E21
         LDU     1
         BRA     STORE
 *
 BUILD   PSHS    X,Y,A,B,U
-        LDX     #$3C0A
+        LDX     #$4044
         LDU     1
         LBRA    STORE     NOT! LBRA BEH\VS FR.O.M NU
 *
 OCMD    PSHS    X,Y,A,B,U
-        LDX     #$3CCB
+        LDX     #$4105
         LDU     1
         LBRA    STORE
 *
 SAVE    PSHS    X,Y,A,B,U
-        LDX     #$3E2F
+        LDX     #$4269
         LDU     1
         LBRA    STORE
 *
 RENAME  PSHS    X,Y,A,B,U
-        LDX     #$3FB6
+        LDX     #$43F0
         LDU     1
         LBRA    STORE
 *
 ASMB    PSHS    X,Y,A,B,U
-        LDX     #$3FFA
+        LDX     #$4434
         LDU     1
         LBRA    STORE
 *
 XBASIC  PSHS    X,Y,A,B,U
-        LDX     #$6EDB
+        LDX     #$7315
         LDU     1
         LBRA    STORE
 *
 EDIT    PSHS    X,Y,A,B,U
-        LDX     #$BBA0
+        LDX     #$BFDA
         LDU     1
         LBRA    STORE
 *
