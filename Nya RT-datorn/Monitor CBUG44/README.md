@@ -58,8 +58,8 @@ indicator is a greater-than sign placed just before the address of the
 long branch or jump instruction which could be shortened.  
 
 ## Ändringa gjorda i CBUG 4.4
-För att ladda FLEX 9.1 från kort 836 har en FLEX Loader lagts till i CBUG'en. Denna loader hämtar FLEX 9.1 från position $0000 på kort 836. Loaders är i stort sett samma loader som finns på FLEX floppy.
-Koden för loadern:
+För att ladda FLEX 9.1 från kort 836 har en FLEX Loader lagts till i CBUG'en. Denna loader hämtar FLEX 9.1 från position $0000 på kort 836. Loadern är i stort sett samma loader som finns på FLEX floppy.
+Koden:
 ```
 * LADDRUTIN F\R FLEX 9.1
 *
