@@ -44,7 +44,7 @@ Nytt kort med plats för 24 st 2k minnes-kretsar, 6116 och/eller 2716 EPROM. Ers
 * CÅ-836 - 192 kb EPROM-kort med 1 kb RAM.  
 Ett nytt kort till RT-datorn, designat av mig. Tre 27512 EPROM ger 192 kb fast (resident) programminne i datorn, 1 kb RAM adresserat på $E400-E7FF ger plats för kommandotabell.  
 Med ett omskrivet program från MPU-laren 1983-2 skapar man en kommandotabell till FLEX för snabbare åtkomst till program utan access till diskett.  
-FLEX kan också lagras på detta kort och snabbt laddas med CBUG-kommandot X. OBS, kräver den uppdtaerade CBUG'en CBUG4.4.  
+FLEX kan också lagras på detta kort och snabbt laddas med CBUG-kommandot X. OBS, kräver den uppdaterade CBUG'en CBUG4.4.  
 
 * CÅ-837 - Flexskivekort med stöd för Double Density  
 Ersätter CÅ-817
