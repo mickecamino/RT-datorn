@@ -1,4 +1,4 @@
-         NAM     PROM
+        NAM     PROM
 *
 * PROGRAMMET L[SER NED PROMBASERADE CMD-FILER
 * TILL RAM
@@ -13,7 +13,7 @@
 *
 * PROGRAMMET I PROM [R STANDARD CMD-FILER
 *
-* KALLA UPP PROGRAMMET MED GETPROM
+* KALLA UPP PROGRAMMET MED GET PROM
 * I STARTUP.TXT
 *
 * VERSION 1.0 2024-05-06
@@ -53,61 +53,10 @@ TRNSFR  RMB     2         TRANSFERADRESS
         FCC     'DATE'
         FCB     0
         FDB     DATE
-        FCC     'DELETE'
         FCB     0
-        FDB     DELETE
-        FCC     'VERIFY'
-        FCB     0
-        FDB     VERIFY
-        FCC     'VERSION'
-        FCB     0
-        FDB     VERSION
-        FCC     'LIST'
-        FCB     0
-        FDB     LIST
-        FCC     'TTYSET'
-        FCB     0
-        FDB     TTYSET
-        FCC     'NEWDISK'
-        FCB     0
-        FDB     NEWDISK
-        FCC     'DIR'
-        FCB     0
-        FDB     DIR
-        FCC     'DIRR'
-        FCB     0
-        FDB     DIRR
-        FCC     'DISKIDEN'
-        FCB     0
-        FDB     DISKIDEN
-        FCC     'APPEND'
-        FCB     0
-        FDB     APPEND
-        FCC     'BUILD'
-        FCB     0
-        FDB     BUILD
-        FCC     'O'
-        FCB     0
-        FDB     OCMD
-        FCC     'SAVE'
-        FCB     0
-        FDB     SAVE
-        FCC     'RENAME'
-        FCB     0
-        FDB     RENAME
-        FCC     'ASMB'
-        FCB     0
-        FDB     ASMB
-        FCC     'XBASIC'
-        FCB     0
-        FDB     XBASIC
-        FCC     'EDIT'
-        FCB     0
-        FDB     EDIT
-        FCC     'DEBUG'
-        FCB     0
-        FDB     DEBUG
-        FCB     0
+*
+* L[GG TILL FLER PROGRAM EFTER FDB DATE
+* SIST SKA DET ST] FCB 0
 *
         ORG     JMPTAB
 *
@@ -139,96 +88,15 @@ DATE    PSHS    X,Y,A,B,U
         LDU     1
         BRA     STORE
 *
-DELETE  PSHS    X,Y,A,B,U
-        LDX     #$21C7
-        LDU     1
-        BRA     STORE
-*
-VERIFY  PSHS    X,Y,A,B,U
-        LDX     #$2324
-        LDU     1
-        BRA     STORE
-*
-VERSION PSHS    X,Y,A,B,U
-        LDX     #$23BC
-        LDU     1
-        BRA     STORE
-*
-LIST    PSHS    X,Y,A,B,U
-        LDX     #$243A
-        LDU     1
-        BRA     STORE
-*
-TTYSET  PSHS    X,Y,A,B,U
-        LDX     #$267B
-        LDU     1
-        BRA     STORE
-*
-NEWDISK PSHS    X,Y,A,B,U
-        LDX     #$2832
-        LDU     1
-        BRA     STORE
-*
-DIR     PSHS    X,Y,A,B,U
-        LDX     #$30AB
-        LDU     1
-        BRA     STORE
-*
-DIRR    PSHS    X,Y,A,B,U
-        LDX     #$34F6
-        LDU     1
-        BRA     STORE
-*
-DISKIDEN PSHS    X,Y,A,B,U
-        LDX     #$3939
-        LDU     1
-        BRA     STORE
-*
-APPEND  PSHS    X,Y,A,B,U
-        LDX     #$3E21
-        LDU     1
-        BRA     STORE
-*
-BUILD   PSHS    X,Y,A,B,U
-        LDX     #$4044
-        LDU     1
-        LBRA    STORE     NOT! LBRA BEH\VS FR.O.M NU
-*
-OCMD    PSHS    X,Y,A,B,U
-        LDX     #$4105
-        LDU     1
-        LBRA    STORE
-*
-SAVE    PSHS    X,Y,A,B,U
-        LDX     #$4269
-        LDU     1
-        LBRA    STORE
-*
-RENAME  PSHS    X,Y,A,B,U
-        LDX     #$43F0
-        LDU     1
+DEBUG   PSHS    X,Y,A,B,U
+        LDX     #$0000
+        LDU     2         ANDRA EPROMET $E0C0
         LBRA    STORE
 *
 ASMB    PSHS    X,Y,A,B,U
-        LDX     #$4434
-        LDU     1
-        LBRA    STORE
-*
-XBASIC  PSHS    X,Y,A,B,U
-        LDX     #$7315
-        LDU     1
-        LBRA    STORE
-*
-EDIT    PSHS    X,Y,A,B,U
-        LDX     #$BFDA
-        LDU     1
-        LBRA    STORE
-*
-DEBUG   PSHS    X,Y,A,B,U
         LDX     #$0000
-        LDU     2         ANDRA EPROMET
+        LDU     3         TREDJE EPROMET $E0D0
         LBRA    STORE
-*
 *
         ORG     LADDA
 *
@@ -282,10 +150,10 @@ LESPRM  CMPU    PROMVAL   VILKET EPROM SKA ANV[NDAS
 PROM1   STX     EPROM     F\RSTA EPROMET
         LDA     EPROM     L[S DATA
         BRA     LAGRA     LAGRA I RAM
-PROM2   STX     EPROM+$10 ANDRA EPROMET
+PROM2   STX     EPROM+$10 ANDRA EPROMET $E0C0
         LDA     EPROM+$10 L[S DATA
         BRA     LAGRA     LAGRA I RAM
-PROM3   STX     EPROM+$20 TREDJE EPROMET
+PROM3   STX     EPROM+$20 TREDJE EPROMET $E0D0
         LDA     EPROM+$20 L[S DATA
 *
 LAGRA   INX               N[STA POSITION
