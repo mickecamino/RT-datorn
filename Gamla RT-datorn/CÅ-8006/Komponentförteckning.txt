@@ -1,0 +1,27 @@
+Komponentförteckning CÅ-8006
+C1         2,2 uF tantal
+C2         22 nF polyester
+C3         0,22 nF polyester
+C3         1 nF keramisk
+D1         lysdiod
+D2-4       1N4148
+DS1-6      indikator sjusegments lysdiodtyp
+IC1        MM74C923 (NS)
+IC2        74LS138
+IC3        MM74C923 (NS)
+IC4        74LS00
+R1-6       150 ohm 1/8 W 5%
+R7-14      100 ohm
+R15        220 ohm
+R16-18     4,7 k
+R19-20     3,3 k
+T1-6       BC 337
+T7         2N914 el. likn.
+20         tangenter med tecken
+1          IC-hållare 14 ben
+1          IC-hållare 16 ben
+1          IC-hållare 20 ben
+1          IC-hållare 28 ben
+1          kretskort CÅ-8006
+1          Eprom-krets med monitorprogram ECBUG
+           (6809) eller FOBUG (6808) och lista.
