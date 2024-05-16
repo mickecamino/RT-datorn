@@ -6,7 +6,7 @@ C3         1 nF keramisk
 D1         lysdiod
 D2-4       1N4148
 DS1-6      indikator sjusegments lysdiodtyp
-IC1        MM74C923 (NS)
+IC1        MM74C917 (NS)
 IC2        74LS138
 IC3        MM74C923 (NS)
 IC4        74LS00
