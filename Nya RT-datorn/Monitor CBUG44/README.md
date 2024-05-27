@@ -48,14 +48,6 @@ En snabbfix finns här: [https://github.com/Arakula/A09/pull/14/files]
 
 Om koden kompileras i FLEX ASMB:  
 Kommandot: ```ASMB,cbug44.src,+SGN```
-Den skarpögde kan notera att den genererade listan från ASMB på raderna 160, 1077 och 1888 har ett > tecken framför, detta är ASMB som markerar att man kan optimera koden.  
-Saxat ur manualen FLEX Assembler:  
-EXCESSIVE BRANCH OR JUMP INDICATOR  
-A mechanism has been included in the assembler to inform the programmer  
-when a long branch or jump could be replaced by a short branch. The  
-purpose is to allow size and speed optimization of the final code. This  
-indicator is a greater-than sign placed just before the address of the  
-long branch or jump instruction which could be shortened.  
 
 ## Ändringa gjorda i CBUG 4.4
 För att ladda FLEX 9.1 från kort 836 har en FLEX Loader lagts till i CBUG'en. Denna loader hämtar FLEX 9.1 från position $0000 på kort 836. Loadern är i stort sett samma loader som finns på FLEX floppy.

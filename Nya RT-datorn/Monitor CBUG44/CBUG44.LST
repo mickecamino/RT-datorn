@@ -1,0 +1,2022 @@
+   1                               NAM    CBUG4.4
+   2                       FILCHR  TEXT   $FF       * TA BORT OM ASMB SKA ANV[NDAS
+   3                       *
+   4                       * EPROM MONITOR OCH TERMINALPROGRAM
+   5                       *
+   6                       * COPYRIGHT C]-ELEKTRONIK AB
+   7                       *           BOX 2010
+   8                       *           135 02 TYRES\  SWEDEN
+   9                       *
+  10                       *
+  11                       * AV ]KE HOLM 1983-01-04  :45
+  12                       * REV 3 831108
+  13                       *
+  14                       * MODIFIERAT AV MIKAEL KARLSSON
+  15                       * 2024-05-06
+  16                       * REV 4
+  17                       *
+  18                       * COMMANDS IN CBUG4.3
+  19                       *
+  20                       * @ VARMSTART I FLEX 9.0
+  21                       * B DISPLAY BREAKPOINTS
+  22                       * C CONTINUE
+  23                       * D DUMPA I HEX OCH ASCII 16 BYTES/RAD
+  24                       * E EXTENDED INSTRUKTIONSS\KNING
+  25                       * F G] TILL MINIDISK-BOOT F\R FLEX 9.0
+  26                       * G G] TILL PROGRAMADRESS OCH EXEKVERA
+  27                       * H BER[KNA CHECKSUMMA AAAA-BBBB
+  28                       * I [NDRA REGISTREN P] ANV[NDARSTACKEN
+  29                       * J G] TILL SUBRUTIN OCH SKRIV UT REGISTREN
+  30                       * K KOPIERA MINNESINNEH]LL
+  31                       * L LADDA FLEX 9.6 FR]N EPROM
+  32                       * M MINNESMANIPULERING
+  33                       * O FYLL ETT VISST MINNESBLOCK MED EN BYTE
+  34                       * PL LADDA FR]N PROMKORT
+  35                       * PH BER[KNA CHECKSUMMA P] PROMKORT
+  36                       * PR LOOP P] PROMKORT
+  37                       * Q M[T RAM-STORLEKEN
+  38                       * R PRINTA REGISTREN
+  39                       * S S\K 2 BYTES ADRESS
+  40                       * U TA BORT BREAKPOINTS
+  41                       * V S[TT IN BREAKPOINTS MAX 5 ST
+  42                       * W MINNESTEST
+  43                       * X LADDA FLEX 9.1 FR]N EPROM-KORT 836
+  44                       * Y VERIFIERING
+  45                       * Z DUMPA I HEX OCH ASCII 16 BYTES/RAD P] PRINTERN
+  46                       *
+  47                       *
+  48                       ****************************************
+  49                       *
+  50                       * PORTAR OCH PERIFERIKRETSAR
+  51                       *
+  52                       ****************************************
+  53                       *
+  54                       * KORT C]-813B
+  55                       *
+  56  E000                 PCIDR   EQU    $E000     SERIEKRETS 2651
+  57  E001                 PCISR   EQU    $E001
+  58  E002                 PCIMR   EQU    $E002
+  59  E003                 PCICR   EQU    $E003
+  60                       *
+  61  E008                 KLOCKA  EQU    $E008
+  62                       *   PA0-3 UT ADRESSVAL
+  63                       *   PA7   UT 1=READ
+  64                       * $E009  CA2   HOLD
+  65                       * $E00A  PB0-3 IN (UT) DATA
+  66                       * $E00B  CB1 IN INTERRUPT 1/60 HZ
+  67                       *        CB2 UT WRITE
+  68                       *
+  69  E00C                 PRIPIA  EQU    $E00C     PIA F\R PRINTER
+  70                       *
+  71                       * KORT C]-817
+  72                       *
+  73  E010                 FLOPPY  EQU    $E010
+  74  E018                 COMREG  EQU    $E018
+  75                       *
+  76                       * KORT C]-816
+  77                       *
+  78  E0B0                 EPROM0  EQU    $E0B0
+  79                       *
+  80                       * KORT C]-815 TERMINAL
+  81                       *
+  82  E0F8                 CRTREG  EQU    $E0F8
+  83  E0F9                 CRTC    EQU    $E0F9
+  84  E0FC                 PIAKBD  EQU    $E0FC
+  85  E0FD                 PIAKBC  EQU    PIAKBD+1
+  86  E0FE                 PIAKD   EQU    PIAKBD+2
+  87  E0FF                 PIAKC   EQU    PIAKBD+3
+  88                       *
+  89                       *
+  90  0085                 SKIP1   EQU    $85       SKIPPAR 1 INSTRUKTION
+  91  008C                 SKIP2   EQU    $8C       SKIPPAR 2 BYTE INSTR
+  92  E100                 E100    EQU    $E100
+  93  F000                 F000    EQU    $F000
+  94                       *
+  95                       ****************************************
+  96                       *
+  97                       * RAM F\R VARIABLER OCH STACK
+  98                       *
+  99                       ****************************************
+ 100                       *
+ 101  E3FF                 STACK   EQU    $E100+$2FF
+ 102                       *
+ 103                               ORG    E100
+ 104                       *
+ 105                       * PSEUDOSTACK
+ 106                       *
+ 107  E100                 STRAD   RMB    1
+ 108  E101                 SIRQR   RMB    2         IRQ VEKTOR
+ 109  E103                 SWI1R   RMB    2
+ 110  E105                 SWI2R   RMB    2
+ 111  E107                 SWI3R   RMB    2
+ 112  E109                 USECC   RMB    1
+ 113  E10A                 USEA    RMB    1
+ 114  E10B                 USEB    RMB    1
+ 115  E10C                 USEDP   RMB    1
+ 116  E10D                 USEX    RMB    2
+ 117  E10F                 USEY    RMB    2
+ 118  E111                 USEU    RMB    2
+ 119  E113                 USEPC   RMB    2
+ 120  E115                 USESP   RMB    2         USER STACKPOINTER VALUE
+ 121  E117                 SLASK   RMB    2
+ 122                       *
+ 123  E119                 VFLAG   RMB    1         NUMBER OF BREAKPOINTS
+ 124  E11A                 BPTAB   RMB    15        TABELL F\R BREAKPOINTS
+ 125  E129                 BYTECT  RMB    1         LOAD & PUNCH
+ 126  E12A                 MCONT   RMB    1
+ 127  E12B                 TEMP    RMB    2         TEMP MEMORY
+ 128  E12D                 BEGA    RMB    2         STARTADRESS VID DUMP MM
+ 129  E12F                 ENDA    RMB    2         STOPPADRESS VID DUMP MM
+ 130  E131                 TILL    RMB    2         HJ[LPCELL VID KOP VER OCH MEM CHG
+ 131  E133                 CKTMP   RMB    2
+ 132  E135                 PEKARE  RMB    2         AKTUELL LEDIG BILDPOSITION
+ 133  E137                 PIXBEG  RMB    2         START AV VIDEOMINNE
+ 134  E139                 CURPOS  RMB    2         ADRESS F\R CURSORN
+ 135  E13B                 ROLADR  RMB    2         STARTADRESS VID SCROLL
+ 136  E13D                 CURTMP  RMB    2
+ 137  E13F                 PEKTMP  RMB    2
+ 138  E141                 PIXEND  RMB    2         SISTA POS AV VIDEOMINNET
+ 139  E143                 CURRAM  RMB    2
+ 140  E145                 TTEMMP  RMB    2         XTEMP
+ 141  E147                 POSPEK  RMB    2         NY PEKARE VID CURSORPOS
+ 142  E149                 ALFLOK  RMB    1         ALFA LOCK FLAGGA
+ 143                       *
+ 144  E14A                 TERAMA  EQU    *
+ 145  E14A                 HPOS    RMB    1         HORISONTALPOSITION 0-39
+ 146  E14B                 PRIFLG  RMB    1         OUT TO PRINTER
+ 147  E14C                 EXCFLG  RMB    1         FLAGGA F\R SPECIALBOKST[VER
+ 148  E14D                 CURFLG  RMB    1         FLAGGA F\R CURSOR
+ 149  E14E                 ROLFLG  RMB    1         O= SCROLL EJ B\RJAT
+ 150  E14F                 CURPFL  RMB    1
+ 151  E150                 ESCFLG  RMB    1
+ 152  E151                 CUSFLG  RMB    1
+ 153  E152                 PAGFLG  RMB    1
+ 154  E153                 HPOSTM  RMB    1
+ 155  E154                 TERAMZ  EQU    *
+ 156                       *
+ 157  E800                 PIX     EQU    $E800
+ 158  EFFF                 PIXSLU  EQU    $EFFF
+ 159  0018                 RADER   EQU    24
+ 160                       *
+ 161                               ORG    F000
+ 162                       *
+ 163  F000 7EF346          INKEY   JMP    INKEY0
+ 164  F003 7EF33D          INCHK   JMP    INCHK0
+ 165  F006 7EF01E          OUTCRT  JMP    OUTCR0
+ 166  F009 7EF886          INCHA   JMP    INCHA0    ONLY VERSALER
+ 167  F00C 7EF82D          MONITOR JMP    CONTRL
+ 168  F00F 7EF969                  JMP    PDATA
+ 169  F012 7EF91B                  JMP    OUT2HS
+ 170  F015 7EF919                  JMP    OUT4HS
+ 171  F018 7EF95E                  JMP    PCRLF
+ 172  F01B 7EF93E                  JMP    PRIOUT
+ 173                       *
+ 174                       ****************************************
+ 175                       * LIB 1.C815TERM
+ 176                       *
+ 177                       * --------------
+ 178                       * REV 16 831108 ]H
+ 179                       *
+ 180                       ****************************************
+ 181  0050                 LLENGD  EQU    80
+ 182                       *
+ 183  F01E 4D              OUTCR0  TSTA             IGNORE NULLS
+ 184  F01F 2601                    BNE    OUTCR1
+ 185  F021 39                      RTS
+ 186                       *
+ 187  F022 3476            OUTCR1  PSHS   A,B,X,U,Y SAVE INHOPPSADRESS
+ 188  F024 F6E14A                  LDB    HPOS
+ 189  F027 FEE139                  LDU    CURPOS
+ 190  F02A 7DE14F                  TST    CURPFL    CURSORPOS ?
+ 191  F02D 2705                    BEQ    OUT10
+ 192  F02F 1702AE                  LBSR   POS500    COLUMN ADRESS
+ 193  F032 202D                    BRA    OUT090
+ 194                       *
+ 195                       *
+ 196  F034 7DE150          OUT10   TST    ESCFLG    VAR F\REG ESCAPE
+ 197  F037 2711                    BEQ    OUT18
+ 198  F039 7FE150                  CLR    ESCFLG
+ 199  F03C 8140                    CMPA   #$40      OM ST\RRE = RADADRESS
+ 200  F03E 2505                    BLO    OUT15
+ 201  F040 170281                  LBSR   POS100
+ 202  F043 201C                    BRA    OUT090
+ 203                       *
+ 204  F045 8EF379          OUT15   LDX    #INTABE   ESCAPETABELL
+ 205  F048 2006                    BRA    OUT22
+ 206                       *
+ 207  F04A 7DE152          OUT18   TST    PAGFLG
+ 208  F04D 8EF3A0          OUT20   LDX    #INTAB
+ 209  F050 A184            OUT22   CMPA   ,X
+ 210  F052 2712                    BEQ    OUT30
+ 211  F054 3003                    LEAX   3,X
+ 212  F056 8CF3AF                  CMPX   #INTBND
+ 213  F059 26F5                    BNE    OUT22
+ 214  F05B 8120                    CMPA   #$20      SYNLIGT TECKEN ?
+ 215  F05D 2505                    BLO    OUT095
+ 216  F05F 8D0A                    BSR    OUT70
+ 217  F061 170124          OUT090  LBSR   DISCUR    DISPLAY CURSOR
+ 218  F064 35F6            OUT095  PULS   A,B,X,U,Y,PC
+ 219                       *
+ 220  F066 AD9801          OUT30   JSR    [1,X]     SUB F\R SPECIALARE
+ 221  F069 20F6                    BRA    OUT090
+ 222                       *
+ 223                       *
+ 224  F06B 7DE14C          OUT70   TST    EXCFLG
+ 225  F06E 2611                    BNE    OUT160
+ 226  F070 8EF363          OUT71   LDX    #EXCHTB   EXCHANGE TABELL F\R ][\ MM
+ 227  F073 A184            OUT110  CMPA   ,X        MATCH ?
+ 228  F075 2708                    BEQ    OUT150
+ 229  F077 3002                    LEAX   2,X       N[STA
+ 230  F079 8CF379                  CMPX   #EXTBND   SLUT P] TABELL ?
+ 231  F07C 26F5                    BNE    OUT110
+ 232  F07E 8C                      FCB    SKIP2
+ 233                       *
+ 234  F07F A601            OUT150  LDA    1,X       H[MTA NY KOD
+ 235  F081 3341            OUT160  LEAU   1,U       N[STA POSITION
+ 236  F083 FFE139                  STU    CURPOS
+ 237  F086 BEE135                  LDX    PEKARE
+ 238  F089 A780            OUT165  STA    0,X+      LAGRA P] SK[RMEN
+ 239  F08B 8CF000          OUT167  CMPX   #PIXSLU+1
+ 240  F08E 2603                    BNE    OUT170
+ 241  F090 8EE800                  LDX    #PIX
+ 242  F093 BFE135          OUT170  STX    PEKARE
+ 243  F096 5C                      INCB             N[STA HORISONTALPOS
+ 244  F097 C150                    CMPB   #LLENGD   SLUT P] RADEN
+ 245  F099 261F                    BNE    OUT200
+ 246  F09B 7FE14A                  CLR    HPOS
+ 247  F09E 7DE152                  TST    PAGFLG
+ 248  F0A1 2710                    BEQ    OUT180
+ 249  F0A3 BCE141                  CMPX   PIXEND
+ 250  F0A6 260B                    BNE    OUT180
+ 251  F0A8 FEE139                  LDU    CURPOS
+ 252  F0AB 33C8B0                  LEAU   -LLENGD,U
+ 253  F0AE FFE139                  STU    CURPOS
+ 254  F0B1 200F                    BRA    OUT280
+ 255                       *
+ 256  F0B3 7DE14E          OUT180  TST    ROLFLG
+ 257  F0B6 2705                    BEQ    OUT250
+ 258  F0B8 200B                    BRA    OUT300
+ 259                       *
+ 260  F0BA F7E14A          OUT200  STB    HPOS
+ 261  F0BD BCE141          OUT250  CMPX   PIXEND    SLUT P] BILDEN ?
+ 262  F0C0 2664                    BNE    OUT900
+ 263                       *
+ 264                       * UTANF\R BILDEN SCROLLA !
+ 265                       *
+ 266  F0C2 B7E14E          OUT280  STA    ROLFLG
+ 267  F0C5 1700D0          OUT300  LBSR   SCROLL
+ 268  F0C8 108E0050                LDY    #LLENGD   RADERA EN RAD
+ 269  F0CC 1700FC                  LBSR   ERAS20
+ 270  F0CF 7DE152                  TST    PAGFLG
+ 271  F0D2 2603                    BNE    OUT309
+ 272  F0D4 BFE141                  STX    PIXEND    NYTT V[RDE
+ 273  F0D7 39              OUT309  RTS
+ 274                       *
+ 275  F0D8 7DE152          LFEED   TST    PAGFLG    SIDMODE ?
+ 276  F0DB 270E                    BEQ    LFED01    NIX
+ 277  F0DD 33C850                  LEAU   LLENGD,U
+ 278  F0E0 11B3E141                CMPU   PIXEND
+ 279  F0E4 250D                    BLO    LFED08
+ 280  F0E6 33C8B0                  LEAU   -LLENGD,U
+ 281  F0E9 2008                    BRA    LFED08
+ 282                       *
+ 283  F0EB 7DE14E          LFED01  TST    ROLFLG
+ 284  F0EE 2700                    BEQ    LFED02
+ 285  F0F0 33C850          LFED02  LEAU   LLENGD,U  INCREMENT CURSOR
+ 286  F0F3 FFE139          LFED08  STU    CURPOS
+ 287  F0F6 BEE135                  LDX    PEKARE
+ 288  F0F9 C650                    LDB    #LLENGD
+ 289  F0FB 3001            LFED12  LEAX   1,X       INCR PEKARE
+ 290  F0FD 8CF000                  CMPX   #PIXSLU+1
+ 291  F100 2603                    BNE    LFED14
+ 292  F102 8EE800                  LDX    #PIX
+ 293  F105 BCE141          LFED14  CMPX   PIXEND
+ 294  F108 2619                    BNE    LFED16
+ 295  F10A 7DE152                  TST    PAGFLG    PAGEMOD ?
+ 296  F10D 270C                    BEQ    LFED15
+ 297  F10F 3410                    PSHS   X
+ 298  F111 170097                  LBSR   SCRL50
+ 299  F114 3510                    PULS   X
+ 300  F116 3088B0                  LEAX   -LLENGD,X
+ 301  F119 2008                    BRA    LFED16
+ 302                       *
+ 303  F11B 3414            LFED15  PSHS   B,X
+ 304  F11D 8D07                    BSR    OUT900    SCROLLA
+ 305  F11F 8DA1                    BSR    OUT280
+ 306  F121 3514                    PULS   B,X
+ 307  F123 5A              LFED16  DECB
+ 308  F124 26D5                    BNE    LFED12
+ 309  F126 BFE135          OUT900  STX    PEKARE    SPARA POSITIONEN
+ 310  F129 39              OUT990  RTS
+ 311                       *
+ 312  F12A BEE135          CARR    LDX    PEKARE
+ 313  F12D 5D                      TSTB             KOLLA OM REDAN I V[NSTERKANTEN
+ 314  F12E 2719                    BEQ    CAR100
+ 315  F130 3404                    PSHS   B         SPARA HPOS
+ 316  F132 335F            CARR20  LEAU   -1,U      DECREMENT CURPOS
+ 317  F134 5A                      DECB             B G]NGER
+ 318  F135 26FB                    BNE    CARR20
+ 319  F137 FFE139                  STU    CURPOS
+ 320  F13A 3504                    PULS   B         ]TERTAG HPOS
+ 321  F13C 301F            CARR30  LEAX   -1,X      BACKA TILL V[NSTERKANTEN
+ 322  F13E 8CE7FF                  CMPX   #PIX-1
+ 323  F141 2603                    BNE    CARR50
+ 324  F143 8EEFFF                  LDX    #PIXSLU
+ 325  F146 5A              CARR50  DECB
+ 326  F147 26F3                    BNE    CARR30
+ 327  F149 F7E14A          CAR100  STB    HPOS
+ 328  F14C 20D8            CAR900  BRA    OUT900
+ 329                       *
+ 330                       *
+ 331  F14E BEE135          BACKSP  LDX    PEKARE
+ 332  F151 8620                    LDA    #$20      SPACEKOD
+ 333  F153 A782            BACK10  STA    0,-X
+ 334  F155 335F            BACK12  LEAU   -1,U      DECREMENT CURSOR
+ 335  F157 FFE139                  STU    CURPOS
+ 336  F15A 5A                      DECB
+ 337  F15B 2B03                    BMI    BACK70
+ 338  F15D 16FF5A                  LBRA   OUT200
+ 339                       *
+ 340  F160 C64F            BACK70  LDB    #LLENGD-1 NOLLA HPOS
+ 341  F162 F7E14A                  STB    HPOS
+ 342  F165 7FE14E                  CLR    ROLFLG
+ 343  F168 BFE135                  STX    PEKARE
+ 344  F16B BEE137                  LDX    PIXBEG
+ 345  F16E 301F                    LEAX   -1,X
+ 346  F170 BCE135                  CMPX   PEKARE
+ 347  F173 2612                    BNE    BELRTS    EJ F\R L]NGT BAK]T
+ 348  F175 BEE141                  LDX    PIXEND
+ 349  F178 BFE139                  STX    CURPOS
+ 350  F17B 20CF                    BRA    CAR900
+ 351                       *
+ 352                       *
+ 353  F17D 8634            BELL00  LDA    #$34
+ 354  F17F B7E0FD                  STA    PIAKBC
+ 355  F182 863C                    LDA    #$3C
+ 356  F184 B7E0FD                  STA    PIAKBC
+ 357  F187 39              BELRTS  RTS
+ 358                       *
+ 359  F188 CEE139          DISCUR  LDU    #CURPOS
+ 360  F18B 860E                    LDA    #14       REGISTER NR
+ 361  F18D E6C0            DISCU5  LDB    0,U+      GET CURSOR POSITION
+ 362                       *
+ 363                       * LAGRA I CRTC
+ 364                       *
+ 365  F18F 8D03            STOCRT  BSR    STDCRT
+ 366  F191 4C                      INCA
+ 367  F192 E6C4                    LDB    ,U        GET ADRESS FROM RAM
+ 368  F194 FDE0F8          STDCRT  STD    CRTREG
+ 369  F197 39                      RTS
+ 370                       *
+ 371  F198 7DE152          SCROLL  TST    PAGFLG
+ 372  F19B 260E                    BNE    SCRL50    INDEXFIX OM PAGE-MOD
+ 373  F19D CEE137                  LDU    #PIXBEG
+ 374  F1A0 AEC4                    LDX    ,U
+ 375  F1A2 308850                  LEAX   LLENGD,X
+ 376  F1A5 AFC4                    STX    ,U        STORE NEW STARTADRESS
+ 377  F1A7 860C            STOPIX  LDA    #12
+ 378  F1A9 20E2                    BRA    DISCU5
+ 379                       *
+ 380  F1AB BEE13B          SCRL50  LDX    ROLADR    H[MTA START AV PIX
+ 381  F1AE A68850          SCRL60  LDA    LLENGD,X
+ 382  F1B1 A780                    STA    0,X+
+ 383  F1B3 BCE141                  CMPX   PIXEND
+ 384  F1B6 26F6                    BNE    SCRL60
+ 385  F1B8 3088B0                  LEAX   -LLENGD,X
+ 386  F1BB 108E0050                LDY    #LLENGD
+ 387  F1BF 2007                    BRA    ERAS10
+ 388                       *
+ 389                       *
+ 390  F1C1 108E0800        ERASE   LDY    #$800     ANTAL TECKEN P] SK[RMEN
+ 391  F1C5 8EE800                  LDX    #PIX      B\RJAN AV MINNET
+ 392  F1C8 BFE135          ERAS10  STX    PEKARE
+ 393  F1CB BEE135          ERAS20  LDX    PEKARE    H[MTA ADRESS
+ 394  F1CE 8620            ERAS50  LDA    #$20      SPACEKOD
+ 395  F1D0 A780            ERA100  STA    0,X+      L[GG UT
+ 396  F1D2 8CF000                  CMPX   #PIXSLU+1 UTANF\R MINNET ?
+ 397  F1D5 2603                    BNE    ERA200
+ 398  F1D7 8EE800                  LDX    #PIX      B\RJA FR]N B\RJAN
+ 399  F1DA 313F            ERA200  LEAY   -1,Y      DECREMENTA ANTALET
+ 400  F1DC 26F2                    BNE    ERA100
+ 401  F1DE 39                      RTS
+ 402                       *
+ 403  F1DF BEE135          EROLIN  LDX    PEKARE
+ 404  F1E2 8620                    LDA    #$20      SPACE
+ 405  F1E4 A780            EROLI5  STA    0,X+
+ 406  F1E6 5C                      INCB             SLUT P] RAD
+ 407  F1E7 C150                    CMPB   #LLENGD
+ 408  F1E9 26F9                    BNE    EROLI5
+ 409  F1EB 39                      RTS
+ 410                       *
+ 411  F1EC B7E152          PAGE    STA    PAGFLG
+ 412                       *
+ 413  F1EF 8EE800          RESPIX  LDX    #PIX      ]TERST[LL BILDEN
+ 414  F1F2 C606                    LDB    #6
+ 415  F1F4 CEE135                  LDU    #PEKARE
+ 416  F1F7 AFC1            RPIX10  STX    0,U++
+ 417  F1F9 5A                      DECB
+ 418  F1FA 26FB                    BNE    RPIX10
+ 419  F1FC 8618                    LDA    #RADER    FIXA PIXEND
+ 420  F1FE 308850          RPIX20  LEAX   LLENGD,X
+ 421  F201 4A                      DECA
+ 422  F202 26FA                    BNE    RPIX20
+ 423  F204 BFE141                  STX    PIXEND    INNEH]LLER NU PIXEND+1920
+ 424  F207 CEE137                  LDU    #PIXBEG
+ 425  F20A 8D9B                    BSR    STOPIX
+ 426  F20C 108E0800                LDY    #2048
+ 427  F210 8DB9                    BSR    ERAS20
+ 428  F212 8EE14A                  LDX    #TERAMA
+ 429  F215 6F80            RPIX70  CLR    0,X+
+ 430  F217 8CE154                  CMPX   #TERAMZ
+ 431  F21A 26F9                    BNE    RPIX70
+ 432  F21C 39                      RTS
+ 433                       *
+ 434  F21D                 CURLFT  EQU    *
+ 435  F21D BEE135                  LDX    PEKARE
+ 436  F220 301F                    LEAX   -1,X
+ 437  F222 7EF155                  JMP    BACK12
+ 438                       *
+ 439  F225                 CURRIG   EQU   *
+ 440  F225 BEE135                  LDX    PEKARE
+ 441  F228 3001                    LEAX   1,X
+ 442  F22A 3341                    LEAU   1,U
+ 443  F22C FFE139                  STU    CURPOS
+ 444  F22F 7EF08B                  JMP    OUT167
+ 445                       *
+ 446  F232                 CURNER  EQU    *
+ 447  F232 BEE135                  LDX    PEKARE
+ 448  F235 33C850                  LEAU   LLENGD,U
+ 449  F238 11B3E141                CMPU   PIXEND
+ 450  F23C 2503                    BLO    CURN10
+ 451  F23E 33C8B0                  LEAU   -LLENGD,U
+ 452  F241 308850          CURN10  LEAX   LLENGD,X
+ 453  F244 BCE141                  CMPX   PIXEND
+ 454  F247 2503                    BLO    CURN20
+ 455  F249 3088B0                  LEAX   -LLENGD,X
+ 456  F24C FFE139          CURN20  STU    CURPOS
+ 457  F24F BFE135                  STX    PEKARE
+ 458  F252 39                      RTS
+ 459                       *
+ 460  F253                 CURUPP  EQU    *
+ 461  F253 BEE135                  LDX    PEKARE
+ 462  F256 3088B0                  LEAX   -LLENGD,X
+ 463  F259 BCE137                  CMPX   PIXBEG
+ 464  F25C 2203                    BHI    CURU10
+ 465  F25E 308850                  LEAX   LLENGD,X
+ 466  F261 33C8B0          CURU10  LEAU   -LLENGD,U
+ 467  F264 11B3E137                CMPU   PIXBEG
+ 468  F268 2203                    BHI    CURU20
+ 469  F26A 33C850                  LEAU   LLENGD,U
+ 470  F26D 39              CURU20  RTS
+ 471                       *
+ 472  F26E                 CURHOM  EQU    *
+ 473  F26E BEE137                  LDX    PIXBEG
+ 474  F271 BFE135                  STX    PEKARE
+ 475  F274 BFE139                  STX    CURPOS
+ 476  F277 39                      RTS
+ 477                       *
+ 478                       *
+ 479  F278 B7E150          SETESC  STA    ESCFLG
+ 480  F27B 39                      RTS
+ 481                       *
+ 482  F27C 7FE14C          BYTJO   CLR    EXCFLG
+ 483  F27F 39                      RTS
+ 484                       *
+ 485  F280 B7E14C          BYTNEJ  STA    EXCFLG
+ 486  F283 39                      RTS
+ 487                       *
+ 488  F284 CC0A20          CUROFF  LDD    #$0A20
+ 489  F287 FDE0F8          CUR099  STD    CRTREG
+ 490  F28A 39                      RTS
+ 491                       *
+ 492  F28B CC0A00          CURON1  LDD    #$0A00    T[ND
+ 493  F28E 2008                    BRA    CUR089
+ 494                       *
+ 495  F290 CC0A40          CURON2  LDD    #$0A40    FAST BLINK
+ 496  F293 2003                    BRA    CUR089
+ 497                       *
+ 498  F295 CC0A60          CURON3  LDD    #$0A60    SLOW BLINK
+ 499  F298 FDE143          CUR089  STD    CURRAM
+ 500  F29B 20EA                    BRA    CUR099
+ 501                       *
+ 502  F29D 8DE5            SAVEBL  BSR    CUROFF
+ 503                       *
+ 504  F29F BEE135          SAVEPO  LDX    PEKARE
+ 505  F2A2 BFE13F                  STX    PEKTMP
+ 506  F2A5 F7E153                  STB    HPOSTM
+ 507  F2A8 FFE13D                  STU    CURTMP
+ 508  F2AB 39                      RTS
+ 509                       *
+ 510  F2AC FCE143          RESTON  LDD    CURRAM
+ 511  F2AF 8DD6                    BSR    CUR099
+ 512                       *
+ 513  F2B1 BEE13D          RESTOR  LDX    CURTMP
+ 514  F2B4 BFE139                  STX    CURPOS
+ 515  F2B7 BEE13F                  LDX    PEKTMP
+ 516  F2BA BFE135                  STX    PEKARE
+ 517  F2BD F6E153                  LDB    HPOSTM
+ 518  F2C0 F7E14A                  STB    HPOS
+ 519  F2C3 39                      RTS
+ 520                       *
+ 521                       * CURSOR POSITIONERING
+ 522                       *
+ 523  F2C4 B7E14F          POS100  STA    CURPFL
+ 524  F2C7 B7F1EC                  STA    PAGE
+ 525  F2CA 8040                    SUBA   #$40
+ 526  F2CC 8117                    CMPA   #RADER-1
+ 527  F2CE 220F                    BHI    POS197
+ 528  F2D0 8EE800                  LDX    #PIX
+ 529  F2D3 4D              POS120  TSTA             RAD NOLL ?
+ 530  F2D4 2706                    BEQ    POS190
+ 531  F2D6 308850          POS130  LEAX   LLENGD,X  N[STA RAD
+ 532  F2D9 4A                      DECA
+ 533  F2DA 26FA                    BNE    POS130
+ 534  F2DC BFE147          POS190  STX    POSPEK
+ 535  F2DF 39              POS197  RTS
+ 536                       *
+ 537  F2E0 7FE14F          POS500  CLR    CURPFL
+ 538  F2E3 8030                    SUBA   #$30
+ 539  F2E5 8150                    CMPA   #LLENGD
+ 540  F2E7 240E                    BHS    POS900
+ 541  F2E9 B7E14A                  STA    HPOS
+ 542  F2EC BEE147                  LDX    POSPEK
+ 543  F2EF 3086                    LEAX   A,X
+ 544  F2F1 BFE135                  STX    PEKARE
+ 545  F2F4 BFE139          POS800  STX    CURPOS
+ 546  F2F7 39              POS900  RTS
+ 547                       *
+ 548  F2F8 7FE152          ROLMOD  CLR    PAGFLG
+ 549  F2FB 39                      RTS
+ 550                       *
+ 551                       *
+ 552  F2FC 8EE800          STRECK  LDX    #PIX
+ 553  F2FF B6E100                  LDA    STRAD
+ 554  F302 3402                    PSHS   A
+ 555  F304 8407                    ANDA   #7
+ 556  F306 4D                      TSTA
+ 557  F307 270F                    BEQ    STRE40
+ 558  F309 308850          STRE20  LEAX   LLENGD,X
+ 559  F30C 4A                      DECA
+ 560  F30D 26FA                    BNE    STRE20
+ 561  F30F C650                    LDB    #LLENGD
+ 562  F311 862D                    LDA    #'-
+ 563  F313 A780            STRE30  STA    0,X+
+ 564  F315 5A                      DECB
+ 565  F316 26FB                    BNE    STRE30
+ 566  F318 BFE135          STRE40  STX    PEKARE
+ 567  F31B BFE13B                  STX    ROLADR
+ 568  F31E BFE139                  STX    CURPOS
+ 569  F321 7FE14A                  CLR    HPOS
+ 570  F324 B7E152                  STA    PAGFLG
+ 571  F327 3502                    PULS   A
+ 572  F329 44                      LSRA
+ 573  F32A 44                      LSRA
+ 574  F32B 44                      LSRA
+ 575  F32C 44                      LSRA
+ 576  F32D 4D                      TSTA
+ 577  F32E 270C                    BEQ    STRRTS
+ 578  F330 BEE141                  LDX    PIXEND
+ 579  F333 3088B0          STRE50  LEAX   -LLENGD,X
+ 580  F336 4A                      DECA
+ 581  F337 26FA                    BNE    STRE50
+ 582  F339 BFE141                  STX    PIXEND
+ 583  F33C 39              STRRTS  RTS
+ 584                       *
+ 585                       *
+ 586                       ****************************************
+ 587                       *
+ 588                       * TANGENTBORDETS INTECKENRUTINER
+ 589                       *
+ 590                       ****************************************
+ 591                       *
+ 592  F33D 3402            INCHK0  PSHS   A
+ 593  F33F B6E0FD                  LDA    PIAKBC
+ 594  F342 8480                    ANDA   #$80
+ 595  F344 3582                    PULS   A,PC
+ 596                       *
+ 597  F346 3410            INKEY0  PSHS   X
+ 598  F348 8DF3            INKEY1  BSR    INCHK0
+ 599  F34A 27FC                    BEQ    INKEY1
+ 600  F34C B6E0FC                  LDA    PIAKBD
+ 601  F34F 847F                    ANDA   #$7F
+ 602  F351 3590            INKEY9  PULS   X,PC
+ 603                       *
+ 604                       *
+ 605                       * TABELL F\R INITIERING AV 6845
+ 606                       *
+ 607  F353 71              CRTA80  FCB    113       RO H TOTAL
+ 608  F354 50                      FCB    80        R1 H DISPLAYED
+ 609  F355 54                      FCB    $54       R2 H SYNC POS
+ 610  F356 08                      FCB    8         R3 H SYNC WIDTH
+ 611  F357 18                      FCB    24        R4 V TOTAL
+ 612  F358 0C                      FCB    12        R5 V SCAN ADJ
+ 613  F359 18                      FCB    24        R6V DISPLAYED
+ 614  F35A 18                      FCB    24        R7 V SYNC POS
+ 615  F35B 00                      FCB    0         R0 INTERLACED MODE
+ 616  F35C 0B                      FCB    11        R9 MAX SCAN LINE ADDRES
+ 617  F35D 00                      FCB    $00       R10 CURSOR START
+ 618  F35E 08                      FCB    08        R11 CURSOR END
+ 619  F35F E800                    FDB    $E800     R12-13 PIX
+ 620  F361 E800                    FDB    $E800     R14-15 CURSOR POS
+ 621                       *
+ 622                       * TABELL F\R KORRIGERING AV MCM66790 KODES
+ 623                       *
+ 624  F363 5B0B            EXCHTB  FDB    $5B0B
+ 625  F365 5C0C                    FDB    $5C0C
+ 626  F367 5D0D                    FDB    $5D0D
+ 627  F369 5E0E                    FDB    $5E0E
+ 628  F36B 7B1B                    FDB    $7B1B
+ 629  F36D 7C1C                    FDB    $7C1C
+ 630  F36F 7D1D                    FDB    $7D1D
+ 631  F371 7E1E                    FDB    $7E1E
+ 632  F373 2303                    FDB    $2303
+ 633  F375 4007                    FDB    $4007
+ 634  F377 6017                    FDB    $6017
+ 635  F379                 EXTBND  EQU    *
+ 636                       *
+ 637                       *
+ 638                       * ENDAST ESCAPE
+ 639                       *
+ 640  F379                 INTABE  EQU    *
+ 641  F379 01                      FCB    01
+ 642  F37A F1EC                    FDB    PAGE      HOME CLEAR
+ 643  F37C 02                      FCB    02
+ 644  F37D F28B                    FDB    CURON1    CURSOR ON
+ 645  F37F 03                      FCB    03
+ 646  F380 F290                    FDB    CURON2    CURSOR BLINK ON
+ 647  F382 04                      FCB    04
+ 648  F383 F295                    FDB    CURON3    SLOW CURSOR BLINK ON
+ 649  F385 05                      FCB    05
+ 650  F386 F1EF                    FDB    RESPIX
+ 651  F388 10                      FCB    $10
+ 652  F389 F2F8                    FDB    ROLMOD
+ 653  F38B 11                      FCB    $11
+ 654  F38C F2FC                    FDB    STRECK
+ 655  F38E 15                      FCB    $15
+ 656  F38F F284                    FDB    CUROFF
+ 657  F391 16                      FCB    $16       RESTORE
+ 658  F392 F2B1                    FDB    RESTOR
+ 659  F394 17                      FCB    $17       RESTORE OCH T[ND
+ 660  F395 F2AC                    FDB    RESTON
+ 661  F397 18                      FCB    $18
+ 662  F398 F29D                    FDB    SAVEBL
+ 663  F39A 19                      FCB    $19
+ 664  F39B F29F                    FDB    SAVEPO
+ 665  F39D 1A                      FCB    $1A
+ 666  F39E F1DF                    FDB    EROLIN    ERASE END OF LINE
+ 667  F3A0                 INTAB   EQU    *
+ 668  F3A0 07                      FCB    $07
+ 669  F3A1 F17D                    FDB    BELL00
+ 670  F3A3 08                      FCB    $08
+ 671  F3A4 F14E                    FDB    BACKSP
+ 672  F3A6 0A                      FCB    $0A
+ 673  F3A7 F0D8                    FDB    LFEED
+ 674  F3A9 0D                      FCB    $0D
+ 675  F3AA F12A                    FDB    CARR
+ 676  F3AC 1B                      FCB    $1B
+ 677  F3AD F278                    FDB    SETESC
+ 678  F3AF                 INTBND  EQU    *
+ 679                       *
+ 680  F3AF 53                      FCB    CURUPP
+ 681  F3B0 FF                      FCB    $FF
+ 682  F3B1 32                      FCB    CURNER
+ 683  F3B2 FF                      FCB    $FF
+ 684  F3B3 1D                      FCB    CURLFT
+ 685  F3B4 FF                      FCB    $FF
+ 686  F3B5 25                      FCB    CURRIG
+ 687  F3B6 FF                      FCB    $FF
+ 688  F3B7 6E                      FCB    CURHOM
+ 689  F3B8 FF                      FCB    $FF
+ 690                       *
+ 691  F3B9 0D0A            TEXT01  FCB    $D,$A
+ 692  F3BB 43425547342E34          FCC    'CBUG4.4'
+ 693  F3C2 0D0A2404        TEXT02  FCB    $D,$A,'$,4
+ 694                       *
+ 695  F3C6 0D0A04          TEXT05  FCB    $D,$A,4
+ 696                       *
+ 697  F3C9 53746172742053  TEXT07  FCC    'Start Slut Till'
+ 698  F3D8 0D0A3E04                FCB    $D,$A,'>,4
+ 699                       *
+ 700  F3DC 456A207B6E6472  TEXT08  FCC    'Ej {ndrat:'
+ 701  F3E6 04                      FCB    4
+ 702                       *
+ 703  F3E7 53746172742053  TEXT09  FCC    'Start Slut'
+ 704  F3F1 0D0A3E04                FCB    $D,$A,'>,4
+ 705                       *
+ 706  F3F5 427974653A      TEXT10  FCC    'Byte:'
+ 707  F3FA 04                      FCB    4
+ 708                       *
+ 709  F3FB 436B736D3A      TEXT11  FCC    'Cksm:'
+ 710  F400 04                      FCB    4
+ 711                       *
+ 712  F401 4164726573733A  TEXT15  FCC    'Adress:'
+ 713  F408 04                      FCB    4
+ 714                       *
+ 715  F409 52616D20736C75  TEXT16  FCC    'Ram slut=$'
+ 716  F413 04                      FCB    4
+ 717                       *
+ 718  F414 202D20          TEXT17  FCC    ' - '
+ 719  F417 04                      FCB    4
+ 720                       *
+ 721  F418 203D3E20        TEXT18  FCC   ' => '
+ 722  F41C 04                      FCB    4
+ 723                       *
+ 724  F41D 205061737320    TEXT19  FCC     ' Pass '
+ 725  F423 04                      FCB    4
+ 726                       *
+ 727  F424 20426974732069  TEXT20  FCC    ' Bits in error:'
+ 728  F433 04                      FCB    4
+ 729                       *
+ 730  F434 37363534333231  TEXT21  FCC    '76543210'
+ 731                       *
+ 732  F43C 535749203A04    TEXT22  FCC    'SWI :',4
+ 733                       *
+ 734                       *
+ 735                       * KALLSTART
+ 736                       *
+ 737  F442                 KALST   EQU    *
+ 738  F442 10CEE3FF                LDS    #STACK
+ 739  F446 30E8EC                  LEAX   -20,S
+ 740  F449 BFE115                  STX    USESP
+ 741  F44C 8EFB71                  LDX    #RETINT
+ 742  F44F BFE101                  STX    SIRQR
+ 743  F452 BFE105                  STX    SWI2R
+ 744  F455 BFE107                  STX    SWI3R
+ 745  F458 8EF82D                  LDX    #CONTRL
+ 746  F45B BFE113                  STX    USEPC
+ 747  F45E BDFB03                  JSR    NOBRKP
+ 748  F461 7FE014                  CLR    FLOPPY+4  NOLLA DRIVEREG
+ 749                       *
+ 750                       * S[TT UPP PCI 2651
+ 751                       *
+ 752  F464 8EE000                  LDX    #PCIDR
+ 753  F467 A603                    LDA    3,X       nolla MR2
+ 754  F469 864E                    LDA    #$4E      8+1 stoppbit
+ 755  F46B A702                    STA    2,X
+ 756  F46D B6FFF0                  LDA    BAUDR     9600 baud standard
+ 757  F470 A702                    STA    2,X
+ 758  F472 8605                    LDA    #5
+ 759  F474 A703                    STA    3,X
+ 760                       *
+ 761                       * S[TT UPP KLOCKPIA
+ 762                       *
+ 763  F476 7FE009                  CLR    KLOCKA+1
+ 764  F479 7FE00B                  CLR    KLOCKA+3
+ 765  F47C CCFF34                  LDD    #$FF34    UT CA2 L]G
+ 766  F47F FDE008                  STD    KLOCKA
+ 767  F482 CC0034                  LDD    #$0034    UT CB2 L]G
+ 768  F485 FDE00A                  STD    KLOCKA+2
+ 769  F488 86FF                    LDA    #$FF      ENABLA PERIODISKT IRQ
+ 770  F48A B7E008                  STA    KLOCKA
+ 771                       *
+ 772                       * S[TT UPP PRINTERPIA
+ 773                       *
+ 774  F48D 7FE00D                  CLR    PRIPIA+1
+ 775  F490 7FE00F                  CLR    PRIPIA+3
+ 776  F493 CC0004          PINIT   LDD    #$0004
+ 777  F496 FDE00C                  STD    PRIPIA
+ 778  F499 CCFF3C                  LDD    #$FF3C
+ 779  F49C FDE00E                  STD    PRIPIA+2
+ 780                       *
+ 781                       * INITIERA KBD PIA
+ 782                       *
+ 783  F49F CC003C                  LDD    #$003C
+ 784  F4A2 FDE0FC                  STD    PIAKBD
+ 785  F4A5 CCFF04                  LDD    #$FF04
+ 786  F4A8 FDE0FE                  STD    PIAKBD+2
+ 787                       *
+ 788                       * INITIERA CRTC
+ 789                       *
+ 790  F4AB 8EF353                  LDX    #CRTA80
+ 791  F4AE 4F              SETC41  CLRA
+ 792  F4AF E680            SETC42  LDB    0,X+
+ 793  F4B1 FDE0F8                  STD    CRTREG
+ 794  F4B4 4C                      INCA
+ 795  F4B5 8110                    CMPA   #$10
+ 796  F4B7 26F6                    BNE    SETC42
+ 797  F4B9 BDF1EF                  JSR    RESPIX
+ 798  F4BC 7EF814                  JMP    START
+ 799                       *
+ 800                       * LADDRUTIN F\R FLEX 9.1
+ 801                       *
+ 802                       * BEGA OCH ENDA ]R BEFINTLIGA CBUG MINNESVARIABLER
+ 803                       * EPROM0 ]R DEFINIERAD I CBUG TILL $E0B0
+ 804                       *
+ 805  F4BF                 LDFLX   EQU     *
+ 806                       *
+ 807  F4BF 8E0000                  LDX     #$0000    START OF PROM IN C[-836
+ 808                       *
+ 809  F4C2 8D36            LOAD2   BSR     LESPRM    H[MTA 1 BYTE, L[GG I A
+ 810  F4C4 8102                    CMPA    #$02      [R DET 02? DVS. START OF RECORD?
+ 811  F4C6 2712                    BEQ     LESREC    JA; L[S D] IN RECORDET OCH DATA
+ 812  F4C8 8116                    CMPA    #$16      [R DET TRANSFER ADRESS?
+ 813  F4CA 26F6                    BNE     LOAD2     HOPPA \VER 00
+ 814  F4CC 8D2C                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN MSB
+ 815  F4CE B7E12D                  STA     BEGA      SPARA MSB
+ 816  F4D1 8D27                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN LSB
+ 817  F4D3 B7E12E                  STA     BEGA+1    SPARA LSB
+ 818  F4D6 6E9FE12D                JMP     [BEGA]    OCH HOPPA TILL STARTADRESSEN
+ 819                       *
+ 820                       * L[S FLEX FILE RECORD
+ 821                       *
+ 822  F4DA 8D1E            LESREC  BSR     LESPRM    H[MTA RAM-ADRESSEN MSB
+ 823  F4DC 1F89                    TFR     A,B       LAGRA I B
+ 824  F4DE 8D1A                    BSR     LESPRM    H[MTA RAM-ADRESSEN LSB
+ 825  F4E0 1E89                    EXG     A,B       V[ND P] DET S] DET BLIR R[TT
+ 826  F4E2 FDE12F                  STD     ENDA      SPARA I ENDA
+ 827  F4E5 8D13                    BSR     LESPRM    H[MTA ANTAL BYTES I RECORD
+ 828  F4E7 1F89                    TFR     A,B       LAGRA DET I B
+ 829                       *
+ 830                       * KLART MED FLEX FILE RECORD
+ 831                       * LADDA NU NER PROGRAMMET FR]N EPROM0 TILL RAM
+ 832                       *
+ 833  F4E9 8D0F            LESRCD2 BSR     LESPRM    H[MTA EN BYTE FR]N PROGRAMMET
+ 834  F4EB 10BEE12F                LDY     ENDA      VAR SKA DET SPARAS?
+ 835  F4EF A7A0                    STA     0,Y+      SPARA DET I MINNET, \KA Y
+ 836  F4F1 10BFE12F                STY     ENDA      SPARA N[STA ADRESS
+ 837  F4F5 5A                      DECB              [R VI NERE P] 0?
+ 838  F4F6 26F1                    BNE     LESRCD2   NEJ; FORTS[TT TILLS VI [R DET.
+ 839  F4F8 20C8                    BRA     LOAD2     JA, LETA EFTER FLER RECORDS
+ 840                       *
+ 841  F4FA BFE0B0          LESPRM  STX     EPROM0    L]GG UT ADRESS
+ 842  F4FD B6E0B0                  LDA     EPROM0    L[S DATA
+ 843  F500 3001                    INX               N[STA POS I PROMMET
+ 844  F502 39                      RTS               ]TERG]
+ 845                       *
+ 846                       ****************************************
+ 847                       *
+ 848                       * MONITORPROGRAM
+ 849                       *
+ 850                       ****************************************
+ 851                               ORG    F000+$800
+ 852                       *
+ 853                       * VECTORED ADDRESSES FOR INDIRECT JUMPS
+ 854                       * COMPATIBLE WITH SWTPC S-BUG
+ 855                       *
+ 856  F800 F814                    FDB    START
+ 857  F802 F82D                    FDB    CONTRL
+ 858  F804 F87E                    FDB    INCH
+ 859  F806 F877                    FDB    INCHE
+ 860  F808 F892                    FDB    INCHEK
+ 861  F80A F92F                    FDB    OUTCH
+ 862  F80C F969                    FDB    PDATA
+ 863  F80E F95E                    FDB    PCRLF
+ 864  F810 F967                    FDB    PSTRNG
+ 865  F812 F81C                    FDB    WARMST
+ 866  F814                 MON     EQU    *
+ 867  F814                 START   EQU    *
+ 868  F814 10CEE3F3                LDS    #STACK-12
+ 869  F818 10FFE115                STS    USESP
+ 870                       *
+ 871                       * PRINT HEADER
+ 872                       *
+ 873  F81C 10CEE3F3        WARMST  LDS    #STACK-12 RESTORE STACKPOINTER
+ 874  F820 8EF3B9                  LDX    #TEXT01   INITIERINGS STR[NG
+ 875  F823 86D8                    LDA    #$D8
+ 876  F825 B7E018                  STA    COMREG
+ 877  F828 B7E010                  STA    $E010     SHUT OFF MOTOR
+ 878  F82B 2007                    BRA    CONT20
+ 879                       *
+ 880                       * KONTROLLSLINGANS INHOPP
+ 881                       *
+ 882  F82D                 CONTRL  EQU    *
+ 883  F82D 10CEE3F3                LDS    #STACK-12
+ 884  F831 8EF3C2                  LDX    #TEXT02
+ 885  F834 BDF969          CONT20  JSR    PDATA
+ 886  F837 7FE14B                  CLR    PRIFLG
+ 887  F83A 7FE100                  CLR    STRAD
+ 888                       *
+ 889                       * TAG IN KOMMANDO I A-ACC
+ 890                       * S\K SEDAN ING]NG TILL
+ 891                       * BEG[RD RUTIN I KOMTAB
+ 892                       *
+ 893  F83D 8D38                    BSR    INCHE
+ 894  F83F 1F89                    TFR    A,B
+ 895  F841 BDF91D                  JSR    OUTS      BLANK
+ 896  F844 C160                    CMPB   #$60      SM] BOKST[VER BLIR STORA
+ 897  F846 2502                    BLO    CONT50
+ 898  F848 C020                    SUBB   #$20
+ 899                       *
+ 900  F84A C03F            CONT50  SUBB   #$3F      CHECK IF VALID CHARACTER
+ 901  F84C 23DF                    BLS    CONTRL    FEL D] B<@
+ 902  F84E C11F                    CMPB   #$1F
+ 903  F850 22DB                    BHI    CONTRL    FEL D] B VAR >^
+ 904  F852 58                      ASLB             MULT MED 2
+ 905                       *
+ 906                       * INMATAT TECKEN OMGJORD TILL ADRESS
+ 907                       * I KOMMANDOTABELLEN
+ 908                       *
+ 909  F853 8EFF72                  LDX    #KOMTAB-2
+ 910  F856 AD95                    JSR    [B,X]     GO AND WORK
+ 911  F858 20D3                    BRA    CONTRL    RETURN TO MAIN LOOP
+ 912                       *
+ 913                       * Mata ut ett tecken till PCI 2651
+ 914                       *
+ 915  F85A                 PCIOUT  EQU    *
+ 916  F85A F6E001                  LDB    PCISR
+ 917  F85D C540                    BITB   #$40
+ 918  F85F 2707                    BEQ    PCIOU9    no DCD
+ 919  F861 C501                    BITB   #1
+ 920  F863 27F5                    BEQ    PCIOUT
+ 921  F865 B7E000                  STA    PCIDR
+ 922  F868 39              PCIOU9  RTS
+ 923                       *
+ 924                       * Ta in ett tecken fr]n PCI 2651
+ 925                       *
+ 926  F869                 PCIIN   EQU    *
+ 927  F869 3404                    PSHS   B
+ 928  F86B F6E001          PCIIN1  LDB    PCISR
+ 929  F86E C502                    BITB   #2
+ 930  F870 27F9                    BEQ    PCIIN1
+ 931  F872 B6E000                  LDA    PCIDR     tecken
+ 932  F875 3584                    PULS   B,PC
+ 933                       *
+ 934                       *
+ 935                       * RUTINER F\R ATT H[MTA IN TECKEN I A-ACK
+ 936                       *
+ 937  F877 8D05            INCHE   BSR    INCH      GET INPUT CHARACTER
+ 938  F879 847F                    ANDA   #$7F      IGNORE PARITY
+ 939  F87B 7EF92F          OUTCHI  JMP    OUTCH
+ 940                       *
+ 941  F87E 7DFFF1          INCH    TST    SERIE
+ 942  F881 26E6                    BNE    PCIIN
+ 943  F883 7EF000                  JMP    INKEY
+ 944                       *
+ 945  F886 8DF6            INCHA0  BSR    INCH      GET TECKEN
+ 946  F888 847F                    ANDA   #$7F      NO PARITY
+ 947  F88A 8160                    CMPA   #$60
+ 948  F88C 2502                    BLO    INCHA9
+ 949  F88E 8020                    SUBA   #$20
+ 950  F890 20E9            INCHA9  BRA    OUTCHI
+ 951                       *
+ 952                       *
+ 953                       * TEST IF INPUT CHARACTER
+ 954                       * Z=1 NO Z=0 YES
+ 955                       *
+ 956  F892 3402            INCHEK  PSHS   A
+ 957  F894 B6E0FD                  LDA    PIAKBC    CHECKA FLAGGAN
+ 958  F897 8480                    ANDA   #$80
+ 959  F899 3582            INCK90  PULS   A,PC
+ 960                       *
+ 961                       * TAG IN HEXADECIMALT TECKEN.
+ 962                       * OMVANDLA ASCII 0-9,A-F TILL BIN[RT
+ 963                       * 0-F
+ 964                       *
+ 965  F89B 8DDA            INHEX   BSR    INCHE
+ 966  F89D 1CFD            INHEX2  CLV
+ 967  F89F 8030                    SUBA   #$30
+ 968  F8A1 2B11                    BMI    INHEX9    HOPPA OM EJ HEX
+ 969  F8A3 8109                    CMPA   #$09
+ 970  F8A5 2F0C                    BLE    IN1HG     DECIMALT ?
+ 971  F8A7 84DF                    ANDA   #$DF
+ 972  F8A9 8111                    CMPA   #$11
+ 973  F8AB 2B07                    BMI    INHEX9    HOPPA OM EJ HEX
+ 974  F8AD 8116                    CMPA   #$16
+ 975  F8AF 2E03                    BGT    INHEX9    HOPPA OM EJ HEX
+ 976  F8B1 8007                    SUBA   #$7
+ 977  F8B3 39              IN1HG   RTS
+ 978                       *
+ 979  F8B4 1A02            INHEX9  SEV              SET FLAG TO INDICATE NON HEX
+ 980  F8B6 39                      RTS
+ 981                       *
+ 982                       * TAG IN TV] TECKEN. G\R EN DATA BYTE
+ 983                       *
+ 984  F8B7 8DE2            BYTE    BSR    INHEX     HEXADECIMALT TECKEN
+ 985  F8B9 29F9                    BVS    INHEX9
+ 986  F8BB 48              BYTE2   ASLA
+ 987  F8BC 48                      ASLA
+ 988  F8BD 48                      ASLA
+ 989  F8BE 48                      ASLA             HHHH 0000
+ 990  F8BF 1F89                    TFR    A,B
+ 991  F8C1 8DD8                    BSR    INHEX
+ 992  F8C3 29EF                    BVS    INHEX9
+ 993  F8C5 3404                    PSHS   B
+ 994  F8C7 ABE0                    ADDA   0,S+
+ 995  F8C9 1F89                    TFR    A,B
+ 996  F8CB 39                      RTS
+ 997                       *
+ 998                       * BYGG ADRESS I D & X
+ 999                       *
+1000  F8CC 8DE9            BADDR   BSR    BYTE      H\GSTA 8 BITARNA
+1001  F8CE 29E4                    BVS    INHEX9
+1002  F8D0 3402                    PSHS   A         MSB
+1003  F8D2 8DE3                    BSR    BYTE
+1004  F8D4 3502                    PULS   A         OCH MSB FINNS I A-ACK
+1005  F8D6 29DC                    BVS    INHEX9
+1006  F8D8 1F01                    TFR    D,X
+1007  F8DA 39                      RTS
+1008                       *
+1009  F8DB 8DEF            BADDRS  BSR    BADDR
+1010  F8DD 2912                    BVS    BEGRTS
+1011  F8DF 203C                    BRA    OUTS      SP+RTS
+1012                       *
+1013  F8E1 8DF8            BEGEND  BSR    BADDRS
+1014  F8E3 290C                    BVS    BEGRTS
+1015  F8E5 BFE12D                  STX    BEGA
+1016  F8E8 1F12                    TFR    X,Y
+1017  F8EA 8DEF            ENDADR  BSR    BADDRS
+1018  F8EC 2903                    BVS    BEGRTS
+1019  F8EE BFE12F          BEGSTX  STX    ENDA
+1020  F8F1 39              BEGRTS  RTS
+1021                       *
+1022  F8F2 8EF3E7          BEGENS  LDX    #TEXT09   "START SLUT"
+1023  F8F5 8D70                    BSR    PSTRNG
+1024  F8F7 8DE8                    BSR    BEGEND    FIXA START & STOPP
+1025  F8F9 29B9                    BVS    INHEX9    OM EJ HEX G] RTS
+1026  F8FB FCE12F                  LDD    ENDA
+1027  F8FE B3E12D                  SUBD   BEGA
+1028  F901 25EF                    BCS    BEGENS    ENDA M]STE VARA > BEGA
+1029  F903 39              OUTRTS  RTS
+1030                       *
+1031  F904 8DEC            BEGENT  BSR    BEGENS
+1032  F906 2904                    BVS    NONHEX
+1033  F908 3001                    LEAX   1,X
+1034  F90A 20E2                    BRA    BEGSTX
+1035                       *
+1036  F90C 3262            NONHEX  LEAS   2,S
+1037  F90E 39                      RTS
+1038                       *
+1039                       *
+1040  F90F A680            OUT2H   LDA    0,X+      PRINTA 2 HEX TECKEN
+1041  F911 3402            OUT2HT  PSHS   A
+1042  F913 8D0C            OUT2HU  BSR    OUTHL     OMVANDLA TILL ASCII
+1043  F915 3502                    PULS   A
+1044  F917 200C                    BRA    OUTHR     PRINTA H\GRE BYTE HALVAN
+1045                       *
+1046  F919 8DF4            OUT4HS  BSR    OUT2H     PRINTA 4 HEX TECKEN + BLANK
+1047  F91B 8DF2            OUT2HS  BSR    OUT2H     PRINTA 2 HEX TECKEN + BLANK
+1048  F91D 8620            OUTS    LDA    #$20      MELLANSLAG
+1049  F91F 200E                    BRA    OUTCH     (RETURN I OUTCH)
+1050                       *
+1051  F921 44              OUTHL   LSRA
+1052  F922 44                      LSRA
+1053  F923 44                      LSRA
+1054  F924 44                      LSRA
+1055                       *
+1056  F925 840F            OUTHR   ANDA   #$0F      MASKA BORT H\GRA DELEN
+1057  F927 8B30            OUTHZ   ADDA   #$030     TILLVERKA ASCII
+1058  F929 8139                    CMPA   #$39      ST\RRE [N 9
+1059  F92B 2302                    BLS    OUTCH
+1060  F92D 8B07                    ADDA   #$7       F\R A-F
+1061                       *
+1062                       * MATA UT ETT TECKEN FR]N A-ACC
+1063                       *
+1064  F92F 7DE14B          OUTCH   TST    PRIFLG
+1065  F932 260A                    BNE    PRIOUT
+1066  F934 7DFFF1                  TST    SERIE
+1067  F937 1026FF1F                LBNE   PCIOUT
+1068  F93B 7EF01E                  JMP    OUTCR0
+1069                       *
+1070  F93E 3402            PRIOUT  PSHS   A
+1071  F940 3402                    PSHS   A
+1072  F942 B6E00C          PRI02   LDA    PRIPIA
+1073  F945 2BFB                    BMI    PRI02
+1074  F947 3502                    PULS   A
+1075  F949 B7E00E                  STA    PRIPIA+2
+1076  F94C 8634                    LDA    #$34
+1077  F94E B7E00F                  STA    PRIPIA+3
+1078  F951 863C                    LDA    #$3C
+1079  F953 B7E00F                  STA    PRIPIA+3
+1080  F956 4A              PRI05   DECA
+1081  F957 26FD                    BNE    PRI05
+1082  F959 B6E00E                  LDA    PRIPIA+2
+1083  F95C 3582                    PULS   A,PC
+1084                       *
+1085                       *
+1086  F95E 3412            PCRLF   PSHS   X,A       SAVE POINTER & A-ACC
+1087  F960 8EF3C6                  LDX    #TEXT05   "CR + LF + 0"
+1088  F963 8D04                    BSR    PDATA
+1089  F965 3592                    PULS   X,A,PC    GET IT BACK
+1090                       *
+1091                       * SKRIV UT TEXT STR[NG.
+1092                       * X-REG PEKAR P] TECKEN.
+1093                       * AVSLUT MED 'EOT' (04).
+1094                       *
+1095  F967 8DF5            PSTRNG  BSR    PCRLF     SEND CR+LF FIRST
+1096                       *
+1097  F969 A680            PDATA   LDA    0,X+      H[MTA TECKEN
+1098  F96B 8104                    CMPA   #$04      'EOT'
+1099  F96D 2794                    BEQ    OUTRTS
+1100  F96F 8DBE                    BSR    OUTCH
+1101  F971 20F6                    BRA    PDATA
+1102                       *
+1103  F973 8D02            UTMIN   BSR    UTMIN3
+1104  F975 863D            UTMIN2  LDA    #'=
+1105  F977 20B6            UTMIN3  BRA    OUTCH
+1106                       *
+1107                       *
+1108                       * SKRIV UT STACKENS INNEH]LL
+1109                       *
+1110  F979                 PRREG   EQU    *
+1111  F979 8DE3                    BSR    PCRLF
+1112  F97B 8EE109          PRREG2  LDX    #USECC
+1113  F97E 8643                    LDA    #'C
+1114  F980 8DF1                    BSR    UTMIN
+1115  F982 8D97                    BSR    OUT2HS    CC
+1116                       *
+1117  F984 8641                    LDA    #'A
+1118  F986 8DEB                    BSR    UTMIN
+1119  F988 8D91                    BSR    OUT2HS    ACC-A
+1120                       *
+1121  F98A 8642                    LDA    #'B
+1122  F98C 8DE5                    BSR    UTMIN
+1123  F98E 8D8B                    BSR    OUT2HS    ACC-B
+1124                       *
+1125  F990 8644                    LDA    #'D
+1126  F992 8DDF                    BSR    UTMIN
+1127 >F994 BDF91B                  JSR    OUT2HS    DP-REG
+1128                       *
+1129  F997 8658                    LDA    #'X
+1130  F999 8DD8                    BSR    UTMIN
+1131  F99B 8D16                    BSR    OUT400    X-REG
+1132                       *
+1133  F99D 8659                    LDA    #'Y
+1134  F99F 8DD2                    BSR    UTMIN
+1135  F9A1 8D10                    BSR    OUT400    Y-REG
+1136                       *
+1137  F9A3 8655                    LDA    #'U
+1138  F9A5 8DCC                    BSR    UTMIN
+1139  F9A7 8D0A                    BSR    OUT400    U-REG
+1140                       *
+1141  F9A9 8650                    LDA    #'P
+1142  F9AB 8DC6                    BSR    UTMIN
+1143  F9AD 8D04                    BSR    OUT400    PC-REG
+1144                       *
+1145  F9AF 8653                    LDA    #'S
+1146  F9B1 8DC0                    BSR    UTMIN
+1147  F9B3 7EF919          OUT400  JMP    OUT4HS
+1148                       *
+1149                       *
+1150                       * H[R P] 'M' KOMMANDO.
+1151                       *
+1152                       * MEMORY CHANGE WITH SHORT AND LONG OFFSET CALCULATION
+1153                       *
+1154  F9B6 BDF8DB          CHANGE  JSR    BADDRS    BYGG ADRESS , PRINTA BLANK
+1155  F9B9 291B                    BVS    CHARTS
+1156  F9BB 1F12                    TFR    X,Y
+1157  F9BD BFE12D          CHANG   STX    BEGA
+1158  F9C0 BDF91B                  JSR    OUT2HS    PRINTA GAMLA INNEH]LLET
+1159  F9C3 BDF877                  JSR    INCHE
+1160  F9C6 812E                    CMPA   #'.       LINE FEED ERS[TTNING
+1161  F9C8 102700B9                LBEQ   LF
+1162  F9CC 812D                    CMPA   #'-       GO TO PREVIOUS LOCATION
+1163  F9CE 102700B0                LBEQ   CHOCON
+1164  F9D2 810D                    CMPA   #$0D      CR GO RTS
+1165  F9D4 2601                    BNE    CHA200
+1166  F9D6 39              CHARTS  RTS
+1167                       *
+1168  F9D7 8152            CHA200  CMPA   #'R       KORT RELATIV OFFSET
+1169  F9D9 2612                    BNE    CHA300
+1170  F9DB 3021                    LEAX   1,Y       PEKA P] "00" OFFSET
+1171  F9DD E6A4                    LDB    ,Y        H[MTA OFFSETV[RDE
+1172  F9DF 2A05                    BPL    CHA210    FRAM]T
+1173  F9E1 301F            CHA205  LEAX   -1,X      BACKA
+1174  F9E3 5C                      INCB             TILL R[TT ST[LLE
+1175  F9E4 26FB                    BNE    CHA205
+1176  F9E6 5D              CHA210  TSTB
+1177  F9E7 2702                    BEQ    CHA250    KLART
+1178  F9E9 3085                    LEAX   B,X
+1179  F9EB 2022            CHA250   BRA   CHA380
+1180                       *
+1181  F9ED 814C            CHA300  CMPA   #'L       L]NG RELATIV BRANCH
+1182  F9EF 262D                    BNE    CHA400
+1183  F9F1 3022                    LEAX   2,Y       H[MTA "0000" OFFSET
+1184  F9F3 EEA4                    LDU    ,Y        OFFSETV[RDE
+1185  F9F5 A6A4                    LDA    ,Y        KOLLA RIKTNINGEN
+1186  F9F7 2A10                    BPL    CHA320    FRAM]T
+1187  F9F9 301F            CHA310  LEAX   -1,X      BAK]T
+1188  F9FB 3341                    LEAU   1,U
+1189  F9FD 11830000                CMPU   #0        KLART ?
+1190  FA01 26F6                    BNE    CHA310
+1191  FA03 200A                    BRA    CHA380
+1192                       *
+1193  FA05 3001            CHA315  LEAX   1,X
+1194  FA07 335F                    LEAU   -1,U
+1195  FA09 11830000        CHA320  CMPU   #0
+1196  FA0D 26F6                    BNE    CHA315
+1197  FA0F BFE131          CHA380  STX    TILL
+1198  FA12 863D                    LDA    #'=
+1199  FA14 BDF92F                  JSR    OUTCH
+1200  FA17 8624                    LDA    #'$
+1201  FA19 BDF92F                  JSR    OUTCH
+1202  FA1C 2036                    BRA    LONGOG
+1203                       *
+1204  FA1E 8157            CHA400  CMPA   #'W       SKRIV IN OFFSET
+1205  FA20 260B                    BNE    CHA500
+1206  FA22 8EE131                  LDX    #TILL     SKRIV UT'ET
+1207  FA25 BDF91B                  JSR    OUT2HS
+1208  FA28 B6E131                  LDA    TILL      H[R ST]R DET
+1209  FA2B 204C                    BRA    NYDATC
+1210                       *
+1211  FA2D 814F            CHA500  CMPA   #'O       BER[KNA OFFSET
+1212  FA2F 2635                    BNE    NYDATA
+1213  FA31 BFE131                  STX    TILL
+1214  FA34 BDF8EA                  JSR    ENDADR    TAG IN DESTINATIONS ADRESSEN
+1215  FA37 294E                    BVS    CHA50
+1216  FA39 1F10                    TFR    X,D       FLYTTA TILL DEST ADRESSEN
+1217  FA3B B3E131                  SUBD   TILL      SKILLNADEN
+1218  FA3E 1083007F                CMPD   #$007F    KOLLA OM KORT OFFSET
+1219  FA42 2518                    BLO    KORTOF
+1220  FA44 1083FF7F                CMPD   #$FF7F
+1221  FA48 2212                    BHI    KORTOF
+1222                       *
+1223  FA4A 301F            LONGOF  LEAX   -1,X      ETT EXTRA STEG
+1224  FA4C 1F10                    TFR    X,D
+1225  FA4E B3E131                  SUBD   TILL
+1226  FA51 FDE131                  STD    TILL
+1227  FA54 8EE131          LONGOG  LDX    #TILL     PRINTA 4 HEX ??D OFFSET
+1228  FA57 BDF919                  JSR    OUT4HS
+1229  FA5A 202B                    BRA    CHA50
+1230                       *
+1231                       * KORT OFFSET
+1232                       *
+1233  FA5C 1F98            KORTOF  TFR    B,A       L]GA HALVAN
+1234  FA5E F7E131                  STB    TILL      SE "W" OVAN
+1235  FA61 BDF911                  JSR    OUT2HT    PRINTA OFFSET (A-ACC)
+1236  FA64 2021                    BRA    CHA50
+1237                       *
+1238  FA66 8127            NYDATA  CMPA   #$27      '-TECKEN
+1239  FA68 2605                    BNE    NYDATB
+1240  FA6A BDF877                  JSR    INCHE
+1241  FA6D 200A                    BRA    NYDATC
+1242                       *
+1243  FA6F BDF89D          NYDATB  JSR    INHEX2
+1244  FA72 2913                    BVS    CHA50
+1245  FA74 BDF8BB                  JSR    BYTE2
+1246  FA77 290E                    BVS    CHA50
+1247  FA79 A7A0            NYDATC  STA    0,Y+      LAGRA I MINNET
+1248  FA7B A13F                    CMPA   -1,Y      FASTNADE DET?
+1249  FA7D 2708                    BEQ    CHA50
+1250  FA7F BDF17D          CHOFEL  JSR    BELL00
+1251  FA82 313F            CHOCON  LEAY   -1,Y      BACKA ETT STEG
+1252  FA84 8C                      FCB    SKIP2
+1253  FA85 3121            LF      LEAY   1,Y       STEGA TIL N[STA
+1254  FA87 10BFE12D        CHA50   STY    BEGA
+1255  FA8B BDF95E                  JSR    PCRLF
+1256  FA8E 8EE12D                  LDX    #BEGA
+1257  FA91 BDFC35                  JSR    OUT401    SKIPPA ADRESSEN
+1258  FA94 1F21                    TFR    Y,X       L[GG ADRESSEN I X IGEN
+1259  FA96 7EF9BD                  JMP    CHANG     OM IGEN
+1260                       *
+1261                       * SWI SERVICE RUTIN (BREAKPOINTS)
+1262                       *
+1263  FA99 10FFE115        SWISER  STS    USESP
+1264  FA9D 1F43                    TFR    S,U
+1265  FA9F C60C                    LDB    #12       ANTAL POS I STACKEN
+1266  FAA1 8EE109                  LDX    #USECC    START AV PSEUDOSTACK
+1267  FAA4 A6C0            PSUD1   LDA    0,U+
+1268  FAA6 A780                    STA    0,X+      OCH L[GG IN
+1269  FAA8 5A                      DECB
+1270  FAA9 26F9                    BNE    PSUD1
+1271  FAAB 4F                      CLRA
+1272  FAAC 1F8B                    TFR    A,DP
+1273  FAAE BEE113                  LDX    USEPC     DECREMENT PC
+1274  FAB1 301F                    LEAX   -1,X
+1275  FAB3 BFE113                  STX    USEPC
+1276  FAB6 8EF43C                  LDX    #TEXT22
+1277  FAB9 BDF967                  JSR    PSTRNG
+1278  FABC 8D18                    BSR    BRKP40    FINNS BREAK POINTS
+1279  FABE 2710                    BEQ    BRKP20
+1280                       *
+1281                       * TAG BORT BREAK POINTS N[R
+1282                       * VI [R I CBUG MONITORN
+1283                       *
+1284  FAC0 A602            BRKP00  LDA    2,X       BRKPT'S P] SAMMA ADRESS
+1285  FAC2 813F                    CMPA   #$3F      MULTIDEFINIERADE BRKPT'S
+1286  FAC4 2705                    BEQ    BRKP10
+1287  FAC6 10AE84                  LDY    ,X
+1288  FAC9 A7A4                    STA    ,Y
+1289  FACB 3003            BRKP10  LEAX   3,X
+1290  FACD 5A                      DECB
+1291  FACE 26F0                    BNE    BRKP00
+1292  FAD0 BDF979          BRKP20  JSR    PRREG
+1293  FAD3 7EF82D                  JMP    CONTRL
+1294                       *
+1295  FAD6 8EE11A          BRKP40  LDX    #BPTAB    TABELL \VER BREAK POINTS, OPCODER
+1296  FAD9 F6E119                  LDB    VFLAG     ANTAL INSTALLERADE BRKPT'S
+1297  FADC 39              BRKRTS  RTS
+1298                       *
+1299                       * H[R P] 'V' KOMMANDO
+1300                       *
+1301                       * S[TT IN EN BRKPT.
+1302                       *
+1303  FADD                 SETBR   EQU    *
+1304  FADD 8EFA99                  LDX    #SWISER
+1305  FAE0 BFE103                  STX    SWI1R
+1306  FAE3 8DF1                    BSR    BRKP40    LEDIGT ?
+1307  FAE5 C105                    CMPB   #5        FINNS PLATS ?
+1308  FAE7 2503                    BLO    SETBP50
+1309  FAE9 7EF17D                  JMP    BELL00
+1310                       *
+1311  FAEC BDF8DB          SETBP50 JSR    BADDRS
+1312  FAEF 29EB                    BVS    BRKRTS    OM EJ HEX G] RTS
+1313  FAF1 1F12                    TFR    X,Y
+1314                       *
+1315  FAF3 8DE1                    BSR    BRKP40    FINN LEDIG PLATS
+1316  FAF5 2705                    BEQ    BRKP60    OM LEDIG, STOPPA IN BRKPT.
+1317                       *
+1318  FAF7 3003            BRKP50  LEAX   3,X
+1319  FAF9 5A                      DECB
+1320  FAFA 26FB                    BNE    BRKP50
+1321                       *
+1322  FAFC 7CE119          BRKP60  INC    VFLAG
+1323  FAFF 10AF84                  STY    ,X        IN I TABELLEN
+1324  FB02 39                      RTS
+1325                       *
+1326                       * TA BORT ALLA BREAKPOINTS
+1327                       *
+1328  FB03                 NOBRKP  EQU    *         TA BORT GAMLA SWI-KODER F\RST
+1329  FB03 C605                    LDB    #5
+1330  FB05 8EE11A                  LDX    #BPTAB    TABELLEN
+1331  FB08 EE84            U070    LDU    ,X        H[MTA ADRESS TILL MINNET
+1332  FB0A A6C4                    LDA    ,U        H[MTA IN DATAT D[R
+1333  FB0C 813F                    CMPA   #$3F      [R DET SWI KOD
+1334  FB0E 2604                    BNE    U100      NIX NO ACTION
+1335  FB10 A602                    LDA    2,X       D] FINNS RIKTIGA KODEN I TABELLEN
+1336  FB12 A7C4                    STA    ,U        L[GG TILLBAKS DEN
+1337  FB14 3003            U100    LEAX   3,X       N[STA TABELLV[RDE
+1338  FB16 5A                      DECB
+1339  FB17 26EF                    BNE    U070
+1340  FB19 C610            NOBRKQ  LDB    #16
+1341  FB1B 8EE119                  LDX    #VFLAG
+1342  FB1E 6F80            U200    CLR    0,X+
+1343  FB20 5A                      DECB
+1344  FB21 26FB                    BNE    U200
+1345  FB23 39              PDKLAR  RTS
+1346                       *
+1347                       * STOPPA IN ALLA BRKPTS I MINNET
+1348                       * VID 'G' ELLER 'C'
+1349                       *
+1350  FB24 8DB0            BRKPIN  BSR    BRKP40
+1351  FB26 27FB            BRKPRT  BEQ    PDKLAR
+1352                       *
+1353  FB28 10AE84          TGB     LDY    ,X        H[MTA ADRESSEN
+1354  FB2B 10BCE113                CMPY   USEPC     [R DET SAMMA SOM I PSEUDOSTACKEN
+1355  FB2F 2708                    BEQ    TGB5      SKIP I S] FALL
+1356  FB31 A6A4                    LDA    ,Y        OPCODE SOM SKALL EXEKVERAS
+1357  FB33 A702                    STA    2,X
+1358  FB35 863F                    LDA    #$3F      SWI OPCODE
+1359  FB37 A7A4                    STA    ,Y        ERS[TT MED SWI
+1360  FB39 3003            TGB5    LEAX   3,X
+1361  FB3B 5A                      DECB
+1362  FB3C 20E8                    BRA    BRKPRT
+1363                       *
+1364                       * PRINT ALL BREAKPOINTS
+1365                       *
+1366  FB3E F6E119          DISBKP  LDB    VFLAG
+1367  FB41 270C                    BEQ    DISB00    NOLL OM INGA BRKPT'S
+1368  FB43 8EE11A                  LDX    #BPTAB    H[MTA TABELLEN
+1369  FB46 BDF919          DISP50  JSR    OUT4HS    PRINTA ADRESSEN
+1370  FB49 3001                    LEAX   1,X       HOPPA \VER OPCODEN
+1371  FB4B 5A                      DECB             N[STA
+1372  FB4C 26F8                    BNE    DISP50
+1373  FB4E 39              LOAD35  RTS
+1374                       *
+1375  FB4F 8630            DISB00  LDA    #$30
+1376  FB51 7EF92F                  JMP    OUTCH     PRINTA EN NOLLA
+1377                       *
+1378                       * GO TO AAA AND EXECUTE PROGRAM
+1379                       *
+1380  FB54 BDF8DB          GOEXEC  JSR    BADDRS    START ADRESS
+1381  FB57 29F5                    BVS    LOAD35
+1382  FB59 BFE113                  STX    USEPC     L[GG IN I PSEUDOSTACK
+1383                       *
+1384                       * CONTINUE FROM BREAKPOINT
+1385                       *
+1386  FB5C                 CONTIN  EQU    *
+1387                       *
+1388                       * FLYTTA FR]N PSEUDOSTACK
+1389                       *
+1390  FB5C FEE115                  LDU    USESP
+1391  FB5F C60C                    LDB    #12
+1392  FB61 334C                    LEAU   12,U      PEKA P] H\GSTA ADRESSEN
+1393  FB63 8EE115                  LDX    #USESP    PEKA P] USER RAM
+1394  FB66 A682            PSEU10  LDA    0,-X
+1395  FB68 3602                    PSHU   A
+1396  FB6A 5A                      DECB
+1397  FB6B 26F9                    BNE    PSEU10
+1398  FB6D 8DB5                    BSR    BRKPIN    STOPPA IN EV BRKPT'S
+1399  FB6F 1F34            CONTI7  TFR    U,S
+1400  FB71 3B              RETINT  RTI
+1401                       *
+1402  FB72                 CHUREG  EQU    *
+1403  FB72 863A                    LDA    #':
+1404  FB74 BDF92F                  JSR    OUTCH
+1405  FB77 BDF886                  JSR    INCHA0    H[MTA TECKEN
+1406  FB7A 8EE109                  LDX    #USECC
+1407  FB7D 8143                    CMPA   #'C       CC-REG
+1408  FB7F 2609                    BNE    CHU100
+1409  FB81 8D4D                    BSR    CHBYTE
+1410  FB83 A61F                    LDA    -1,X      FIXA BIT 7
+1411  FB85 8A80                    ORAA   #$80
+1412  FB87 A71F                    STA    -1,X
+1413  FB89 39                      RTS
+1414                       *
+1415  FB8A 8141            CHU100  CMPA   #'A       A-ACK
+1416  FB8C 2604                    BNE    CHU200
+1417  FB8E 3001                    LEAX   1,X
+1418  FB90 203E                    BRA    CHBYTE
+1419                       *
+1420  FB92 8142            CHU200  CMPA   #'B       B-ACK
+1421  FB94 2604                    BNE    CHU300
+1422  FB96 3002                    LEAX   2,X
+1423  FB98 2036                    BRA    CHBYTE
+1424                       *
+1425  FB9A 8144            CHU300  CMPA    #'D      DP--RG
+1426  FB9C 2604                    BNE    CHU400
+1427  FB9E 3003                    LEAX   3,X
+1428  FBA0 202E                    BRA    CHBYTE
+1429                       *
+1430  FBA2 8158            CHU400  CMPA   #'X       X-REG
+1431  FBA4 2604                    BNE    CHU500
+1432  FBA6 3004                    LEAX   4,X
+1433  FBA8 2036                    BRA    CHADDR
+1434                       *
+1435  FBAA 8159            CHU500  CMPA   #'Y       Y-REG
+1436  FBAC 2604                    BNE    CHU600
+1437  FBAE 3006                    LEAX   6,X
+1438  FBB0 202E                    BRA    CHADDR
+1439                       *
+1440  FBB2 8155            CHU600  CMPA   #'U       U-REG
+1441  FBB4 2604                    BNE    CHU700
+1442  FBB6 3008                    LEAX   8,X
+1443  FBB8 2026                    BRA    CHADDR
+1444                       *
+1445  FBBA 8150            CHU700  CMPA   #'P       PROGRAM COUNTER
+1446  FBBC 2604                    BNE    CHU800
+1447  FBBE 300A                    LEAX   10,X
+1448  FBC0 201E                    BRA    CHADDR
+1449                       *
+1450  FBC2 8153            CHU800  CMPA   #'S       STACK POINTER
+1451  FBC4 2604                    BNE    CHU900
+1452  FBC6 300C                    LEAX   12,X
+1453  FBC8 2016                    BRA    CHADDR
+1454                       *
+1455  FBCA 863F            CHU900  LDA    #'?
+1456  FBCC BDF92F                  JSR    OUTCH
+1457  FBCF 39              CHU990  RTS
+1458                       *
+1459  FBD0                 CHBYTE  EQU    *         DISPLAY AND CHANGE BYTE
+1460  FBD0 BDF975                  JSR    UTMIN2
+1461  FBD3 BDF91B                  JSR    OUT2HS    GAMLA BYTEN
+1462  FBD6 BDF8B7                  JSR    BYTE      NYTT DATA
+1463  FBD9 29F4                    BVS    CHU990
+1464  FBDB 301F                    LEAX   -1,X
+1465  FBDD A780                    STA    0,X+      LAGRA NYA V[RDET
+1466  FBDF 39                      RTS
+1467                       *
+1468  FBE0                 CHADDR  EQU    *         DISPLAY AND CHANGE 16 BITS
+1469  FBE0 BDF975                  JSR    UTMIN2    PRINT =
+1470  FBE3 BDF919                  JSR    OUT4HS    PRINT 4 HEX
+1471  FBE6 1F13                    TFR    X,U       SAVE X
+1472  FBE8 BDF8DB                  JSR    BADDRS    GET NYA SIFFROR
+1473  FBEB 2902                    BVS    CHADDS
+1474  FBED AF5E                    STX    -2,U      PETA IN NYA DATAT
+1475  FBEF 39              CHADDS  RTS
+1476                       *
+1477  FBF0                 SUBR    EQU    *
+1478  FBF0 BDF8DB                  JSR    BADDRS
+1479  FBF3 29DA                    BVS    CHU990
+1480  FBF5 BFE113                  STX    USEPC
+1481  FBF8 CEFA99                  LDU    #SWISER
+1482  FBFB FFE103                  STU    SWI1R     RIGHT VECTOR
+1483  FBFE BDFB24                  JSR    BRKPIN    STOPPA IN BRYPUNKTER
+1484  FC01 B6E10C                  LDA    USECC+3   GET DP V[RDE
+1485  FC04 1F8B                    TFR    A,DP
+1486  FC06 FCE10A                  LDD    USECC+1   A OCH B ACK
+1487  FC09 BEE10D                  LDX    USECC+4
+1488  FC0C 10BEE10F                LDY    USECC+6
+1489  FC10 FEE111                  LDU    USECC+8   TA MED REGISTREN
+1490  FC13 AD9FE113                JSR    [USEPC]   INDIREKT SUBHOPP
+1491  FC17 3F                      SWI              SKRIV REGISTER OCH ]TERG]
+1492                       *
+1493                       * C H K S M
+1494                       *
+1495  FC18 BDF904          CHKSM   JSR    BEGENT
+1496  FC1B 4F                      CLRA
+1497  FC1C 5F                      CLRB
+1498                       *
+1499  FC1D 10BCE12F        CKSM10  CMPY   ENDA
+1500  FC21 2706                    BEQ    CKSM20
+1501  FC23 EBA0                    ADDB   0,Y+
+1502  FC25 8900                    ADCA   #0
+1503  FC27 20F4                    BRA    CKSM10
+1504                       *
+1505  FC29 FDE12D          CKSM20  STD    BEGA
+1506  FC2C 8EF3FB                  LDX    #TEXT11   'CKSM'
+1507  FC2F BDF967                  JSR    PSTRNG
+1508  FC32 8EE12D                  LDX    #BEGA
+1509  FC35 7EF919          OUT401  JMP    OUT4HS
+1510                       *
+1511                       * H[R P] 'D' KOMMANDO
+1512                       *
+1513                       * DUMP RUTIN-
+1514                       * UTLAGD SOM SUBRUTIN FOR ATT KUNNA
+1515                       * ANV[NDAS I AVLUSNINGSSYFTE I EGNA
+1516                       * PROGRAM. D] M]STE BEGA/ENDA LADDAS
+1517                       * MED START RESP. STOPPADRESSER.
+1518                       * BEGA MODIFIERAS AV RUTINEN
+1519                       *
+1520                       *
+1521  FC38 BDF8F2          DUMPRI  JSR    BEGENS    FIXA START OCH STOPP
+1522  FC3B 2965                    BVS    COMP99
+1523  FC3D 7CE14B                  INC    PRIFLG    TILL PRINTERN
+1524  FC40 2005                    BRA    DUMP17
+1525                       *
+1526  FC42 BDF8F2          DUMP16  JSR    BEGENS    FIXA START & STOPP
+1527  FC45 295B                    BVS    COMP99
+1528  FC47 B6E12E          DUMP17  LDA    BEGA+1
+1529  FC4A 84F0                    ANDA   #$F0      FULL RAD
+1530  FC4C C610                    LDB    #16
+1531                       *
+1532  FC4E B7E12E          PDUMP   STA    BEGA+1
+1533  FC51 F7E129                  STB    BYTECT
+1534                       *
+1535  FC54 BDFD0F          PD1000  JSR    BREAK     AVBROTT ?
+1536                       *
+1537  FC57 BDF95E                  JSR    PCRLF
+1538                       *
+1539                       * B\RJA DUMPA
+1540                       * FORMAT AAAA BB BB BB BB BB BB BB BB .ASCII..
+1541                       *
+1542  FC5A 8EE12D                  LDX    #BEGA
+1543  FC5D 8D62                    BSR    OUT405    PRINTA ADRESSEN
+1544  FC5F BEE12D                  LDX    BEGA
+1545  FC62 F6E129                  LDB    BYTECT    8 BYTES PER/RAD
+1546  FC65 BDF91B          PD3000  JSR    OUT2HS
+1547  FC68 5A                      DECB
+1548  FC69 26FA                    BNE    PD3000
+1549                       *
+1550                       * PRINTA SAMMA BYTES MEN I
+1551                       * EKVIVALENT ASCII.
+1552                       *
+1553  FC6B BDF91D                  JSR    OUTS      SPACE
+1554  FC6E F6E129                  LDB    BYTECT
+1555  FC71 BEE12D                  LDX    BEGA
+1556  FC74 A680            PD4000  LDA    0,X+
+1557  FC76 847F                    ANDA   #$7F      MASKA BIT 8
+1558                       *
+1559                       * SKRIV EJ UT KONTROLLTECKEN
+1560                       * MEN D[REMOT SM] BOKST[VER
+1561                       * DVS OM A<$20 BYT MOT .
+1562                       *
+1563  FC78 8120                    CMPA   #$20
+1564  FC7A 2D04                    BLT    PD5000
+1565  FC7C 817F                    CMPA   #$7F
+1566  FC7E 2D02                    BLT    PD6000
+1567  FC80 862E            PD5000  LDA    #'.
+1568  FC82 BDF92F          PD6000  JSR    OUTCH
+1569  FC85 5A                      DECB
+1570  FC86 26EC                    BNE    PD4000
+1571                       *
+1572  FC88 BFE12D                  STX    BEGA
+1573  FC8B 8C0000                  CMPX   #0        G]TT RUNT FFFF ?
+1574  FC8E 2712                    BEQ    COMP99
+1575                       *
+1576                       * KOMPAKTERA START/STOPP ADRESSER
+1577                       *
+1578  FC90 FCE12F                  LDD    ENDA
+1579  FC93 B3E12D                  SUBD   BEGA
+1580  FC96 250A                    BCS    COMP99
+1581  FC98 7DE12E                  TST    BEGA+1
+1582  FC9B 26B7                    BNE    PD1000
+1583  FC9D BDF95E                  JSR    PCRLF
+1584  FCA0 20B2                    BRA    PD1000
+1585                       *
+1586  FCA2 39              COMP99  RTS
+1587                       *
+1588                       ************************
+1589                       *
+1590                       * K O P I E R I N G *
+1591                       *
+1592                       ************************
+1593                       *
+1594  FCA3 8D3D            COPY    BSR    BEGEN3
+1595  FCA5 221D                    BHI    COPY80
+1596  FCA7 10BCE12F        COPY10  CMPY   ENDA
+1597  FCAB 2753                    BEQ    BREART
+1598  FCAD A6A0                    LDA    0,Y+
+1599                       *
+1600  FCAF A780            COPY15  STA    0,X+      LAGRA
+1601  FCB1 A11F                    CMPA   -1,X      FASTNADE
+1602  FCB3 27F2                    BEQ    COPY10
+1603                       *
+1604                       * INGET MINNE I
+1605                       *
+1606  FCB5 BFE131          COPY20  STX    TILL
+1607  FCB8 8EF3DC                  LDX    #TEXT08   'EJ [NDRAT'
+1608  FCBB BDF967                  JSR    PSTRNG
+1609  FCBE 8EE131                  LDX    #TILL
+1610  FCC1 7EF919          OUT405   JMP   OUT4HS    "+RTS"
+1611                       *
+1612  FCC4 FCE12F          COPY80  LDD    ENDA      FLYTTA H\GSTA BITEN F\RST
+1613  FCC7 1F02                    TFR    D,Y
+1614  FCC9 B3E12D                  SUBD   BEGA
+1615  FCCC 308B                    LEAX   D,X       SKILLNADEN MELLAN "ENDA" & "BEGA"
+1616                       *                        ADDERAD MED "TILL" FINNS NU I X-REG
+1617  FCCE A6A4            COPY85  LDA    ,Y        H[MTA
+1618  FCD0 A784                    STA    ,X        L[GG UT
+1619  FCD2 10BCE12D                CMPY   BEGA
+1620  FCD6 2728                    BEQ    BREART
+1621  FCD8 A184                    CMPA   ,X
+1622  FCDA 26D9                    BNE    COPY20
+1623  FCDC 301F                    LEAX   -1,X
+1624  FCDE 313F                    LEAY   -1,Y
+1625  FCE0 20EC                    BRA    COPY85    FASTNADE JO
+1626                       *
+1627  FCE2 8EF3C9          BEGEN3  LDX    #TEXT07   'START SLUT TILL'
+1628  FCE5 BDF967                  JSR    PSTRNG
+1629  FCE8 BDF8E1                  JSR    BEGEND
+1630  FCEB 2803                    BVC    BEGEN4
+1631  FCED 7EF90C                  JMP    NONHEX
+1632                       *
+1633  FCF0                 BEGEN4  EQU    *
+1634  FCF0 3001                    LEAX   1,X
+1635  FCF2 BFE12F                  STX    ENDA
+1636  FCF5 BDF8DB                  JSR    BADDRS
+1637  FCF8 29E8                    BVS    BEGEN3    TRY AGAIN
+1638  FCFA BFE131                  STX    TILL
+1639  FCFD BCE12D                  CMPX   BEGA
+1640  FD00 39              BREART  RTS
+1641                       *
+1642                       *****
+1643                       * HJ[LPRUTINER
+1644                       *****
+1645                       *
+1646  FD01 BDF95E          ADDRDA  JSR    PCRLF
+1647  FD04 8EE12D                  LDX    #BEGA
+1648  FD07 8DB8                    BSR    OUT405    NNNN DD
+1649  FD09 BEE12D                  LDX    BEGA
+1650  FD0C 7EF91B          OUT205  JMP    OUT2HS
+1651                       *
+1652  FD0F BDF892          BREAK   JSR    INCHEK    KOLLA OM TECKEN IN
+1653  FD12 2715                    BEQ    BRETS
+1654  FD14 BDF87E          BRE20   JSR    INCH
+1655  FD17 847F                    ANDA   #$7F
+1656  FD19 8151                    CMPA   #'Q       AVBRYTA
+1657  FD1B 270A                    BEQ    BREAQ
+1658  FD1D 8171                    CMPA   #'q
+1659  FD1F 2706                    BEQ    BREAQ
+1660  FD21 8130                    CMPA   #'0       PAUS ?
+1661  FD23 2604                    BNE    BRETS
+1662  FD25 20ED                    BRA    BRE20
+1663                       *
+1664  FD27 3262            BREAQ   LEAS   2,S
+1665  FD29 39              BRETS   RTS
+1666                       *
+1667                       ************************
+1668                       *
+1669                       * V E R I F Y
+1670                       *
+1671                       ************************
+1672                       *
+1673  FD2A 8DB6            VERIF   BSR    BEGEN3
+1674  FD2C 10BCE12F        VERI10  CMPY   ENDA
+1675  FD30 27CE                    BEQ    BREART
+1676  FD32 A6A4                    LDA    ,Y
+1677  FD34 A184                    CMPA   ,X        VERIFIERA
+1678  FD36 2713                    BEQ    VERI20    HOPPA OM SAMMA
+1679                       *
+1680  FD38 8DC7                    BSR    ADDRDA    NNNN DD
+1681  FD3A BDF91D                  JSR    OUTS      SP
+1682  FD3D 8EE131                  LDX    #TILL
+1683  FD40 BDF919                  JSR    OUT4HS    MMMM
+1684  FD43 BEE131                  LDX    TILL
+1685  FD46 8DC4                    BSR    OUT205    DD
+1686                       *
+1687  FD48 BEE131                  LDX    TILL
+1688  FD4B 3121            VERI20  LEAY   1,Y
+1689  FD4D 10BFE12D                STY    BEGA
+1690  FD51 3001                    LEAX   1,X
+1691  FD53 BFE131                  STX    TILL
+1692  FD56 8DB7                    BSR    BREAK
+1693  FD58 20D2                    BRA    VERI10    OM IGEN
+1694                       *
+1695                       *
+1696                       ************************
+1697                       *
+1698                       * N O L L A / F F - S T [ L L
+1699                       *
+1700                       ************************
+1701                       *
+1702                       *
+1703  FD5A BDF904          NOLLFF  JSR    BEGENT
+1704                       *
+1705  FD5D 8EF3F5                  LDX    #TEXT10   'BYTE'
+1706  FD60 BDF967                  JSR    PSTRNG
+1707  FD63 BDF8B7                  JSR    BYTE
+1708  FD66 29C1                    BVS    BRETS
+1709  FD68 10BCE12F        NOLL10  CMPY   ENDA
+1710  FD6C 2792                    BEQ    BREART
+1711  FD6E A7A0                    STA    0,Y+
+1712  FD70 20F6                    BRA    NOLL10
+1713                       *
+1714                       *
+1715                       ******************************
+1716                       *
+1717                       * E X T E N D E D  A D R .  T E S T
+1718                       *
+1719                       ******************************
+1720                       *
+1721                       *
+1722  FD72 BDF904          EXTE    JSR    BEGENT
+1723  FD75 8EF3F5          EXTE2   LDX    #TEXT10   'BYTE'
+1724  FD78 BDF967                  JSR    PSTRNG
+1725  FD7B BDF8B7                  JSR    BYTE
+1726  FD7E 29F5                    BVS    EXTE2
+1727  FD80 B7E117                  STA    SLASK
+1728                       *
+1729  FD83 10BCE12F        EXTE10  CMPY   ENDA
+1730  FD87 2601                    BNE    EXTE15
+1731  FD89 39                      RTS
+1732                       *
+1733  FD8A 10BFE12D        EXTE15  STY    BEGA
+1734  FD8E A1A0                    CMPA   0,Y+      MATCHAR ?
+1735  FD90 2606                    BNE    EXTE20
+1736                       *
+1737                       * SKRIV NNNN OO PPPP
+1738                       *
+1739  FD92 BDFD01                  JSR    ADDRDA
+1740  FD95 BDF919                  JSR    OUT4HS
+1741  FD98 BDFD0F          EXTE20  JSR    BREAK
+1742  FD9B B6E117                  LDA    SLASK
+1743  FD9E 20E3                    BRA    EXTE10
+1744                       *
+1745                       * M[T RAMSTORLEK
+1746                       *
+1747  FDA0                 METRAM  EQU    *
+1748  FDA0 8EF409                  LDX    #TEXT16   'RAM SLUT='
+1749  FDA3 BDF969                  JSR    PDATA
+1750  FDA6 8E0001                  LDX    #1
+1751  FDA9 8655            MET10   LDA    #$55
+1752  FDAB E684                    LDB    ,X
+1753  FDAD A784                    STA    ,X
+1754  FDAF A684                    LDA    ,X
+1755  FDB1 E780                    STB    0,X+
+1756  FDB3 8155                    CMPA   #$55
+1757  FDB5 27F2                    BEQ    MET10
+1758                       *
+1759  FDB7 301E            MET80   LEAX   -2,X      BACKA
+1760  FDB9 BFE12B                  STX    TEMP
+1761  FDBC 8EE12B                  LDX    #TEMP     PRINTA SLUTADRESSEN
+1762  FDBF 7EF919          OUT408  JMP    OUT4HS    "+RTS"
+1763                       *
+1764                       * S\K 2 BYTES
+1765                       *
+1766  FDC2 BDF904          SOK2B   JSR    BEGENT
+1767  FDC5 8EF401          SOK2B2  LDX    #TEXT15   'ADRESS'
+1768  FDC8 BDF967                  JSR    PSTRNG
+1769  FDCB BDF8CC                  JSR    BADDR     FIXA 4 TECKEN I X-REG
+1770  FDCE 29F5                    BVS    SOK2B2
+1771  FDD0 BFE131                  STX    TILL
+1772  FDD3 10BCE12F        SOK2B4  CMPY   ENDA      Y=BEGA
+1773  FDD7 2601                    BNE    SOK25
+1774  FDD9 39                      RTS
+1775                       *
+1776  FDDA 10BFE12D        SOK25   STY    BEGA
+1777  FDDE BEE131                  LDX    TILL
+1778  FDE1 ACA4                    CMPX   ,Y
+1779  FDE3 260C                    BNE    SOK2B7
+1780  FDE5 BDF95E                  JSR    PCRLF
+1781  FDE8 8EE12D                  LDX    #BEGA     H[MTA ADRESSEN
+1782  FDEB 8DD2                    BSR    OUT408
+1783  FDED 1F21                    TFR    Y,X
+1784  FDEF 8DCE                    BSR    OUT408    L[GG UT DATAT
+1785  FDF1 BDFD0F          SOK2B7  JSR    BREAK
+1786  FDF4 3121                    LEAY   1,Y
+1787  FDF6 20DB                    BRA    SOK2B4
+1788                       *
+1789                       * RUTINER F\R PROMKORT C]-816
+1790                       *
+1791  FDF8 BDF886          PROM00  JSR    INCHA0
+1792  FDFB 8148                    CMPA   #'H
+1793  FDFD 273B                    BEQ    PROH00
+1794  FDFF 8152                    CMPA   #'R
+1795  FE01 271F                    BEQ    PROR00
+1796  FE03 814C                    CMPA   #'L
+1797  FE05 1026FA24                LBNE   CONTRL
+1798                       *
+1799  FE09 BDFCE2          PROL00  JSR    BEGEN3    START SLUT TILL
+1800  FE0C BEE12D                  LDX    BEGA
+1801  FE0F FEE131                  LDU    TILL
+1802  FE12 BFE0B0          PROL10  STX    EPROM0
+1803  FE15 3001                    LEAX   1,X
+1804  FE17 B6E0B0                  LDA    EPROM0
+1805  FE1A A7C0                    STA    0,U+
+1806  FE1C BCE12F                  CMPX   ENDA
+1807  FE1F 25F1                    BLO    PROL10
+1808  FE21 39                      RTS
+1809                       *
+1810  FE22 BDF904          PROR00  JSR    BEGENT
+1811  FE25 BEE12D          PROR20  LDX    BEGA
+1812  FE28 BFE0B0          PROR30  STX    EPROM0
+1813  FE2B 3001                    LEAX   1,X
+1814  FE2D B6E0B0                  LDA    EPROM0
+1815  FE30 BCE12F                  CMPX   ENDA
+1816  FE33 25F3                    BLO    PROR30
+1817  FE35 BDFD0F                  JSR    BREAK
+1818  FE38 20EB                    BRA    PROR20
+1819                       *
+1820  FE3A BDF904          PROH00  JSR    BEGENT
+1821  FE3D 4F                      CLRA
+1822  FE3E 5F                      CLRB
+1823  FE3F 10BFE0B0        PROH20  STY    EPROM0
+1824  FE43 3121                    LEAY   1,Y
+1825  FE45 FBE0B0                  ADDB   EPROM0
+1826  FE48 8900                    ADCA   #0
+1827  FE4A 10BCE12F                CMPY   ENDA
+1828  FE4E 26EF                    BNE    PROH20
+1829  FE50 7EFC29                  JMP    CKSM20
+1830                       *
+1831                       * MINIDISKBOOT
+1832                       * Y= ADRESS TILL DISKBOOT $C000
+1833                       * U= ADRESS TILL FDC-KONTROLLERN
+1834                       *
+1835  FE53 867E            BOOT0   LDA    #$7E      FIXA ]TERSTART
+1836  FE55 108EC000                LDY    #$C000
+1837  FE59 A7A4                    STA    ,Y
+1838  FE5B 8EFE60                  LDX    #BOOT2
+1839  FE5E AF21                    STX    1,Y
+1840  FE60 CEE010          BOOT2   LDU    #FLOPPY
+1841  FE63 C6D8                    LDB    #$D8      FORCE INTERRUPT
+1842  FE65 E748                    STB    $8,U      COMREG
+1843  FE67 4F                      CLRA
+1844  FE68 8E0000                  LDX    #0
+1845  FE6B A744            OVR     STA    $4,U      DRIVE #0 MOTOR ON
+1846  FE6D 3001                    LEAX   1,X
+1847  FE6F 26FA                    BNE    OVR
+1848  FE71 C60F                    LDB    #$0F      RESTORE TO TRACK 00
+1849  FE73 E748                    STB    $8,U      COMREG TURN MOTOR ON
+1850  FE75 8D25                    BSR    BOTRTS
+1851  FE77 E648            LOOP1   LDB    $8,U      COMREG
+1852  FE79 C501                    BITB   #1        BUSY ?
+1853  FE7B 26FA                    BNE    LOOP1
+1854  FE7D 8601                    LDA    #1
+1855  FE7F A74A                    STA    $A,U      SECREG
+1856  FE81 8D19                    BSR    BOTRTS
+1857  FE83 868C                    LDA    #$8C      READ W LOAD
+1858  FE85 A748                    STA    $8,U      COMREG
+1859  FE87 8D13                    BSR    BOTRTS
+1860  FE89 E648                    LDB    $8,U      STATUSREG
+1861  FE8B C502            LOOP2   BITB   #2        DRQ
+1862  FE8D 2704                    BEQ    LOOP3
+1863  FE8F A64B                    LDA    $B,U      DATREG
+1864  FE91 A7A0                    STA    0,Y+
+1865  FE93 E648            LOOP3   LDB    $8,U      STATUSREG
+1866  FE95 C501                    BITB   #1        BUSY ?
+1867  FE97 26F2                    BNE    LOOP2
+1868  FE99 7EC000                  JMP    $C000
+1869                       *
+1870  FE9C 8D00            BOTRTS  BSR    BOOT49
+1871  FE9E 8D00            BOOT49  BSR    BOOTRT
+1872  FEA0 39              BOOTRT  RTS
+1873                       *
+1874  FEA1                 JMPFLX  EQU    *
+1875  FEA1 8E7ECD                  LDX    #$7ECD
+1876  FEA4 BCCD03                  CMPX   $CD03
+1877  FEA7 2603                    BNE    JMPRTS
+1878  FEA9 7ECD03                  JMP    $CD03
+1879                       *
+1880  FEAC 39              JMPRTS  RTS
+1881                       *
+1882  FEAD                 LDFLEX  EQU    *
+1883  FEAD 8EC700                  LDX    #$C700
+1884  FEB0 6F80            LDFL10  CLR    0,X+
+1885  FEB2 8CCC00                  CMPX   #$CC00    KLART ?
+1886  FEB5 26F9                    BNE    LDFL10
+1887  FEB7 8E0C00                  LDX    #$0C00    START I EPROM
+1888  FEBA CECC00                  LDU    #$CC00    START I RAM
+1889  FEBD BFE0B0          FLY100  STX    EPROM0
+1890  FEC0 3001                    LEAX   1,X
+1891  FEC2 B6E0B0                  LDA    EPROM0
+1892  FEC5 A7C0                    STA    0,U+
+1893  FEC7 8C1FFF                  CMPX   #$1FFF
+1894  FECA 26F1                    BNE    FLY100
+1895  FECC 8E7ECD                  LDX    #$7ECD    KOLLA OM DET FINNS N]'T
+1896  FECF BCCD00                  CMPX   $CD00
+1897  FED2 26D8                    BNE    JMPRTS
+1898  FED4 7ECD00                  JMP    $CD00
+1899                       *
+1900                       *
+1901                       * MINNESTEST A LA SBUG
+1902  FED7                 MEMTST  EQU    *
+1903  FED7 BDF8F2                  JSR    BEGENS
+1904  FEDA 29D0                    BVS    JMPRTS
+1905  FEDC 6FE2                    CLR    0,-S
+1906  FEDE 6FE2                    CLR    0,-S
+1907  FEE0 3430                    PSHS   X,Y
+1908  FEE2 AC62                    CMPX   2,S
+1909  FEE4 2574                    BCS    LFA75
+1910  FEE6 BDF91D                  JSR    OUTS
+1911  FEE9 1F20            LFA01   TFR    Y,D
+1912  FEEB E364                    ADDD   4,S
+1913  FEED 3404                    PSHS   B
+1914  FEEF ABE0                    ADDA   0,S+
+1915  FEF1 A7A0                    STA    0,Y+
+1916  FEF3 10ACE4                  CMPY   ,S
+1917  FEF6 25F1                    BCS    LFA01
+1918  FEF8 10AE62                  LDY    2,S
+1919  FEFB 1F20            LFA13   TFR    Y,D
+1920  FEFD E364                    ADDD   4,S
+1921  FEFF 3402                    PSHS   A
+1922  FF01 EBE0                    ADDB   0,S+
+1923  FF03 E8A0                    EORB   0,Y+
+1924  FF05 2739                    BEQ    LFA5B
+1925  FF07 8EF414                  LDX    #TEXT17
+1926  FF0A BDF967                  JSR    PSTRNG
+1927  FF0D 303F                    LEAX   -1,Y
+1928  FF0F BFE131                  STX    TILL      SPARA
+1929  FF12 8EE131                  LDX    #TILL
+1930  FF15 BDF919                  JSR    OUT4HS
+1931  FF18 3410                    PSHS   X
+1932  FF1A 8EF418                  LDX    #TEXT18
+1933  FF1D BDF969                  JSR    PDATA
+1934  FF20 3510                    PULS   X
+1935  FF22 8EF41D                  LDX    #TEXT19
+1936  FF25 BDF969                  JSR    PDATA
+1937  FF28 AE64                    LDX    4,S
+1938  FF2A BDFF5D                  JSR    OUTHW
+1939  FF2D 8EF424                  LDX    #TEXT20
+1940  FF30 BDF969                  JSR    PDATA
+1941  FF33 1F98                    TFR    B,A
+1942  FF35 8EF434                  LDX    #TEXT21
+1943  FF38 BDF92F                  JSR    OUTCH
+1944  FF3B BDF892                  JSR    INCHEK
+1945  FF3E 261A                    BNE    LFA75
+1946  FF40 10ACE4          LFA5B   CMPY   ,S
+1947  FF43 25B6                    BCS    LFA13
+1948  FF45 862B                    LDA    #$2B
+1949  FF47 BDF92F                  JSR    OUTCH
+1950  FF4A BDF892                  JSR    INCHEK
+1951  FF4D 260B                    BNE    LFA75
+1952  FF4F 10AE62                  LDY    2,S
+1953  FF52 6C65                    INC    5,S
+1954  FF54 2693                    BNE    LFA01
+1955  FF56 6C64                    INC    4,S
+1956  FF58 268F                    BNE    LFA01
+1957  FF5A 3266            LFA75   LEAS   6,S
+1958  FF5C 39                      RTS
+1959                       *
+1960  FF5D 3410            OUTHW   PSHS   X
+1961  FF5F 3502                    PULS   A
+1962  FF61 7EF913                  JMP    OUT2HU
+1963                       *
+1964                       *
+1965                       * INTERRUPT VECTORS JUMP TABLE
+1966                       *
+1967  FF64 6E9FE101        SIRQVK  JMP    [SIRQR]
+1968  FF68 6E9FE103        SWI1VK  JMP    [SWI1R]
+1969  FF6C 6E9FE105        SWI2VK  JMP    [SWI2R]
+1970  FF70 6E9FE107        SWI3VK  JMP    [SWI3R]
+1971                       *
+1972                       * KOMMANDOTABELL
+1973                       *
+1974  FF74 FEA1            KOMTAB  FDB    JMPFLX    @
+1975  FF76 F903                    FDB    OUTRTS    A
+1976  FF78 FB3E                    FDB    DISBKP    B DISPLAY BREAKPOINTS
+1977  FF7A FB5C                    FDB    CONTIN    C
+1978  FF7C FC42                    FDB    DUMP16    D
+1979  FF7E FD72                    FDB    EXTE      E
+1980  FF80 FE53                    FDB    BOOT0     F
+1981  FF82 FB54                    FDB    GOEXEC    G
+1982  FF84 FC18                    FDB    CHKSM     H
+1983  FF86 FB72                    FDB    CHUREG    I
+1984  FF88 FBF0                    FDB    SUBR      J
+1985  FF8A FCA3                    FDB    COPY      K
+1986  FF8C FEAD                    FDB    LDFLEX    L LOAD FLEX FROM PROMKORT
+1987  FF8E F9B6                    FDB    CHANGE    M MINNESMANIPULERING
+1988  FF90 F903                    FDB    OUTRTS    N
+1989  FF92 FD5A                    FDB    NOLLFF    O
+1990  FF94 FDF8                    FDB    PROM00    P
+1991  FF96 FDA0                    FDB    METRAM    Q
+1992  FF98 F979                    FDB    PRREG     R
+1993  FF9A FDC2                    FDB    SOK2B     S
+1994  FF9C F903                    FDB    OUTRTS    T
+1995  FF9E FB03                    FDB    NOBRKP    U
+1996  FFA0 FADD                    FDB    SETBR     V
+1997  FFA2 FED7                    FDB    MEMTST    W
+1998  FFA4 F4BF                    FDB    LDFLX     X
+1999  FFA6 FD2A                    FDB    VERIF     Y
+2000  FFA8 FC38                    FDB    DUMPRI    Z
+2001  FFAA F903                    FDB    OUTRTS
+2002  FFAC F903                    FDB    OUTRTS
+2003  FFAE F903                    FDB    OUTRTS
+2004  FFB0 F903                    FDB    OUTRTS
+2005  FFB2                 KOMTEN  EQU    *
+2006                       *
+2007                       * VEKTORER
+2008                       *
+2009                               ORG    F000+$FF0
+2010  FFF0 0E              BAUDR   FCB    $0E       9600 BAUD
+2011  FFF1 00              SERIE   FCB    $00       $FF=SERIEPORT
+2012  FFF2 FF70                    FDB    SWI3VK
+2013  FFF4 FF6C                    FDB    SWI2VK
+2014  FFF6 FB71                    FDB    RETINT
+2015  FFF8 FF64                    FDB    SIRQVK    SLOW IRQ
+2016  FFFA FF68                    FDB    SWI1VK    SWI VEKTOR
+2017  FFFC FA99                    FDB    SWISER
+2018  FFFE F442                    FDB    KALST     RESTART VEKTOR KALL START
+2019                       *
+2020  F442                         END    KALST
+
+0 error(s), 0 warning(s)
