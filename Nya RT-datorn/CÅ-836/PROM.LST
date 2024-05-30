@@ -1,4 +1,4 @@
-   1                                NAM     PROM
+   1                               NAM     PROM
    2                       *
    3                       * PROGRAMMET L[SER NED PROMBASERADE CMD-FILER
    4                       * TILL RAM
@@ -13,7 +13,7 @@
   13                       *
   14                       * PROGRAMMET I PROM [R STANDARD CMD-FILER
   15                       *
-  16                       * KALLA UPP PROGRAMMET MED GETPROM
+  16                       * KALLA UPP PROGRAMMET MED GET PROM
   17                       * I STARTUP.TXT
   18                       *
   19                       * VERSION 1.0 2024-05-06
@@ -36,7 +36,7 @@
   36                               ORG     $CC12     HAKA P] I FLEX
   37  CC12 E4                      FCB     $E4       TABELL I RAM P] $E400
   38                       *
-  39                               ORG     COMTAB    ALWAYS AT $E400
+  39                               ORG     COMTAB    VI STARTAR P] $E400
   40                       *
   41                       * H[R SKRIVS ALLA KOMMANDON IN SOM LIGGER I PROM
   42                       * EFTER SISTA KOMMANDOT SKRIVS 0
@@ -118,180 +118,183 @@
  118                       * X SKA INNEH]LLA STARTADRESSEN F\R PROGRAMMET
  119                       * I EPROMET
  120                       *
- 121                       * VARJE POST TAR 10 BYTES
+ 121                       * FLEX 9.1 LIGGER MELLAN $0000 - $18D7
  122                       *
- 123  E4AD 3476                    PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
- 124  E4AF 8E0000                  LDX     #$0000    STARTADRESSEN
- 125  E4B2 DE01                    LDU     1         VILKET EPROM?
- 126  E4B4 BFE7FA          STORE   STX     PRMSTA    L[GG I PRMSTA
- 127  E4B7 7EE57F                  JMP     LADDA     HOPPA
- 128                       *
- 129  E4BA 3476            CAT     PSHS    X,Y,A,B,U
- 130  E4BC 8E00F6                  LDX     #$00F6
- 131  E4BF DE01                    LDU     1
- 132  E4C1 20F1                    BRA     STORE
- 133                       *
- 134  E4C3 3476            COPY    PSHS    X,Y,A,B,U
- 135  E4C5 8E03A8                  LDX     #$03A8
- 136  E4C8 DE01                    LDU     1
- 137  E4CA 20E8                    BRA     STORE
- 138                       *
- 139  E4CC 3476            DATE    PSHS    X,Y,A,B,U
- 140  E4CE 8E07DB                  LDX     #$07DB
- 141  E4D1 DE01                    LDU     1
- 142  E4D3 20DF                    BRA     STORE
- 143                       *
- 144  E4D5 3476            DELETE  PSHS    X,Y,A,B,U
- 145  E4D7 8E08EF                  LDX     #$08EF
- 146  E4DA DE01                    LDU     1
- 147  E4DC 20D6                    BRA     STORE
- 148                       *
- 149  E4DE 3476            VERIFY  PSHS    X,Y,A,B,U
- 150  E4E0 8E0A4C                  LDX     #$0A4C
- 151  E4E3 DE01                    LDU     1
- 152  E4E5 20CD                    BRA     STORE
- 153                       *
- 154  E4E7 3476            VERSION PSHS    X,Y,A,B,U
- 155  E4E9 8E0AE4                  LDX     #$0AE4
- 156  E4EC DE01                    LDU     1
- 157  E4EE 20C4                    BRA     STORE
- 158                       *
- 159  E4F0 3476            LIST    PSHS    X,Y,A,B,U
- 160  E4F2 DE01                    LDU     1
- 161  E4F4 8E2000                  LDX     #$2000
- 162  E4F7 20BB                    BRA     STORE
- 163                       *
- 164  E4F9 3476            TTYSET  PSHS    X,Y,A,B,U
- 165  E4FB 8E2041                  LDX     #$2041
- 166  E4FE DE01                    LDU     1
- 167  E500 20B2                    BRA     STORE
- 168                       *
- 169  E502 3476            NEWDISK PSHS    X,Y,A,B,U
- 170  E504 8E23F8                  LDX     #$23F8
- 171  E507 DE01                    LDU     1
- 172  E509 20A9                    BRA     STORE
- 173                       *
- 174  E50B 3476            DIR     PSHS    X,Y,A,B,U
- 175  E50D 8E2C71                  LDX     #$2C71
- 176  E510 DE01                    LDU     1
- 177  E512 20A0                    BRA     STORE
- 178                       *
- 179  E514 3476            DIRR    PSHS    X,Y,A,B,U
- 180  E516 8E30BC                  LDX     #$30BC
- 181  E519 DE01                    LDU     1
- 182  E51B 2097                    BRA     STORE
- 183                       *
- 184  E51D 3476            DISKIDEN PSHS    X,Y,A,B,U
- 185  E51F 8E34FF                  LDX     #$34FF
- 186  E522 DE01                    LDU     1
- 187  E524 208E                    BRA     STORE
- 188                       *
- 189  E526 3476            APPEND  PSHS    X,Y,A,B,U
- 190  E528 8E39E7                  LDX     #$39E7
- 191  E52B DE01                    LDU     1
- 192  E52D 2085                    BRA     STORE
- 193                       *
- 194  E52F 3476            BUILD   PSHS    X,Y,A,B,U
- 195  E531 8E3C0A                  LDX     #$3C0A
- 196  E534 DE01                    LDU     1
- 197  E536 16FF7B                  LBRA    STORE     NOT! LBRA BEH\VS FR.O.M NU
- 198                       *
- 199  E539 3476            OCMD    PSHS    X,Y,A,B,U
- 200  E53B 8E3CCB                  LDX     #$3CCB
- 201  E53E DE01                    LDU     1
- 202  E540 16FF71                  LBRA    STORE
- 203                       *
- 204  E543 3476            SAVE    PSHS    X,Y,A,B,U
- 205  E545 8E3E2F                  LDX     #$3E2F
- 206  E548 DE01                    LDU     1
- 207  E54A 16FF67                  LBRA    STORE
- 208                       *
- 209  E54D 3476            RENAME  PSHS    X,Y,A,B,U
- 210  E54F 8E3FB6                  LDX     #$3FB6
- 211  E552 DE01                    LDU     1
- 212  E554 16FF5D                  LBRA    STORE
- 213                       *
- 214  E557 3476            ASMB    PSHS    X,Y,A,B,U
- 215  E559 8E3FFA                  LDX     #$3FFA
- 216  E55C DE01                    LDU     1
- 217  E55E 16FF53                  LBRA    STORE
- 218                       *
- 219  E561 3476            XBASIC  PSHS    X,Y,A,B,U
- 220  E563 8E6EDB                  LDX     #$6EDB
- 221  E566 DE01                    LDU     1
- 222  E568 16FF49                  LBRA    STORE
- 223                       *
- 224  E56B 3476            EDIT    PSHS    X,Y,A,B,U
- 225  E56D 8EBBA0                  LDX     #$BBA0
- 226  E570 DE01                    LDU     1
- 227  E572 16FF3F                  LBRA    STORE
- 228                       *
- 229  E575 3476            DEBUG   PSHS    X,Y,A,B,U
- 230  E577 8E0000                  LDX     #$0000
- 231  E57A DE02                    LDU     2         ANDRA EPROMET
- 232  E57C 16FF35                  LBRA    STORE
- 233                       *
- 234                       *
- 235  E57F                 LADDA   EQU     *         LADDRUTINEN
+ 123                       * VARJE POST TAR 10 BYTES
+ 124                       *
+ 125  E4AD 3476                    PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
+ 126  E4AF 8E0000                  LDX     #$0000    STARTADRESSEN
+ 127  E4B2 DE01                    LDU     1         VILKET EPROM?
+ 128  E4B4 BFE7FA          STORE   STX     PRMSTA    L[GG I PRMSTA
+ 129  E4B7 7EE57F                  JMP     LADDA     HOPPA
+ 130                       *
+ 131  E4BA 3476            CAT     PSHS    X,Y,A,B,U
+ 132  E4BC 8E00F6                  LDX     #$00F6
+ 133  E4BF DE01                    LDU     1
+ 134  E4C1 20F1                    BRA     STORE
+ 135                       *
+ 136  E4C3 3476            COPY    PSHS    X,Y,A,B,U
+ 137  E4C5 8E03A8                  LDX     #$03A8
+ 138  E4C8 DE01                    LDU     1
+ 139  E4CA 20E8                    BRA     STORE
+ 140                       *
+ 141  E4CC 3476            DATE    PSHS    X,Y,A,B,U
+ 142  E4CE 8E07DB                  LDX     #$07DB
+ 143  E4D1 DE01                    LDU     1
+ 144  E4D3 20DF                    BRA     STORE
+ 145                       *
+ 146  E4D5 3476            DELETE  PSHS    X,Y,A,B,U
+ 147  E4D7 8E08EF                  LDX     #$08EF
+ 148  E4DA DE01                    LDU     1
+ 149  E4DC 20D6                    BRA     STORE
+ 150                       *
+ 151  E4DE 3476            VERIFY  PSHS    X,Y,A,B,U
+ 152  E4E0 8E0A4C                  LDX     #$0A4C
+ 153  E4E3 DE01                    LDU     1
+ 154  E4E5 20CD                    BRA     STORE
+ 155                       *
+ 156  E4E7 3476            VERSION PSHS    X,Y,A,B,U
+ 157  E4E9 8E0AE4                  LDX     #$0AE4
+ 158  E4EC DE01                    LDU     1
+ 159  E4EE 20C4                    BRA     STORE
+ 160                       *
+ 161  E4F0 3476            LIST    PSHS    X,Y,A,B,U
+ 162  E4F2 DE01                    LDU     1
+ 163  E4F4 8E2000                  LDX     #$2000
+ 164  E4F7 20BB                    BRA     STORE
+ 165                       *
+ 166  E4F9 3476            TTYSET  PSHS    X,Y,A,B,U
+ 167  E4FB 8E2041                  LDX     #$2041
+ 168  E4FE DE01                    LDU     1
+ 169  E500 20B2                    BRA     STORE
+ 170                       *
+ 171  E502 3476            NEWDISK PSHS    X,Y,A,B,U
+ 172  E504 8E23F8                  LDX     #$23F8
+ 173  E507 DE01                    LDU     1
+ 174  E509 20A9                    BRA     STORE
+ 175                       *
+ 176  E50B 3476            DIR     PSHS    X,Y,A,B,U
+ 177  E50D 8E2C71                  LDX     #$2C71
+ 178  E510 DE01                    LDU     1
+ 179  E512 20A0                    BRA     STORE
+ 180                       *
+ 181  E514 3476            DIRR    PSHS    X,Y,A,B,U
+ 182  E516 8E30BC                  LDX     #$30BC
+ 183  E519 DE01                    LDU     1
+ 184  E51B 2097                    BRA     STORE
+ 185                       *
+ 186  E51D 3476            DISKIDEN PSHS    X,Y,A,B,U
+ 187  E51F 8E34FF                  LDX     #$34FF
+ 188  E522 DE01                    LDU     1
+ 189  E524 208E                    BRA     STORE
+ 190                       *
+ 191  E526 3476            APPEND  PSHS    X,Y,A,B,U
+ 192  E528 8E39E7                  LDX     #$39E7
+ 193  E52B DE01                    LDU     1
+ 194  E52D 2085                    BRA     STORE
+ 195                       *
+ 196  E52F 3476            BUILD   PSHS    X,Y,A,B,U
+ 197  E531 8E3C0A                  LDX     #$3C0A
+ 198  E534 DE01                    LDU     1
+ 199  E536 16FF7B                  LBRA    STORE     NOT! LBRA BEH\VS FR.O.M NU
+ 200                       *
+ 201  E539 3476            OCMD    PSHS    X,Y,A,B,U
+ 202  E53B 8E3CCB                  LDX     #$3CCB
+ 203  E53E DE01                    LDU     1
+ 204  E540 16FF71                  LBRA    STORE
+ 205                       *
+ 206  E543 3476            SAVE    PSHS    X,Y,A,B,U
+ 207  E545 8E3E2F                  LDX     #$3E2F
+ 208  E548 DE01                    LDU     1
+ 209  E54A 16FF67                  LBRA    STORE
+ 210                       *
+ 211  E54D 3476            RENAME  PSHS    X,Y,A,B,U
+ 212  E54F 8E3FB6                  LDX     #$3FB6
+ 213  E552 DE01                    LDU     1
+ 214  E554 16FF5D                  LBRA    STORE
+ 215                       *
+ 216  E557 3476            ASMB    PSHS    X,Y,A,B,U
+ 217  E559 8E3FFA                  LDX     #$3FFA
+ 218  E55C DE01                    LDU     1
+ 219  E55E 16FF53                  LBRA    STORE
+ 220                       *
+ 221  E561 3476            XBASIC  PSHS    X,Y,A,B,U
+ 222  E563 8E6EDB                  LDX     #$6EDB
+ 223  E566 DE01                    LDU     1
+ 224  E568 16FF49                  LBRA    STORE
+ 225                       *
+ 226  E56B 3476            EDIT    PSHS    X,Y,A,B,U
+ 227  E56D 8EBBA0                  LDX     #$BBA0
+ 228  E570 DE01                    LDU     1
+ 229  E572 16FF3F                  LBRA    STORE
+ 230                       *
+ 231  E575 3476            DEBUG   PSHS    X,Y,A,B,U
+ 232  E577 8E0000                  LDX     #$0000
+ 233  E57A DE02                    LDU     2         ANDRA EPROMET
+ 234  E57C 16FF35                  LBRA    STORE
+ 235                       *
  236                       *
- 237  E57F BEE7FA          LOAD1   LDX     PRMSTA    STARTADRESSEN I EPROM
+ 237  E57F                 LADDA   EQU     *         LADDRUTINEN
  238                       *
- 239  E582 8D36            LOAD2   BSR     LESPRM    H[MTA 1 BYTE, L[GG I A
- 240  E584 8102                    CMPA    #2        [R DET 02? DVS. START OF RECORD?
- 241  E586 2712                    BEQ     LESREC    JA; L[S D] IN RECORDET OCH DATA
- 242  E588 8116                    CMPA    #$16      [R DET TRANSFER ADRESS?
- 243  E58A 8D2E                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN MSB
- 244  E58C B7E7FE                  STA     TRNSFR    SPARA MSB
- 245  E58F 8D29                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN LSB
- 246  E591 B7E7FF                  STA     TRNSFR+1  SPARA LSB
- 247  E594 3576                    PULS    X,Y,A,B,U ]TERST[LL REGISTER
- 248  E596 6E9FE7FE                JMP     [TRNSFR]  OCH HOPPA TILL STARTADRESSEN
- 249                       *
- 250                       * L[S FLEX FILE RECORD
- 251                       *
- 252  E59A 8D1E            LESREC  BSR     LESPRM    H[MTA RAM-ADRESSEN MSB
- 253  E59C 1F89                    TFR     A,B       LAGRA I B
- 254  E59E 8D1A                    BSR     LESPRM    H[MTA RAM-ADRESSEN LSB
- 255  E5A0 1E89                    EXG     A,B       V[ND P] DET S] DET BLIR R[TT
- 256  E5A2 FDE7FC                  STD     RAMSTO    SPARA I RAMSTO
- 257  E5A5 8D13                    BSR     LESPRM    H[MTA ANTAL BYTES I RECORD
- 258  E5A7 1F89                    TFR     A,B       LAGRA DET I B
- 259                       *
- 260                       * KLART MED FLEX FILE RECORD
- 261                       * LADDA NU NER PROGRAMMET FR]N EPROM TILL RAM
+ 239  E57F BEE7FA          LOAD1   LDX     PRMSTA    STARTADRESSEN I EPROM
+ 240                       *
+ 241  E582 8D38            LOAD2   BSR     LESPRM    H[MTA 1 BYTE, L[GG I A
+ 242  E584 8102                    CMPA    #$02      [R DET 02? DVS. START OF RECORD?
+ 243  E586 2714                    BEQ     LESREC    JA; L[S D] IN RECORDET OCH DATA
+ 244  E588 8116                    CMPA    #$16      [R DET TRANSFER ADRESS?
+ 245  E58A 26F6                    BNE     LOAD2     HOPPA \VER PADDING MED 00
+ 246  E58C 8D2E                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN MSB
+ 247  E58E B7E7FE                  STA     TRNSFR    SPARA MSB
+ 248  E591 8D29                    BSR     LESPRM    H[MTA TRANSFER-ADRESSEN LSB
+ 249  E593 B7E7FF                  STA     TRNSFR+1  SPARA LSB
+ 250  E596 3576                    PULS    X,Y,A,B,U ]TERST[LL REGISTER
+ 251  E598 6E9FE7FE                JMP     [TRNSFR]  OCH HOPPA TILL STARTADRESSEN
+ 252                       *
+ 253                       * L[S FLEX FILE RECORD
+ 254                       *
+ 255  E59C 8D1E            LESREC  BSR     LESPRM    H[MTA RAM-ADRESSEN MSB
+ 256  E59E 1F89                    TFR     A,B       LAGRA I B
+ 257  E5A0 8D1A                    BSR     LESPRM    H[MTA RAM-ADRESSEN LSB
+ 258  E5A2 1E89                    EXG     A,B       V[ND P] DET S] DET BLIR R[TT
+ 259  E5A4 FDE7FC                  STD     RAMSTO    SPARA I RAMSTO
+ 260  E5A7 8D13                    BSR     LESPRM    H[MTA ANTAL BYTES I RECORD
+ 261  E5A9 1F89                    TFR     A,B       LAGRA DET I B
  262                       *
- 263  E5A9 8D0F            LESRCD2 BSR     LESPRM    H[MTA EN BYTE FR]N PROGRAMMET
- 264  E5AB 10BEE7FC                LDY     RAMSTO    VAR SKA DET SPARAS?
- 265  E5AF A7A0                    STA     0,Y+      SPARA DET I MINNET, \KA Y
- 266  E5B1 10BFE7FC                STY     RAMSTO    SPARA N[STA ADRESS
- 267  E5B5 5A                      DECB              [R VI NERE P] 0?
- 268  E5B6 26F1                    BNE     LESRCD2   NEJ; FORTS[TT TILLS VI [R DET.
- 269  E5B8 20C8                    BRA     LOAD2     JA, LETA EFTER FLER RECORDS
- 270                       *
- 271                       * SUBRUTIN SOM L[SER EN BYTE FR}N DET NYA EPROM-
- 272                       * KORTET 836 P} ADRESS $E0B0, $E0C0 ELLER $E0D0
- 273                       * IN: X-REG - ADRESSEN I EPROM ATT L[SA FR]N
- 274                       *     U-REG - VILKET EPROM SOM SKA L[SAS
- 275                       *
- 276                       * RETURNERAR: A-REG - EN BYTE DATA FR]N EPROMET
- 277                       *
- 278  E5BA 119302          LESPRM  CMPU    PROMVAL   VILKET EPROM SKA ANV[NDAS
- 279  E5BD 2504                    BLO     PROM1     MINDRE [N 2 = PROM #1
- 280  E5BF 270A                    BEQ     PROM2     LIKA MED 2 = PROM #2
- 281  E5C1 2E10                    BGT     PROM3     ST\RRE [N 2 = PROM #3
- 282                       *
- 283  E5C3 BFE0B0          PROM1   STX     EPROM     F\RSTA EPROMET
- 284  E5C6 B6E0B0                  LDA     EPROM     L[S DATA
- 285  E5C9 200E                    BRA     LAGRA     LAGRA I RAM
- 286  E5CB BFE0C0          PROM2   STX     EPROM+$10 ANDRA EPROMET
- 287  E5CE B6E0C0                  LDA     EPROM+$10 L[S DATA
- 288  E5D1 2006                    BRA     LAGRA     LAGRA I RAM
- 289  E5D3 BFE0D0          PROM3   STX     EPROM+$20 TREDJE EPROMET
- 290  E5D6 B6E0D0                  LDA     EPROM+$20 L[S DATA
- 291                       *
- 292  E5D9 3001            LAGRA   INX               N[STA POSITION
- 293  E5DB 39                      RTS               ]TERG]
+ 263                       * KLART MED FLEX FILE RECORD
+ 264                       * LADDA NU NER PROGRAMMET FR]N EPROM TILL RAM
+ 265                       *
+ 266  E5AB 8D0F            LESRCD2 BSR     LESPRM    H[MTA EN BYTE FR]N PROGRAMMET
+ 267  E5AD 10BEE7FC                LDY     RAMSTO    VAR SKA DET SPARAS?
+ 268  E5B1 A7A0                    STA     0,Y+      SPARA DET I MINNET, \KA Y
+ 269  E5B3 10BFE7FC                STY     RAMSTO    SPARA N[STA ADRESS
+ 270  E5B7 5A                      DECB              [R VI NERE P] 0?
+ 271  E5B8 26F1                    BNE     LESRCD2   NEJ; FORTS[TT TILLS VI [R DET.
+ 272  E5BA 20C6                    BRA     LOAD2     JA, LETA EFTER FLER RECORDS
+ 273                       *
+ 274                       * SUBRUTIN SOM L[SER EN BYTE FR}N DET NYA EPROM-
+ 275                       * KORTET 836 P} ADRESS $E0B0, $E0C0 ELLER $E0D0
+ 276                       * IN: X-REG - ADRESSEN I EPROM ATT L[SA FR]N
+ 277                       *     U-REG - VILKET EPROM SOM SKA L[SAS
+ 278                       *
+ 279                       * RETURNERAR: A-REG - EN BYTE DATA FR]N EPROMET
+ 280                       *
+ 281  E5BC 119302          LESPRM  CMPU    PROMVAL   VILKET EPROM SKA ANV[NDAS
+ 282  E5BF 2504                    BLO     PROM1     MINDRE [N 2 = PROM #1
+ 283  E5C1 270A                    BEQ     PROM2     LIKA MED 2 = PROM #2
+ 284  E5C3 2E10                    BGT     PROM3     ST\RRE [N 2 = PROM #3
+ 285                       *
+ 286  E5C5 BFE0B0          PROM1   STX     EPROM     F\RSTA EPROMET $E0B0
+ 287  E5C8 B6E0B0                  LDA     EPROM     L[S DATA
+ 288  E5CB 200E                    BRA     LAGRA     LAGRA I RAM
+ 289  E5CD BFE0C0          PROM2   STX     EPROM+$10 ANDRA EPROMET $E0C0
+ 290  E5D0 B6E0C0                  LDA     EPROM+$10 L[S DATA
+ 291  E5D3 2006                    BRA     LAGRA     LAGRA I RAM
+ 292  E5D5 BFE0D0          PROM3   STX     EPROM+$20 TREDJE EPROMET $E0D0
+ 293  E5D8 B6E0D0                  LDA     EPROM+$20 L[S DATA
  294                       *
- 295                               END
+ 295  E5DB 3001            LAGRA   INX               N[STA POSITION
+ 296  E5DD 39                      RTS               ]TERG]
+ 297                       *
+ 298                               END
 
 0 error(s), 0 warning(s)
