@@ -18,12 +18,11 @@
 *
 * VERSION 1.0 2024-05-06
 * VERSION 1.1 2024-05-07
+* VERSION 1.2 2024-05-30
 *
 EPROM   EQU     $E0B0     BASADRESS F\R EPROM
 COMTAB  EQU     $E400     KOMMANDO-TABELLEN
-JMPTAB  EQU     $E500     HOPP-TABELLEN
-LADDA   EQU     $E700     SJ[LVA PROGRAMMET
-RAM     EQU     JMPTAB+$F0 PLATS F\R VARIABLER
+RAM     EQU     $E7FA     6 BYTES F\R VARIABLER
 PROMVAL EQU     2         EPROMV[LJARE
 WARMS   EQU     $CD03     FLEX VARMSTART
 *
@@ -37,9 +36,12 @@ TRNSFR  RMB     2         TRANSFERADRESS
         ORG     $CC12     HAKA P] I FLEX
         FCB     $E4       TABELL I RAM P] $E400
 *
-        ORG     COMTAB
+        ORG     COMTAB    VI STARTAR P] $E400
+*
 * H[R SKRIVS ALLA KOMMANDON IN SOM LIGGER I PROM
 * EFTER SISTA KOMMANDOT SKRIVS 0
+*
+* VARJE ENTRY TAR MELLAN 4 OCH 11 BYTES
 *
         FCC     'ASN'
         FCB     0
@@ -53,12 +55,63 @@ TRNSFR  RMB     2         TRANSFERADRESS
         FCC     'DATE'
         FCB     0
         FDB     DATE
+        FCC     'DELETE'
+        FCB     0
+        FDB     DELETE
+        FCC     'VERIFY'
+        FCB     0
+        FDB     VERIFY
+        FCC     'VERSION'
+        FCB     0
+        FDB     VERSION
+        FCC     'LIST'
+        FCB     0
+        FDB     LIST
+        FCC     'TTYSET'
+        FCB     0
+        FDB     TTYSET
+        FCC     'NEWDISK'
+        FCB     0
+        FDB     NEWDISK
+        FCC     'DIR'
+        FCB     0
+        FDB     DIR
+        FCC     'DIRR'
+        FCB     0
+        FDB     DIRR
+        FCC     'DISKIDEN'
+        FCB     0
+        FDB     DISKIDEN
+        FCC     'APPEND'
+        FCB     0
+        FDB     APPEND
+        FCC     'BUILD'
+        FCB     0
+        FDB     BUILD
+        FCC     'O'
+        FCB     0
+        FDB     OCMD
+        FCC     'SAVE'
+        FCB     0
+        FDB     SAVE
+        FCC     'RENAME'
+        FCB     0
+        FDB     RENAME
+        FCC     'ASMB'
+        FCB     0
+        FDB     ASMB
+        FCC     'XBASIC'
+        FCB     0
+        FDB     XBASIC
+        FCC     'EDIT'
+        FCB     0
+        FDB     EDIT
+        FCC     'DEBUG'
+        FCB     0
+        FDB     DEBUG
         FCB     0
 *
-* L[GG TILL FLER PROGRAM EFTER FDB DATE
-* SIST SKA DET ST] FCB 0
-*
-        ORG     JMPTAB
+JMPTAB  EQU     *         STARTADRESSER
 *
 * H[R FINNS STARTADRESSER TILL ALLA PROGRAMEN
 * SOM [R LAGRADE I EPROM
@@ -67,38 +120,121 @@ TRNSFR  RMB     2         TRANSFERADRESS
 *
 * FLEX 9.1 LIGGER MELLAN $0000 - $18D7
 *
+* VARJE POST TAR 10 BYTES
+*
         PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
-        LDX     #$18D8    STARTADRESSEN
+        LDX     #$0000    STARTADRESSEN
         LDU     1         VILKET EPROM?
 STORE   STX     PRMSTA    L[GG I PRMSTA
         JMP     LADDA     HOPPA
 *
 CAT     PSHS    X,Y,A,B,U
-        LDX     #$19CE
+        LDX     #$00F6
         LDU     1
         BRA     STORE
 *
 COPY    PSHS    X,Y,A,B,U
-        LDX     #$1C80
+        LDX     #$03A8
         LDU     1
         BRA     STORE
 *
 DATE    PSHS    X,Y,A,B,U
-        LDX     #$20B3
+        LDX     #$07DB
         LDU     1
         BRA     STORE
 *
-DEBUG   PSHS    X,Y,A,B,U
-        LDX     #$0000
-        LDU     2         ANDRA EPROMET $E0C0
+DELETE  PSHS    X,Y,A,B,U
+        LDX     #$08EF
+        LDU     1
+        BRA     STORE
+*
+VERIFY  PSHS    X,Y,A,B,U
+        LDX     #$0A4C
+        LDU     1
+        BRA     STORE
+*
+VERSION PSHS    X,Y,A,B,U
+        LDX     #$0AE4
+        LDU     1
+        BRA     STORE
+*
+LIST    PSHS    X,Y,A,B,U
+        LDU     1
+        LDX     #$2000
+        BRA     STORE
+*
+TTYSET  PSHS    X,Y,A,B,U
+        LDX     #$2041
+        LDU     1
+        BRA     STORE
+*
+NEWDISK PSHS    X,Y,A,B,U
+        LDX     #$23F8
+        LDU     1
+        BRA     STORE
+*
+DIR     PSHS    X,Y,A,B,U
+        LDX     #$2C71
+        LDU     1
+        BRA     STORE
+*
+DIRR    PSHS    X,Y,A,B,U
+        LDX     #$30BC
+        LDU     1
+        BRA     STORE
+*
+DISKIDEN PSHS    X,Y,A,B,U
+        LDX     #$34FF
+        LDU     1
+        BRA     STORE
+*
+APPEND  PSHS    X,Y,A,B,U
+        LDX     #$39E7
+        LDU     1
+        BRA     STORE
+*
+BUILD   PSHS    X,Y,A,B,U
+        LDX     #$3C0A
+        LDU     1
+        LBRA    STORE     NOT! LBRA BEH\VS FR.O.M NU
+*
+OCMD    PSHS    X,Y,A,B,U
+        LDX     #$3CCB
+        LDU     1
+        LBRA    STORE
+*
+SAVE    PSHS    X,Y,A,B,U
+        LDX     #$3E2F
+        LDU     1
+        LBRA    STORE
+*
+RENAME  PSHS    X,Y,A,B,U
+        LDX     #$3FB6
+        LDU     1
         LBRA    STORE
 *
 ASMB    PSHS    X,Y,A,B,U
-        LDX     #$0000
-        LDU     3         TREDJE EPROMET $E0D0
+        LDX     #$3FFA
+        LDU     1
         LBRA    STORE
 *
-        ORG     LADDA
+XBASIC  PSHS    X,Y,A,B,U
+        LDX     #$6EDB
+        LDU     1
+        LBRA    STORE
+*
+EDIT    PSHS    X,Y,A,B,U
+        LDX     #$BBA0
+        LDU     1
+        LBRA    STORE
+*
+DEBUG   PSHS    X,Y,A,B,U
+        LDX     #$0000
+        LDU     2         ANDRA EPROMET
+        LBRA    STORE
+*
+*
+LADDA   EQU     *         LADDRUTINEN
 *
 LOAD1   LDX     PRMSTA    STARTADRESSEN I EPROM
 *
@@ -147,7 +283,7 @@ LESPRM  CMPU    PROMVAL   VILKET EPROM SKA ANV[NDAS
         BEQ     PROM2     LIKA MED 2 = PROM #2
         BGT     PROM3     ST\RRE [N 2 = PROM #3
 *
-PROM1   STX     EPROM     F\RSTA EPROMET
+PROM1   STX     EPROM     F\RSTA EPROMET $E0B0
         LDA     EPROM     L[S DATA
         BRA     LAGRA     LAGRA I RAM
 PROM2   STX     EPROM+$10 ANDRA EPROMET $E0C0
