@@ -78,6 +78,7 @@ VOXMEM1.ASM   - Program som talar - kräver VS-1 Speaker Board - alternativ rös
 ```
 BACKUP.ASM    - Backup-program - backup från en flooppy till en annan (0 till 1)
 LOGG.BAS      - Loggprogram för amatörradio
+LOGG790.BAS   - Loggprogram för amatörradio, för CÅ-790 terminal
 ```
 ### 1983-2
 ```
