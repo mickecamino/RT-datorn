@@ -1,0 +1,115 @@
+   1                               NAM     PROMDIR
+   2                       *
+   3                       * THIS PROGRAM LISTS THE PROM BASED DIRECTORY
+   4                       * REQUIRES THE CÅ-836 EPROM CARD AND LOADING
+   5                       * OF PROM.BIN IN STARTUP.TXT
+   6                       * A CRUDE CONTROL IS BUILT IN THAT CHECKS IF
+   7                       * FIRST CHARACTER IN THE DIRECTORY AT $E400
+   8                       * IS ALPHA NUMERIC.
+   9                       *
+  10                       * VERSION 1.0 2024-06-14
+  11                       * INITIAL RELEASE
+  12                       *
+  13  E400                 TABELL  EQU     $E400     WHERE OUR DIRECTIRY IS
+  14  CD03                 WARMS   EQU     $CD03     FLEX VARM START
+  15  CD21                 CLASS   EQU     $CD21     CLASSIFY CHARACTER FLEX-ROUTINE
+  16  CD0F                 OUTCH   EQU     $CD0F     PRINT ONE CHARACTER VIA FLEX
+  17  CD24                 PCRLF   EQU     $CD24     PRINT CARRIAGE RETURN AND LINE FEED
+  18  E7F7                 SIGNTR  EQU     $E7F7     SIGNATURE AREA
+  19                       *
+  20                               ORG     $C100     STANDARD START ADDRESS FOR FLEX UTILS
+  21                       *
+  22  C100 2001            START   BRA     START1    SKIP OVER VERSION NUMBER
+  23  C102 03                      FCB     3         VERSION
+  24  C103 206B            START1  BRA     KOLL      CHECK IF DIRECTORY IS THERE
+  25  C105 8EC186          START2  LDX     #TEXT1    YES, THEN PRINT HEADER
+  26  C108 BDC161                  JSR     PSTRNG    AND RUN PROGRAM
+  27  C10B 10BEC1C0                LDY     PRGNAM    PLACE HOLDER FOR DIRECTORY NAME
+  28  C10F 8EE400                  LDX     #TABELL   LOAD DIRECTORY TO X
+  29  C112 C605                    LDB     #5        FIVE TABS
+  30  C114 F7C1C9                  STB     TABS      SAVE TABS COUNTER
+  31  C117 C60E                    LDB     #$E       CRUDE TABULATOR CALCULATOR
+  32  C119 A680            LOOP    LDA     ,X+       READ ONE CHARACTER
+  33  C11B 8100                    CMPA    #$0       IS IT 0
+  34  C11D 2705                    BEQ     PRINTIT   YES, THEN PRINT THE DIRECTORY ENTRY
+  35  C11F A7A0                    STA     0,Y+      NO, STORE THE CHARACTER IN PRGNAM
+  36  C121 5A                      DECB              CONT DOWN CHARACTERS
+  37  C122 20F5                    BRA     LOOP      READ AGAIN
+  38                       *
+  39                       * PRINT THE DIRECTORY ENTRY, CHECKS IF WE HAVE REACHED
+  40                       * END OF DIRECTORY TABLE
+  41                       *
+  42  C124 8604            PRINTIT LDA     #$4       EOT
+  43  C126 A720                    STA     0,Y       REPLACE 0 WITH EOT
+  44  C128 3410                    PSHS    X         SAVE X
+  45  C12A BEC1C0                  LDX     PRGNAM    OUR DIRECTORY ENTRY
+  46  C12D BDC161                  JSR     PSTRNG    PRINT IT
+  47  C130 8620                    LDA     #$20      SPACE CHARACTER
+  48  C132 BDCD0F          SPACE   JSR     OUTCH     PRINT IT
+  49  C135 5A                      DECB              DECREMENT B
+  50  C136 C100                    CMPB    #0        MORE SPACES TO PRINT?
+  51  C138 26F8                    BNE     SPACE     YES, LOOP
+  52  C13A B6C1C9                  LDA     TABS      LOAD TABS COUNTER
+  53  C13D 8100                    CMPA    #0        ARE WE DOWN TO LAST TAB?
+  54  C13F 2608                    BNE     TAB2      NO, CONTINUE
+  55  C141 BDCD24                  JSR     PCRLF     YES, PRINT CR LF
+  56  C144 8606                    LDA     #6        RESET TABS COUNTER
+  57  C146 B7C1C9                  STA     TABS      SAVE IT IN TABS
+  58                       *
+  59  C149 4A              TAB2    DECA              DECREMENT TABS
+  60  C14A B7C1C9                  STA     TABS      AND SAVE IT
+  61  C14D 3510                    PULS    X         RESTORE X
+  62  C14F C60E                    LDB     #$E       RESTORE COUNTER
+  63  C151 3001                    INX               SKIP TWO BYTES
+  64  C153 3001                    INX               TO GET TO NEXT DIRECTORY ENTRY
+  65  C155 A684                    LDA     ,X        READ ONE CHARACTER
+  66  C157 8100                    CMPA    #$0       IS IT 0?
+  67  C159 276F                    BEQ     SLUT      YES, END OF DIRECTORY TABLE
+  68  C15B 10BEC1C0                LDY     PRGNAM    NO, RESET PRGNAM
+  69  C15F 20B8                    BRA     LOOP      READ NEXT DIRECTORY ENTRY
+  70                       *
+  71                       * PRINT A STRING, CAN'T USE FLEX PRINT STRING AS IT
+  72                       * ADDS CR LF PRIOR TO PRINT THE STRING
+  73                       *
+  74  C161 3402            PSTRNG  PSHS    A         SAVE A
+  75  C163 A680            PSTR1   LDA     ,X+       GET A CHARACTER, INCREASE X
+  76  C165 8104                    CMPA    #4        END OF TEXT?
+  77  C167 2602                    BNE     PRINTCH   NO, PRINT THE CHARACTER
+  78  C169 3582                    PULS    A,PC      RESTORE A AND PC
+  79                       *
+  80  C16B BDCD0F          PRINTCH JSR     OUTCH     PRINT A CHARACTER VIA FLEX
+  81  C16E 20F3                    BRA     PSTR1     NEXT CHARACTER
+  82                       *
+  83                       * CHECK IF THE DIRECTORY IS IN PLACE
+  84                       * NOT FAIL SAFE, BIT IT IS A START
+  85                       * I MIGHT REWRITE THE CODE TO BE ABSOLUTELY
+  86                       * FAIL SAFE
+  87                       *
+  88  C170 8EE7F7          KOLL    LDX     #SIGNTR   START OF SIGNATURE E8
+  89  C173 4F                      CLRA              CLEAR A
+  90  C174 AB00                    ADDA    0,X       ADD FIRST CHARACTER
+  91  C176 AB01                    ADDA    1,X       ADD SECOND CHARACTER
+  92  C178 AB02                    ADDA    2,X       ADD THIRD CHARACTER
+  93  C17A 81E8                    CMPA    #$E8      IS IT E8?
+  94  C17C 2787                    BEQ     START2    YES, LIST THE DIRECTORY TABLE
+  95                       *
+  96  C17E 8EC1A9          NEJ     LDX     #INGENK   TEXT NO CATALOG FOUND
+  97 >C181 BDC161                  JSR     PSTRNG    PRINT THE STRING
+  98  C184 2044                    BRA     SLUT      QUIT
+  99                       *
+ 100                       * TEXT STRINGS
+ 101                       *
+ 102  C186 1B05            TEXT1   FCB     $1B,5     CLEAR SCREEN
+ 103  C188 0D0A0D0A                FCB     $0D,$0A,$0D,$0A
+ 104  C18C 50726F6772616D          FCC     'Program i EPROM-katalogen:'
+ 105  C1A6 0D0A04                  FCB     $0D,$0A,4
+ 106  C1A9 496E67656E206B  INGENK  FCC     'Ingen katalog hittad'
+ 107  C1BD 0D0A04                  FCB     $0D,$0A,4
+ 108                       *
+ 109  C1C0                 PRGNAM  RMB     9         PLACE HOLDER FOR DIRECTORY ENTRY
+ 110  C1C9                 TABS    RMB     1         PLACE HOLDER FOR TABS
+ 111                       *
+ 112  C1CA 7ECD03          SLUT    JMP     WARMS     JUMP TO FLEX
+ 113  C100                         END     START
+
+0 error(s), 0 warning(s)
