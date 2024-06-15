@@ -9,296 +9,295 @@
    9                       *
   10                       * REQUIRES PROM ON CARD 836
   11                       * EPROM AT ADDRESS $E0B0, $E0C0 AND $E0D0
-  12                       * RAM AT ADDRESS $E400-E4FF
+  12                       * RAM AT ADDRESS $E400-E7FF
   13                       *
   14                       * PROGRAM IN PROM ARE STANDARD FLEX CMD-FILES
   15                       *
-  16                       * CALL THE PROGRAM WITH GET PROM
-  17                       * IN STARTUP.TXT
-  18                       *
-  19                       * VERSION 1.0 2024-05-06
-  20                       * INITIAL RELEASE
-  21                       * VERSION 1.1 2024-05-07
-  22                       * VERSION 1.2 2024-05-30
-  23                       * VERSION 1.3 2024-06-14
-  24                       * ADDED SIGNATURE TO BE USED WITH PROMDIR.CMD
-  25                       *
-  26  E0B0                 EPROM   EQU     $E0B0     BASE ADDRESS FOR EPROM
-  27  E400                 COMTAB  EQU     $E400     COMMAND TABLE
-  28  E7FA                 RAM     EQU     $E7FA     SAVE 6 BYTES FOR VARIABLES
-  29  0002                 PROMVAL EQU     2         EPROM SELECTOR
-  30  CD03                 WARMS   EQU     $CD03     FLEX VARM START
-  31  E7F7                 SIGNTR  EQU     $E7F7     MY SIGNATURE
-  32                       *
-  33                               ORG     RAM       SOME VARIABLES
-  34  E7FA                 PRMSTA  RMB     2         CMD-FILE START ADDRESS IN EPROM
-  35  E7FC                 RAMSTO  RMB     2         WHERE IN RAM SHOULD IT GO
-  36  E7FE                 TRNSFR  RMB     2         TRANSFER ADDRESS
-  37                       *
-  38                       * PUT THE ADDRESS FOR THE COMMAND TABLE INTO FLEX
-  39                       *
-  40                               ORG     $CC12     HOOK INTO FLEX
-  41  CC12 E4                      FCB     $E4       OUR TABLE IS AT $E400
-  42                       *
-  43                               ORG     SIGNTR    SIGNATURE AREA
-  44  E7F7 504D4B                  FCC     'PMK'     SIGNATURE
-  45                       *
-  46                               ORG     COMTAB    ALWAYS AT $E400
-  47                       *
-  48                       * ENTER ALL COMMANDS FOR THE EPROM BASED UTILS
-  49                       * AFTER LAST COMMAND, ENTER A 0
-  50                       *
-  51                       * EACH ENTRY TAKES BETWEEN 4 AND 11 BYTES
-  52                       *
-  53  E400 41534E                  FCC     'ASN'
-  54  E403 00                      FCB     0
-  55  E404 E4AD                    FDB     JMPTAB
-  56  E406 434154                  FCC     'CAT'
-  57  E409 00                      FCB     0
-  58  E40A E4BA                    FDB     CAT
-  59  E40C 434F5059                FCC     'COPY'
-  60  E410 00                      FCB     0
-  61  E411 E4C3                    FDB     COPY
-  62  E413 44415445                FCC     'DATE'
-  63  E417 00                      FCB     0
-  64  E418 E4CC                    FDB     DATE
-  65  E41A 44454C455445            FCC     'DELETE'
-  66  E420 00                      FCB     0
-  67  E421 E4D5                    FDB     DELETE
-  68  E423 564552494659            FCC     'VERIFY'
-  69  E429 00                      FCB     0
-  70  E42A E4DE                    FDB     VERIFY
-  71  E42C 56455253494F4E          FCC     'VERSION'
-  72  E433 00                      FCB     0
-  73  E434 E4E7                    FDB     VERSION
-  74  E436 4C495354                FCC     'LIST'
-  75  E43A 00                      FCB     0
-  76  E43B E4F0                    FDB     LIST
-  77  E43D 545459534554            FCC     'TTYSET'
-  78  E443 00                      FCB     0
-  79  E444 E4F9                    FDB     TTYSET
-  80  E446 4E45574449534B          FCC     'NEWDISK'
-  81  E44D 00                      FCB     0
-  82  E44E E502                    FDB     NEWDISK
-  83  E450 444952                  FCC     'DIR'
-  84  E453 00                      FCB     0
-  85  E454 E50B                    FDB     DIR
-  86  E456 44495252                FCC     'DIRR'
-  87  E45A 00                      FCB     0
-  88  E45B E514                    FDB     DIRR
-  89  E45D 4449534B494445          FCC     'DISKIDEN'
-  90  E465 00                      FCB     0
-  91  E466 E51D                    FDB     DISKIDEN
-  92  E468 415050454E44            FCC     'APPEND'
-  93  E46E 00                      FCB     0
-  94  E46F E526                    FDB     APPEND
-  95  E471 4255494C44              FCC     'BUILD'
-  96  E476 00                      FCB     0
-  97  E477 E52F                    FDB     BUILD
-  98  E479 4F                      FCC     'O'
-  99  E47A 00                      FCB     0
- 100  E47B E539                    FDB     OCMD
- 101  E47D 53415645                FCC     'SAVE'
- 102  E481 00                      FCB     0
- 103  E482 E543                    FDB     SAVE
- 104  E484 52454E414D45            FCC     'RENAME'
- 105  E48A 00                      FCB     0
- 106  E48B E54D                    FDB     RENAME
- 107  E48D 41534D42                FCC     'ASMB'
- 108  E491 00                      FCB     0
- 109  E492 E557                    FDB     ASMB
- 110  E494 584241534943            FCC     'XBASIC'
- 111  E49A 00                      FCB     0
- 112  E49B E561                    FDB     XBASIC
- 113  E49D 45444954                FCC     'EDIT'
- 114  E4A1 00                      FCB     0
- 115  E4A2 E56B                    FDB     EDIT
- 116  E4A4 4445425547              FCC     'DEBUG'
- 117  E4A9 00                      FCB     0
- 118  E4AA E575                    FDB     DEBUG
- 119  E4AC 00                      FCB     0
- 120                       *
- 121  E4AD                 JMPTAB  EQU     *         START ADDRESSES
- 122                       *
- 123                       * HERE ARE ALL START ADDRESSES FOR THE PROGRAMS
- 124                       * THAT ARE IN THE EPROM
- 125                       * X SHOULD CONTAIN THE START ADDRESS FOR THE PROGRAM
- 126                       * IN EPROM
- 127                       *
- 128                       * EACH ENTRY TAKES 10 BYTES
- 129                       *
- 130  E4AD 3476                    PSHS    X,Y,A,B,U SAVE REGISTERS
- 131  E4AF 8E0000                  LDX     #$0000    START ADDRESS
- 132  E4B2 DE01                    LDU     1         WHAT EPROM? 1, 2 OR 3
- 133  E4B4 BFE7FA          STORE   STX     PRMSTA    PUT IN PRMSTA
- 134  E4B7 7EE57F                  JMP     LADDA     JUMP
- 135                       *
- 136  E4BA 3476            CAT     PSHS    X,Y,A,B,U
- 137  E4BC 8E00F6                  LDX     #$00F6
- 138  E4BF DE01                    LDU     1
- 139  E4C1 20F1                    BRA     STORE
- 140                       *
- 141  E4C3 3476            COPY    PSHS    X,Y,A,B,U
- 142  E4C5 8E03A8                  LDX     #$03A8
- 143  E4C8 DE01                    LDU     1
- 144  E4CA 20E8                    BRA     STORE
- 145                       *
- 146  E4CC 3476            DATE    PSHS    X,Y,A,B,U
- 147  E4CE 8E07DB                  LDX     #$07DB
- 148  E4D1 DE01                    LDU     1
- 149  E4D3 20DF                    BRA     STORE
- 150                       *
- 151  E4D5 3476            DELETE  PSHS    X,Y,A,B,U
- 152  E4D7 8E08EF                  LDX     #$08EF
- 153  E4DA DE01                    LDU     1
- 154  E4DC 20D6                    BRA     STORE
- 155                       *
- 156  E4DE 3476            VERIFY  PSHS    X,Y,A,B,U
- 157  E4E0 8E0A4C                  LDX     #$0A4C
- 158  E4E3 DE01                    LDU     1
- 159  E4E5 20CD                    BRA     STORE
- 160                       *
- 161  E4E7 3476            VERSION PSHS    X,Y,A,B,U
- 162  E4E9 8E0AE4                  LDX     #$0AE4
- 163  E4EC DE01                    LDU     1
- 164  E4EE 20C4                    BRA     STORE
- 165                       *
- 166  E4F0 3476            LIST    PSHS    X,Y,A,B,U
- 167  E4F2 DE01                    LDU     1
- 168  E4F4 8E2000                  LDX     #$2000
- 169  E4F7 20BB                    BRA     STORE
- 170                       *
- 171  E4F9 3476            TTYSET  PSHS    X,Y,A,B,U
- 172  E4FB 8E2041                  LDX     #$2041
- 173  E4FE DE01                    LDU     1
- 174  E500 20B2                    BRA     STORE
- 175                       *
- 176  E502 3476            NEWDISK PSHS    X,Y,A,B,U
- 177  E504 8E23F8                  LDX     #$23F8
- 178  E507 DE01                    LDU     1
- 179  E509 20A9                    BRA     STORE
- 180                       *
- 181  E50B 3476            DIR     PSHS    X,Y,A,B,U
- 182  E50D 8E2C71                  LDX     #$2C71
- 183  E510 DE01                    LDU     1
- 184  E512 20A0                    BRA     STORE
- 185                       *
- 186  E514 3476            DIRR    PSHS    X,Y,A,B,U
- 187  E516 8E30BC                  LDX     #$30BC
- 188  E519 DE01                    LDU     1
- 189  E51B 2097                    BRA     STORE
- 190                       *
- 191  E51D 3476            DISKIDEN PSHS    X,Y,A,B,U
- 192  E51F 8E34FF                  LDX     #$34FF
- 193  E522 DE01                    LDU     1
- 194  E524 208E                    BRA     STORE
- 195                       *
- 196  E526 3476            APPEND  PSHS    X,Y,A,B,U
- 197  E528 8E39E7                  LDX     #$39E7
- 198  E52B DE01                    LDU     1
- 199  E52D 2085                    BRA     STORE
- 200                       *
- 201  E52F 3476            BUILD   PSHS    X,Y,A,B,U
- 202  E531 8E3C0A                  LDX     #$3C0A
- 203  E534 DE01                    LDU     1
- 204  E536 16FF7B                  LBRA    STORE     NOTE! LBRA NEEDED AS OF NOW
- 205                       *
- 206  E539 3476            OCMD    PSHS    X,Y,A,B,U
- 207  E53B 8E3CCB                  LDX     #$3CCB
- 208  E53E DE01                    LDU     1
- 209  E540 16FF71                  LBRA    STORE
- 210                       *
- 211  E543 3476            SAVE    PSHS    X,Y,A,B,U
- 212  E545 8E3E2F                  LDX     #$3E2F
- 213  E548 DE01                    LDU     1
- 214  E54A 16FF67                  LBRA    STORE
- 215                       *
- 216  E54D 3476            RENAME  PSHS    X,Y,A,B,U
- 217  E54F 8E3FB6                  LDX     #$3FB6
- 218  E552 DE01                    LDU     1
- 219  E554 16FF5D                  LBRA    STORE
- 220                       *
- 221  E557 3476            ASMB    PSHS    X,Y,A,B,U
- 222  E559 8E3FFA                  LDX     #$3FFA
- 223  E55C DE01                    LDU     1
- 224  E55E 16FF53                  LBRA    STORE
- 225                       *
- 226  E561 3476            XBASIC  PSHS    X,Y,A,B,U
- 227  E563 8E6EDB                  LDX     #$6EDB
- 228  E566 DE01                    LDU     1
- 229  E568 16FF49                  LBRA    STORE
- 230                       *
- 231  E56B 3476            EDIT    PSHS    X,Y,A,B,U
- 232  E56D 8EBBA0                  LDX     #$BBA0
- 233  E570 DE01                    LDU     1
- 234  E572 16FF3F                  LBRA    STORE
- 235                       *
- 236  E575 3476            DEBUG   PSHS    X,Y,A,B,U
- 237  E577 8E0000                  LDX     #$0000
- 238  E57A DE02                    LDU     2         SECOND EPROM
- 239  E57C 16FF35                  LBRA    STORE
+  16                       * CALL THE PROGRAM WITH GET PROM IN STARTUP.TXT
+  17                       *
+  18                       * VERSION 1.0 2024-05-06
+  19                       * INITIAL RELEASE
+  20                       * VERSION 1.1 2024-05-07
+  21                       * VERSION 1.2 2024-05-30
+  22                       * VERSION 1.3 2024-06-14
+  23                       * ADDED SIGNATURE TO BE USED WITH PROMDIR.CMD
+  24                       *
+  25  E0B0                 EPROM   EQU     $E0B0     BASE ADDRESS FOR EPROM
+  26  E400                 COMTAB  EQU     $E400     COMMAND TABLE
+  27  E7FA                 RAM     EQU     $E7FA     SAVE 6 BYTES FOR VARIABLES
+  28  0002                 PROMVAL EQU     2         EPROM SELECTOR
+  29  CD03                 WARMS   EQU     $CD03     FLEX WARM START
+  30  E7F7                 SIGNTR  EQU     $E7F7     MY SIGNATURE
+  31                       *
+  32                               ORG     RAM       SOME VARIABLES
+  33  E7FA                 PRMSTA  RMB     2         CMD-FILE START ADDRESS IN EPROM
+  34  E7FC                 RAMSTO  RMB     2         WHERE IN RAM SHOULD IT GO
+  35  E7FE                 TRNSFR  RMB     2         TRANSFER ADDRESS
+  36                       *
+  37                       * PUT THE ADDRESS FOR THE COMMAND TABLE INTO FLEX
+  38                       *
+  39                               ORG     $CC12     HOOK INTO FLEX
+  40  CC12 E4                      FCB     $E4       OUR TABLE IS AT $E400
+  41                       *
+  42                               ORG     SIGNTR    SIGNATURE AREA
+  43  E7F7 504D4B                  FCC     'PMK'     SIGNATURE
+  44                       *
+  45                               ORG     COMTAB    ALWAYS AT $E400
+  46                       *
+  47                       * ENTER ALL COMMANDS FOR THE EPROM BASED UTILS
+  48                       * AFTER LAST COMMAND, ENTER A 0
+  49                       *
+  50                       * EACH ENTRY TAKES BETWEEN 4 AND 11 BYTES
+  51                       *
+  52  E400 41534E                  FCC     'ASN'
+  53  E403 00                      FCB     0
+  54  E404 E4AD                    FDB     JMPTAB
+  55  E406 434154                  FCC     'CAT'
+  56  E409 00                      FCB     0
+  57  E40A E4BA                    FDB     CAT
+  58  E40C 434F5059                FCC     'COPY'
+  59  E410 00                      FCB     0
+  60  E411 E4C3                    FDB     COPY
+  61  E413 44415445                FCC     'DATE'
+  62  E417 00                      FCB     0
+  63  E418 E4CC                    FDB     DATE
+  64  E41A 44454C455445            FCC     'DELETE'
+  65  E420 00                      FCB     0
+  66  E421 E4D5                    FDB     DELETE
+  67  E423 564552494659            FCC     'VERIFY'
+  68  E429 00                      FCB     0
+  69  E42A E4DE                    FDB     VERIFY
+  70  E42C 56455253494F4E          FCC     'VERSION'
+  71  E433 00                      FCB     0
+  72  E434 E4E7                    FDB     VERSION
+  73  E436 4C495354                FCC     'LIST'
+  74  E43A 00                      FCB     0
+  75  E43B E4F0                    FDB     LIST
+  76  E43D 545459534554            FCC     'TTYSET'
+  77  E443 00                      FCB     0
+  78  E444 E4F9                    FDB     TTYSET
+  79  E446 4E45574449534B          FCC     'NEWDISK'
+  80  E44D 00                      FCB     0
+  81  E44E E502                    FDB     NEWDISK
+  82  E450 444952                  FCC     'DIR'
+  83  E453 00                      FCB     0
+  84  E454 E50B                    FDB     DIR
+  85  E456 44495252                FCC     'DIRR'
+  86  E45A 00                      FCB     0
+  87  E45B E514                    FDB     DIRR
+  88  E45D 4449534B494445          FCC     'DISKIDEN'
+  89  E465 00                      FCB     0
+  90  E466 E51D                    FDB     DISKIDEN
+  91  E468 415050454E44            FCC     'APPEND'
+  92  E46E 00                      FCB     0
+  93  E46F E526                    FDB     APPEND
+  94  E471 4255494C44              FCC     'BUILD'
+  95  E476 00                      FCB     0
+  96  E477 E52F                    FDB     BUILD
+  97  E479 4F                      FCC     'O'
+  98  E47A 00                      FCB     0
+  99  E47B E539                    FDB     OCMD
+ 100  E47D 53415645                FCC     'SAVE'
+ 101  E481 00                      FCB     0
+ 102  E482 E543                    FDB     SAVE
+ 103  E484 52454E414D45            FCC     'RENAME'
+ 104  E48A 00                      FCB     0
+ 105  E48B E54D                    FDB     RENAME
+ 106  E48D 41534D42                FCC     'ASMB'
+ 107  E491 00                      FCB     0
+ 108  E492 E557                    FDB     ASMB
+ 109  E494 584241534943            FCC     'XBASIC'
+ 110  E49A 00                      FCB     0
+ 111  E49B E561                    FDB     XBASIC
+ 112  E49D 45444954                FCC     'EDIT'
+ 113  E4A1 00                      FCB     0
+ 114  E4A2 E56B                    FDB     EDIT
+ 115  E4A4 4445425547              FCC     'DEBUG'
+ 116  E4A9 00                      FCB     0
+ 117  E4AA E575                    FDB     DEBUG
+ 118  E4AC 00                      FCB     0
+ 119                       *
+ 120  E4AD                 JMPTAB  EQU     *         START ADDRESSES
+ 121                       *
+ 122                       * HERE ARE ALL START ADDRESSES FOR THE PROGRAMS
+ 123                       * THAT ARE IN THE EPROM
+ 124                       * X SHOULD CONTAIN THE START ADDRESS FOR THE PROGRAM
+ 125                       * IN EPROM
+ 126                       *
+ 127                       * EACH ENTRY TAKES 10 BYTES
+ 128                       *
+ 129  E4AD 3476                    PSHS    X,Y,A,B,U SAVE REGISTERS
+ 130  E4AF 8E0000                  LDX     #$0000    START ADDRESS
+ 131  E4B2 DE01                    LDU     1         WHAT EPROM? 1, 2 OR 3
+ 132  E4B4 BFE7FA          STORE   STX     PRMSTA    PUT IN PRMSTA
+ 133  E4B7 7EE57F                  JMP     LADDA     JUMP
+ 134                       *
+ 135  E4BA 3476            CAT     PSHS    X,Y,A,B,U
+ 136  E4BC 8E00F6                  LDX     #$00F6
+ 137  E4BF DE01                    LDU     1
+ 138  E4C1 20F1                    BRA     STORE
+ 139                       *
+ 140  E4C3 3476            COPY    PSHS    X,Y,A,B,U
+ 141  E4C5 8E03A8                  LDX     #$03A8
+ 142  E4C8 DE01                    LDU     1
+ 143  E4CA 20E8                    BRA     STORE
+ 144                       *
+ 145  E4CC 3476            DATE    PSHS    X,Y,A,B,U
+ 146  E4CE 8E07DB                  LDX     #$07DB
+ 147  E4D1 DE01                    LDU     1
+ 148  E4D3 20DF                    BRA     STORE
+ 149                       *
+ 150  E4D5 3476            DELETE  PSHS    X,Y,A,B,U
+ 151  E4D7 8E08EF                  LDX     #$08EF
+ 152  E4DA DE01                    LDU     1
+ 153  E4DC 20D6                    BRA     STORE
+ 154                       *
+ 155  E4DE 3476            VERIFY  PSHS    X,Y,A,B,U
+ 156  E4E0 8E0A4C                  LDX     #$0A4C
+ 157  E4E3 DE01                    LDU     1
+ 158  E4E5 20CD                    BRA     STORE
+ 159                       *
+ 160  E4E7 3476            VERSION PSHS    X,Y,A,B,U
+ 161  E4E9 8E0AE4                  LDX     #$0AE4
+ 162  E4EC DE01                    LDU     1
+ 163  E4EE 20C4                    BRA     STORE
+ 164                       *
+ 165  E4F0 3476            LIST    PSHS    X,Y,A,B,U
+ 166  E4F2 DE01                    LDU     1
+ 167  E4F4 8E2000                  LDX     #$2000
+ 168  E4F7 20BB                    BRA     STORE
+ 169                       *
+ 170  E4F9 3476            TTYSET  PSHS    X,Y,A,B,U
+ 171  E4FB 8E2041                  LDX     #$2041
+ 172  E4FE DE01                    LDU     1
+ 173  E500 20B2                    BRA     STORE
+ 174                       *
+ 175  E502 3476            NEWDISK PSHS    X,Y,A,B,U
+ 176  E504 8E23F8                  LDX     #$23F8
+ 177  E507 DE01                    LDU     1
+ 178  E509 20A9                    BRA     STORE
+ 179                       *
+ 180  E50B 3476            DIR     PSHS    X,Y,A,B,U
+ 181  E50D 8E2C71                  LDX     #$2C71
+ 182  E510 DE01                    LDU     1
+ 183  E512 20A0                    BRA     STORE
+ 184                       *
+ 185  E514 3476            DIRR    PSHS    X,Y,A,B,U
+ 186  E516 8E30BC                  LDX     #$30BC
+ 187  E519 DE01                    LDU     1
+ 188  E51B 2097                    BRA     STORE
+ 189                       *
+ 190  E51D 3476            DISKIDEN PSHS    X,Y,A,B,U
+ 191  E51F 8E34FF                  LDX     #$34FF
+ 192  E522 DE01                    LDU     1
+ 193  E524 208E                    BRA     STORE
+ 194                       *
+ 195  E526 3476            APPEND  PSHS    X,Y,A,B,U
+ 196  E528 8E39E7                  LDX     #$39E7
+ 197  E52B DE01                    LDU     1
+ 198  E52D 2085                    BRA     STORE
+ 199                       *
+ 200  E52F 3476            BUILD   PSHS    X,Y,A,B,U
+ 201  E531 8E3C0A                  LDX     #$3C0A
+ 202  E534 DE01                    LDU     1
+ 203  E536 16FF7B                  LBRA    STORE     NOTE! LBRA NEEDED AS OF NOW
+ 204                       *
+ 205  E539 3476            OCMD    PSHS    X,Y,A,B,U
+ 206  E53B 8E3CCB                  LDX     #$3CCB
+ 207  E53E DE01                    LDU     1
+ 208  E540 16FF71                  LBRA    STORE
+ 209                       *
+ 210  E543 3476            SAVE    PSHS    X,Y,A,B,U
+ 211  E545 8E3E2F                  LDX     #$3E2F
+ 212  E548 DE01                    LDU     1
+ 213  E54A 16FF67                  LBRA    STORE
+ 214                       *
+ 215  E54D 3476            RENAME  PSHS    X,Y,A,B,U
+ 216  E54F 8E3FB6                  LDX     #$3FB6
+ 217  E552 DE01                    LDU     1
+ 218  E554 16FF5D                  LBRA    STORE
+ 219                       *
+ 220  E557 3476            ASMB    PSHS    X,Y,A,B,U
+ 221  E559 8E3FFA                  LDX     #$3FFA
+ 222  E55C DE01                    LDU     1
+ 223  E55E 16FF53                  LBRA    STORE
+ 224                       *
+ 225  E561 3476            XBASIC  PSHS    X,Y,A,B,U
+ 226  E563 8E6EDB                  LDX     #$6EDB
+ 227  E566 DE01                    LDU     1
+ 228  E568 16FF49                  LBRA    STORE
+ 229                       *
+ 230  E56B 3476            EDIT    PSHS    X,Y,A,B,U
+ 231  E56D 8EBBA0                  LDX     #$BBA0
+ 232  E570 DE01                    LDU     1
+ 233  E572 16FF3F                  LBRA    STORE
+ 234                       *
+ 235  E575 3476            DEBUG   PSHS    X,Y,A,B,U
+ 236  E577 8E0000                  LDX     #$0000
+ 237  E57A DE02                    LDU     2         SECOND EPROM
+ 238  E57C 16FF35                  LBRA    STORE
+ 239                       *
  240                       *
- 241                       *
- 242  E57F                 LADDA   EQU     *         LOAD ROUTINE
- 243                       *
- 244  E57F BEE7FA          LOAD1   LDX     PRMSTA    START ADDRESS IN EPROM
- 245                       *
- 246  E582 8D36            LOAD2   BSR     LESPRM    GET  1 BYTE, PUT IN A
- 247  E584 8102                    CMPA    #2        IS IT 02? I.E. START OF RECORD?
- 248  E586 2712                    BEQ     LESREC    YES, READ THE RECORD AND DATA
- 249  E588 8116                    CMPA    #$16      IS ITTRANSFER ADDRESS?
- 250  E58A 8D2E                    BSR     LESPRM    GET TRANSFER-ADDRESS MSB
- 251  E58C B7E7FE                  STA     TRNSFR    SAVE MSB
- 252  E58F 8D29                    BSR     LESPRM    GET TRANSFER-ADDRESS LSB
- 253  E591 B7E7FF                  STA     TRNSFR+1  SAVE LSB
- 254  E594 3576                    PULS    X,Y,A,B,U RESTORE REGISTERS
- 255  E596 6E9FE7FE                JMP     [TRNSFR]  AND JUMP TO START ADDRESS
- 256                       *
- 257                       * READ FLEX FILE RECORD
- 258                       *
- 259  E59A 8D1E            LESREC  BSR     LESPRM    GET RAM-ADDRESS MSB
- 260  E59C 1F89                    TFR     A,B       PUT IN B
- 261  E59E 8D1A                    BSR     LESPRM    GET RAM-ADDRESS LSB
- 262  E5A0 1E89                    EXG     A,B       SWAP THE TWO BYTES TO GET IT RIGHT
- 263  E5A2 FDE7FC                  STD     RAMSTO    SAVE IN RAMSTO
- 264  E5A5 8D13                    BSR     LESPRM    GET NUMBER OF BYTES IN RECORD
- 265  E5A7 1F89                    TFR     A,B       PUT IT IN B
- 266                       *
- 267                       * DONE WITH FLEX FILE RECORD
- 268                       * NOW LOAD THE PROGRAM INTO RAM
- 269                       *
- 270  E5A9 8D0F            LESRCD2 BSR     LESPRM    GET ONE BYTE
- 271  E5AB 10BEE7FC                LDY     RAMSTO    WHERE IT SHOULD BE STORED
- 272  E5AF A7A0                    STA     0,Y+      SAVE IT, INCREASE Y
- 273  E5B1 10BFE7FC                STY     RAMSTO    SAVE NEXT RAM ADDRESS
- 274  E5B5 5A                      DECB              ARE WE AT 0?
- 275  E5B6 26F1                    BNE     LESRCD2   NO, CONTINUE UNTIL WE ARE
- 276  E5B8 20C8                    BRA     LOAD2     YES, LOOK FOR MORE RECORDS
- 277                       *
- 278                       * SUB ROUTINE THAT READS ONE BYTE FROM THE NEW EPROM
- 279                       * CARD 836 AT ADDRESSES $E0B0, $E0C0 OR $E0D0
- 280                       * IN: X-REG - ADDRESS IN EPROM TO READ FROM
- 281                       *     U-REG - WHAT EPROM TO READ
- 282                       *
- 283                       * RETURNS: A-REG - ONE BYTE READ FROM EPROM
- 284                       *
- 285  E5BA 119302          LESPRM  CMPU    PROMVAL   WHAT EPROM SHOULD WE READ FROM
- 286  E5BD 2504                    BLO     PROM1     LESS THAN 2 = PROM #1
- 287  E5BF 270A                    BEQ     PROM2     EQUAL WITH 2 = PROM #2
- 288  E5C1 2E10                    BGT     PROM3     LARGER THAN 2 = PROM #3
- 289                       *
- 290  E5C3 BFE0B0          PROM1   STX     EPROM     FIRST EPROM
- 291  E5C6 B6E0B0                  LDA     EPROM     READ DATA
- 292  E5C9 200E                    BRA     LAGRA     PUT IN RAM
- 293  E5CB BFE0C0          PROM2   STX     EPROM+$10 SECOND EPROM
- 294  E5CE B6E0C0                  LDA     EPROM+$10 READ DATA
- 295  E5D1 2006                    BRA     LAGRA     PUT IN RAM
- 296  E5D3 BFE0D0          PROM3   STX     EPROM+$20 THIRD EPROM
- 297  E5D6 B6E0D0                  LDA     EPROM+$20 READ DATA
- 298                       *
- 299  E5D9 3001            LAGRA   INX               NEXT POSITIONS
- 300  E5DB 39                      RTS               RETURN
- 301                       *
- 302                               END
+ 241  E57F                 LADDA   EQU     *         LOAD ROUTINE
+ 242                       *
+ 243  E57F BEE7FA          LOAD1   LDX     PRMSTA    START ADDRESS IN EPROM
+ 244                       *
+ 245  E582 8D36            LOAD2   BSR     LESPRM    GET  1 BYTE, PUT IN A
+ 246  E584 8102                    CMPA    #2        IS IT 02? I.E. START OF RECORD?
+ 247  E586 2712                    BEQ     LESREC    YES, READ THE RECORD AND DATA
+ 248  E588 8116                    CMPA    #$16      IS IT TRANSFER ADDRESS?
+ 249  E58A 8D2E                    BSR     LESPRM    GET TRANSFER ADDRESS MSB
+ 250  E58C B7E7FE                  STA     TRNSFR    SAVE MSB
+ 251  E58F 8D29                    BSR     LESPRM    GET TRANSFER ADDRESS LSB
+ 252  E591 B7E7FF                  STA     TRNSFR+1  SAVE LSB
+ 253  E594 3576                    PULS    X,Y,A,B,U RESTORE REGISTERS
+ 254  E596 6E9FE7FE                JMP     [TRNSFR]  AND JUMP TO START ADDRESS
+ 255                       *
+ 256                       * READ FLEX FILE RECORD
+ 257                       *
+ 258  E59A 8D1E            LESREC  BSR     LESPRM    GET RAM ADDRESS MSB
+ 259  E59C 1F89                    TFR     A,B       PUT IN B
+ 260  E59E 8D1A                    BSR     LESPRM    GET RAM-ADDRESS LSB
+ 261  E5A0 1E89                    EXG     A,B       SWAP THE TWO BYTES TO GET IT RIGHT
+ 262  E5A2 FDE7FC                  STD     RAMSTO    SAVE IN RAMSTO
+ 263  E5A5 8D13                    BSR     LESPRM    GET NUMBER OF BYTES IN RECORD
+ 264  E5A7 1F89                    TFR     A,B       PUT IT IN B
+ 265                       *
+ 266                       * DONE WITH FLEX FILE RECORD
+ 267                       * NOW LOAD THE PROGRAM INTO RAM
+ 268                       *
+ 269  E5A9 8D0F            LESRCD2 BSR     LESPRM    GET ONE BYTE
+ 270  E5AB 10BEE7FC                LDY     RAMSTO    WHERE IT SHOULD BE STORED
+ 271  E5AF A7A0                    STA     0,Y+      SAVE IT, INCREASE Y
+ 272  E5B1 10BFE7FC                STY     RAMSTO    SAVE NEXT RAM ADDRESS
+ 273  E5B5 5A                      DECB              ARE WE AT 0?
+ 274  E5B6 26F1                    BNE     LESRCD2   NO, CONTINUE UNTIL WE ARE
+ 275  E5B8 20C8                    BRA     LOAD2     YES, LOOK FOR MORE RECORDS
+ 276                       *
+ 277                       * SUB ROUTINE THAT READS ONE BYTE FROM THE NEW EPROM
+ 278                       * CARD 836 AT ADDRESSES $E0B0, $E0C0 OR $E0D0
+ 279                       * IN: X-REG - ADDRESS IN EPROM TO READ FROM
+ 280                       *     U-REG - WHAT EPROM TO READ
+ 281                       *
+ 282                       * RETURNS: A-REG - ONE BYTE READ FROM EPROM
+ 283                       *
+ 284  E5BA 119302          LESPRM  CMPU    PROMVAL   WHAT EPROM SHOULD WE READ FROM
+ 285  E5BD 2504                    BLO     PROM1     LESS THAN 2 = PROM #1
+ 286  E5BF 270A                    BEQ     PROM2     EQUAL WITH 2 = PROM #2
+ 287  E5C1 2E10                    BGT     PROM3     LARGER THAN 2 = PROM #3
+ 288                       *
+ 289  E5C3 BFE0B0          PROM1   STX     EPROM     FIRST EPROM
+ 290  E5C6 B6E0B0                  LDA     EPROM     READ DATA
+ 291  E5C9 200E                    BRA     LAGRA     PUT IN RAM
+ 292  E5CB BFE0C0          PROM2   STX     EPROM+$10 SECOND EPROM
+ 293  E5CE B6E0C0                  LDA     EPROM+$10 READ DATA
+ 294  E5D1 2006                    BRA     LAGRA     PUT IN RAM
+ 295  E5D3 BFE0D0          PROM3   STX     EPROM+$20 THIRD EPROM
+ 296  E5D6 B6E0D0                  LDA     EPROM+$20 READ DATA
+ 297                       *
+ 298  E5D9 3001            LAGRA   INX               NEXT POSITIONS
+ 299  E5DB 39                      RTS               RETURN
+ 300                       *
+ 301                               END
 
 0 error(s), 0 warning(s)
