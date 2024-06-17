@@ -143,11 +143,11 @@
  143                       *
  144                       * FLEX 9.1 IS LOCATED BETWEEN $0000 - $18D7
  145                       *
- 146  E4D5 3476                    PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
- 147  E4D7 8E18D8                  LDX     #$18D8    STARTADRESSEN
- 148  E4DA DE01                    LDU     1         VILKET EPROM?
- 149  E4DC BFE7FA          STORE   STX     PRMSTA    L[GG I PRMSTA
- 150  E4DF 7EE5D9                  JMP     LADDA     HOPPA
+ 146  E4D5 3476                    PSHS    X,Y,A,B,U SAVE REGISTERS
+ 147  E4D7 8E18D8                  LDX     #$18D8    START ADRDESS
+ 148  E4DA DE01                    LDU     1         WHAT EPROM?
+ 149  E4DC BFE7FA          STORE   STX     PRMSTA    PUT IN PRMSTA
+ 150  E4DF 7EE5D9                  JMP     LADDA     JUMP
  151                       *
  152  E4E2 3476            CAT     PSHS    X,Y,A,B,U
  153  E4E4 8E19CE                  LDX     #$19CE

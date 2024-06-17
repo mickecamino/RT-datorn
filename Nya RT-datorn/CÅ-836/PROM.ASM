@@ -143,11 +143,11 @@ JMPTAB  EQU     *         START ADDRESSES
 *
 * FLEX 9.1 IS LOCATED BETWEEN $0000 - $18D7
 *
-        PSHS    X,Y,A,B,U SPARA UNDAN REGISTER
-        LDX     #$18D8    STARTADRESSEN
-        LDU     1         VILKET EPROM?
-STORE   STX     PRMSTA    L[GG I PRMSTA
-        JMP     LADDA     HOPPA
+        PSHS    X,Y,A,B,U SAVE REGISTERS
+        LDX     #$18D8    START ADRDESS
+        LDU     1         WHAT EPROM?
+STORE   STX     PRMSTA    PUT IN PRMSTA
+        JMP     LADDA     JUMP
 *
 CAT     PSHS    X,Y,A,B,U
         LDX     #$19CE
