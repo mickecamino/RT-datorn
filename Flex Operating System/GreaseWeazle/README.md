@@ -24,7 +24,7 @@ Håll musen över tredje gröna fältet och skriv av värdena för position $26 
 | Pos 26  | Pos 27      |     Typ av diskett                     | Konfig för GW |
 | ------- | ----------- | ---------------------------------------| ------------- |
 |   $22   |   $0A (10)  | 35 spår, enkelsidig                    | flex.35.sssd  |
-|         |             |                                        |               |
+|   $22   |   $0A (18)  | 35 spår, enkelsidig, dubbel densitet   | flex.35.ssdd  |
 |   $27   |   $0A (10)  | 40 spår, enkelsidig                    | flex.40.sssd  |
 |   $27   |   $12 (18)  | 40 spår, enkelsidig, dubbel densitet   | flex.40.ssdd  |
 |   $27   |   $14 (20)  | 40 spår, dubbelsidig                   | flex.40.dssd  |
@@ -33,7 +33,7 @@ Håll musen över tredje gröna fältet och skriv av värdena för position $26 
 |   $4F   |   $0A (10)  | 80 spår, enkelsidig                    |               |
 |   $4F   |   $12 (18)  | 80 spår, enkelsidig, dubbel densitet   |               |
 |   $4F   |   $14 (20)  | 80 spår, dubbelsidig                   |               |
-|   $4F   |   $24 (36)  | 80 spår, dubbelsidig, dubbel densitet  |               |
+|   $4F   |   $24 (36)  | 80 spår, dubbelsidig, dubbel densitet  | flex.80.dsdd  |
 
   
 Tabellen kommer att utökas och flex.cfg kommer att få fler definitioner.
