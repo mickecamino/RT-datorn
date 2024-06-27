@@ -39,7 +39,7 @@ A newer design that replaces CÅ-813.
 Serial communication is done with 6850, a parallel printer output (Centronics) and a Real Time Clock with battery backup.  
 
 * CÅ-834 - memory board  
-New memory board for static memory, 6116 2k or EPROM 2716. Replaced CÅ-814.  
+New memory board for static memory, 6116 2k or EPROM 2716. Replaces CÅ-814.  
 
 * CÅ-836 - 192 kb EPROM-board with 1 kb RAM.  
 A new board for the RT-computer, designed by me. Three 27512 EPROM's gives 192 kb resident program memory in the computer, 1 kb RAM addressed at $E400-E7FF for a command table used by FLEX.   
@@ -58,11 +58,11 @@ $FFFF ----------------------------
 $F800 ----------------------------
       2k EPROM             CPU 812
 $F000 ----------------------------
-      2k terminal   RAM    CRT 815
+      2k terminal RAM      CRT 815
 $E800 ----------------------------
       1k RAM                   836
 $E400 ----------------------------
-      768 bytes RAM        CRT 812
+      768 bytes RAM        CPU 812
 $E100 ----------------------------
       CRTC + PIA           CRT 815
 $E0F0 ----------------------------
