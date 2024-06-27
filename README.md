@@ -13,7 +13,7 @@ Den "nya" som fanns i en artikel i tidningen Elektronikvärlden nr 4 1983.
 * CÅ-800  - Första versionen av moderkortet
 * CÅ-801  - Andra versionen av moderkortet
 * CÅ-6819 - CPU-kort
-* CÅ-6848 - Minneskort 48kB med dynamiska RAM-kretsar
+* CÅ-6848 - Minneskort 48kb med dynamiska RAM-kretsar
 * CÅ-8001 - ACIA, 2 st serieportar
 * CÅ-8002 - PIA, 2 parallella portar
 * CÅ-8003 - KCS-modem 300/1200 baud
