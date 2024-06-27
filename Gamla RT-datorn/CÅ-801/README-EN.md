@@ -1,2 +1,2 @@
-# CA-801 Modther board
-Second version of mother board.
+# CA-801 Modtherboard
+Second version of motherboard.

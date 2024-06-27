@@ -1,5 +1,5 @@
-# CA-6819 CPU-card
-CPU-card with two processorns, 6808 and 6809, selectable with a switch.  
+# CA-6819 CPU board
+CPU board with two processorns, 6808 and 6809, selectable with a switch.  
 
 Monitors:
 6800 - TBUG 2C
