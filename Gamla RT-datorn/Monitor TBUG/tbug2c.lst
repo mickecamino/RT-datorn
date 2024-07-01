@@ -1,0 +1,1338 @@
+   1                               NAM     TBUG 2C
+   2                       *
+   3                       * 1980-10-16 TOMMY BLAD OCH ÅKE HOLM
+   4                       * COPYRIGHT BY TOMMY BLADH       OCH ÅKE HOLM
+   5                       *              BÅSTADSVÄGEN 7        LÅNGSJÖVÄGEN 15B
+   6                       *              121 51 JOHANNESHOV    135 54 TYRESÖ
+   7                       *
+   8                       *
+   9                       * KOMMANDON I TBUG2C
+  10                       * @ VARMSTART I FLEX 2.0
+  11                       * A
+  12                       * B DISPLAY BREAKPOINTS
+  13                       * C CONTINUE
+  14                       * D DUMPA I HEX OCH ASCII 8 BYTES/RAD
+  15                       * E EXTENDED INSTRUKTIONSSÖKNING
+  16                       * F G] TILL MINIDISK-BOOT
+  17                       * G G] TILL PROGRAMADRESS OCH EXEKVERA
+  18                       * H BER[KNA CHECKSUMMA AAAA-BBBB
+  19                       * I
+  20                       * J G] TILL SUBRUTIN OCH SKRIV UT REGISTREN
+  21                       * K KOPIERA MINNESINNEHÅLL
+  22                       * L LADDA MINNET I S1-FORMAT MED EV. OFFSET
+  23                       * M MINNESMANIPULERING
+  24                       *   - GER FÖREGÅENDE MINNESPOSITION
+  25                       *   . GER NÄSTA MINNESPOSITION
+  26                       *   OAAAA OFFSETBERÄKNING
+  27                       * N NÄSTA INSTRUKTION
+  28                       * O FYLL ETT VISST MINNESBLOCK MED EN BYTE
+  29                       * P PUNCH I S1-FORMAT MED RUBRIK
+  30                       * Q M[T RAM-STORLEKEN
+  31                       * R PRINTA REGISTREN
+  32                       * S S\K 2 BYTES ADRESS
+  33                       * T
+  34                       * U TA BORT BREAKPOINTS
+  35                       * V S[TT IN BREAKPOINTS MAX 5 ST
+  36                       * W MINNESTEST
+  37                       * X EXCHANGE AA NNNN MOT AA MMMM
+  38                       * Y VERIFIERING
+  39                       * Z DUMPA I HEX OCH ASCII 16 BYTES/RAD
+  40                       * Ä
+  41                       * Ö
+  42                       * Å
+  43                       * Ü
+  44                       *
+  45                       *
+  46  8008                 ACIAT   EQU     $8008     TERMINAL ACIA
+  47  80D0                 PIASAH  EQU     $80D0
+  48  80D1                 PIASAL  EQU     $80D1
+  49  80D2                 PIACRA  EQU     $80D2
+  50  80D3                 PIACRB  EQU     $80D3
+  51  8008                 PORT    EQU     $8008
+  52  8014                 DRVREG  EQU     $8014
+  53  8018                 COMREG  EQU     $8018
+  54  801A                 SECREG  EQU     $801A
+  55  801B                 DATREG  EQU     $801B
+  56  0085                 SKIP1   EQU     $85       SKIPPAR 1 INSTRUKTION
+  57  008C                 SKIP2   EQU     $8C       SKIPPAR 2 BYTE INSTR
+  58                       *
+  59                       *
+  60                       * DATA AREOR
+  61                       *
+  62                               ORG     $A000
+  63  A000                 IOV     RMB     2         IRQ VEKTOR
+  64  A002                 BEGA    RMB     2         START ADRESS /PRINT/PUNCH
+  65  A004                 ENDA    RMB     2         SLUT ADRESS
+  66  A006                 NIO     RMB     2         NMI VEKTOR
+  67  A008                 SP      RMB     2         ANVÄNDARENS STACK PEKARE
+  68  A00A                 CKSM    RMB     1         CHECKSUMMA
+  69  A00B                 BYTECT  RMB     1         RÄKNAREKNARE
+  70  A00C                 XHI     RMB     1         TEMP LAGRING X-REG HÖG BYTE
+  71  A00D                 XLOW    RMB     1         LAGRING LÅG BYTE
+  72  A00E                 MCONT   RMB     1
+  73  A00F                 SWIVEK  RMB     2         EGEN SWI VEKTOR
+  74  A011                 EKO     RMB     1         EKO FLAGGA
+  75  A012                 DMASK   RMB     1
+  76  A013                 SWIFLX  RMB     2         SWI VEKTOR FÖR FLEX
+  77  A015                         RMB     43        STACK AREA
+  78  A040                 STACK   RMB     1         HÄR BÖRJAR STACKEN
+  79  A041                 VFLAG   RMB     1         ANTAL INSATTA BRKPT'S
+  80  A042                 BPTAB   RMB     15        5 ST BREAK POINTS
+  81  A051                 BUFF    RMB     59        BUFFERT AREA
+  82  A08C                         RMB     1         IN BUFFERT
+  83  A000                 TILL    EQU     IOV
+  84  A00B                 SLASK   EQU     BYTECT
+  85  A000                 LOFFST  EQU     IOV
+  86                       *
+  87                               ORG     $E000
+  88
+  89  E000 FEA000          IO      LDX     IOV       IRQ
+  90  E003 6E00                    JMP     ,X        TAG HAND OM AVBROTTET
+  91                       *
+  92                       * NMI SERVICE RUTIN
+  93                       *
+  94  E005 FEA006          POWDWN   LDX     NIO       NMI
+  95  E008 6E00                    JMP     ,X
+  96                       *
+  97                       * SWI SERVICE RUTIN
+  98                       *
+  99  E00A FEA00F          SWISER  LDX     SWIVEK
+ 100  E00D 6E00                    JMP     ,X
+ 101                       *
+ 102                       * HÄR PÅ 'L' KOMMANDO
+ 103                       *
+ 104                       *
+ 105                       * LOAD
+ 106                       *
+ 107  E00F 7CA011          LOAD    INC     EKO
+ 108  E012 8611            LOADL   LDA     #$11      DC1
+ 109  E014 8D5F                    BSR     OUTCH
+ 110                       *
+ 111  E016 8D60            LOAD3   BSR     INCH      SÖK RECORD TYP
+ 112  E018 8153                    CMPA    #'S
+ 113  E01A 26FA                    BNE     LOAD3
+ 114  E01C 8D5A                    BSR     INCH
+ 115  E01E 8139                    CMPA    #'9       EOF
+ 116  E020 2722                    BEQ     LOAD21
+ 117  E022 8131                    CMPA    #'1       DATA RECORD
+ 118  E024 26F0                    BNE     LOAD3
+ 119  E026 7FA00A                  CLR     CKSM      ATT BYGGA CHECKSUMMA I
+ 120  E029 8D2A                    BSR     BYTE      LÄS IN BYTE RÄKNAREN
+ 121  E02B 8002                    SUBA    #2        KOMMANDE ADRESS= 2 BYTE
+ 122  E02D B7A00B                  STA     BYTECT
+ 123  E030 4A                      DECA
+ 124  E031 B7A053                  STA     BUFF+2
+ 125                       *
+ 126                       * TILLVERKA ADRESS
+ 127                       *
+ 128  E034 8D11                    BSR     BADDR
+ 129  E036 BDE2DC                  JSR     ADRMOD    TILLV SLUTL LADDADRESS
+ 130  E039 CEA054                  LDX     #BUFF+3   TEMP BUFFERT ADRESS
+ 131                       *
+ 132  E03C 7EE255                  JMP     LOAD10
+ 133                       *
+ 134                               ORG     $E040
+ 135  E040 BDE291          LOAD19  JSR     PIIP      PIP OCH FRÅGETECKEN
+ 136  E043 01                      NOP
+ 137  E044                 LOAD21  EQU     *
+ 138  E044 7EE0D5          C1      JMP     CONTRL
+ 139                       *
+ 140                       * BYGG ADRESS
+ 141                       *
+ 142  E047 8D0C            BADDR   BSR     BYTE      HÖGSTA 8 BITARNA
+ 143  E049 B7A00C                  STA     XHI
+ 144  E04C 8D07                    BSR     BYTE
+ 145  E04E B7A00D                  STA     XLOW
+ 146  E051 FEA00C                  LDX     XHI       HELA ADRESSEN
+ 147  E054 39                      RTS
+ 148                       *
+ 149                       * TAG IN TVÅ TECKEN, GÖR EN DATA BYTE
+ 150                       *
+ 151  E055 8D53            BYTE    BSR     INHEX     HEXADECIMALT TECKEN
+ 152  E057 48              BYTE2   ASLA
+ 153  E058 48                      ASLA
+ 154  E059 48                      ASLA
+ 155  E05A 48                      ASLA              HHHH OOOO
+ 156  E05B 16                      TAB
+ 157  E05C 8D4C                    BSR     INHEX
+ 158  E05E 1B                      ABA               HHHH LLLL
+ 159  E05F 16                      TAB
+ 160  E060 FBA00A                  ADD B   CKSM      ADDERA TILL CHECKSUMMAN
+ 161  E063 F7A00A                  STA B   CKSM
+ 162  E066 39                      RTS
+ 163                       *
+ 164  E067 44              OUTHL   LSRA
+ 165  E068 44                      LSRA
+ 166  E069 44                      LSRA
+ 167  E06A 44                      LSRA
+ 168                       *
+ 169  E06B 840F            OUTHR   ANDA    #$0F      MASKA BORT HÖGA DELEN
+ 170  E06D 8B30                    ADDA    #$30      TILLVERKA ASCII
+ 171  E06F 8139                    CMPA    #$39      STÖRRE ÄN 9
+ 172  E071 2302                    BLS     OUTCH
+ 173  E073 8B07                    ADDA    #$07      FÖR A-F
+ 174                       *
+ 175                       * MATA UT ETT TECKEN
+ 176                       *
+ 177  E075 7EE1D1          OUTCH   JMP     OUTEEE
+ 178  E078 7EE1AC          INCH    JMP     INEEE     TAG IN ETT TECKEN
+ 179                       *
+ 180                       * SKRIV UT TEXT STRÄNG.
+ 181                       * X-REG PEKAR PÅ TECKNEN.
+ 182                       * AVSLUT MED 'EOT' (04).
+ 183                       *
+ 184  E07B 8DF8            PDATA2  BSR     OUTCH
+ 185  E07D 08                      INX
+ 186  E07E A600            PDATA1  LDA     ,X
+ 187  E080 8104                    CMPA    #$04      'EOT'
+ 188  E082 26F7                    BNE     PDATA2
+ 189  E084 39                      RTS
+ 190                       *
+ 191  E085 8DF1            INCH7   BSR     INCH      HÄMTA TECKEN
+ 192  E087 815F                    CMPA    #$5F      KOLLA OM SMÅ BOKSTÄVER
+ 193  E089 2302                    BLS     INCH8
+ 194  E08B 8020                    SUBA    #$20
+ 195  E08D 39              INCH8   RTS
+ 196                       *
+ 197  E08E 436B736D3A      TEXT06  FCC     "Cksm:"
+ 198  E093 04                      FCB     $04
+ 199                       *
+ 200  E094 BDE1DE          IOINIT  JSR     BEGENS    START OCH SLUTADRESSER
+ 201  E097 8612            DC2OUT  LDA     #$12      DC2 LÄSARE PÅ
+ 202  E099 20DA                    BRA     OUTCH     + RTS
+ 203                       *
+ 204                               ORG     $E09B
+ 205                       *
+ 206  E09B 8D09            BEGEND  BSR     BADDRS
+ 207  E09D FFA002                  STX     BEGA
+ 208  E0A0 8D04            ENDADR  BSR     BADDRS
+ 209  E0A2 FFA004                  STX     ENDA
+ 210  E0A5 39                      RTS
+ 211                       *
+ 212  E0A6 8D9F            BADDRS  BSR     BADDR
+ 213  E0A8 2022                    BRA     OUTS      SP+RTS
+ 214                       *
+ 215                       *
+ 216                               ORG     $E0AA
+ 217                       *
+ 218                       * TAG IN HEXADECIMALT TECKEN.
+ 219                       * OMVANDLA ASCII 0-F TILL BINÄRT
+ 220                       * 0-F
+ 221                       *
+ 222  E0AA 8DD9            INHEX   BSR     INCH7
+ 223  E0AC 8030            INHEX2  SUBA    #$30
+ 224  E0AE 2B94                    BMI     C1        HOPPA OM EJ HEX
+ 225  E0B0 8109                    CMPA    #$09
+ 226  E0B2 2F0A                    BLE     IN1HG     DECIMALT ?
+ 227  E0B4 8111                    CMPA    #$11
+ 228  E0B6 2B8C                    BMI     C1        HOPPA OM EJ HEX
+ 229  E0B8 8116                    CMPA    #$16
+ 230  E0BA 2E88                    BGT     C1        HOPPA OM EJ HEX
+ 231  E0BC 8007                    SUBA    #$07
+ 232  E0BE 39              IN1HG   RTS
+ 233                       *
+ 234  E0BF A600            OUT2H   LDA     ,X        PRINTA 2 HEX TECKEN
+ 235  E0C1 08              OUT2HA  INX
+ 236  E0C2 36              OUT2HT  PSHA
+ 237  E0C3 8DA2                    BSR     OUTHL     OMVANDLA TILL ASCII
+ 238  E0C5 32                      PULA
+ 239  E0C6 20A3                    BRA     OUTHR     PRINTA HÖGRA BYTE HALVAN
+ 240                       *
+ 241  E0C8 8DF5            OUT4HS  BSR     OUT2H     PRINTA 4 HEX TECKEN + BLANK
+ 242  E0CA 8DF3            OUT2HS  BSR     OUT2H     PRINTA 2 HEX TECKEN + BLANK
+ 243  E0CC 8620            OUTS    LDA     #$20      MELLANSLAG
+ 244  E0CE 20A5                    BRA     OUTCH     (RETURN I OUTCH)
+ 245                       *
+ 246                       * VARM-START
+ 247                       *
+ 248  E0D0 CEE104          START   LDX     #STTBUG   'TBUG 2'
+ 249  E0D3 8DA9            STARTS  BSR     PDATA1
+ 250                       *
+ 251  E0D5 8EA038          CONTRL  LDS     #STACK-8  INITIERA STACKEN
+ 252  E0D8 01                      NOP
+ 253  E0D9 01                      NOP
+ 254  E0DA 7FA011                  CLR     EKO       FULL DUPLEX
+ 255  E0DD CEE19C                  LDX     #MCLOFF   INITIERINGS STRÄNG
+ 256  E0E0 8D9C                    BSR     PDATA1
+ 257                       *
+ 258                       * TAG IN KOMMANDO I A-ACC
+ 259                       * SÖK SEDAN INGÅNG TILL
+ 260                       * BEGÄRD RUTIN I KOMTAB.
+ 261                       *
+ 262                       * ENTRY-PUNKT FÖR MIKBUG/CONTRL
+ 263                       *
+ 264  E0E2 8C                      FCB     SKIP2
+ 265  E0E3 20F0            MIKCON  BRA     CONTRL
+ 266                       *
+ 267  E0E5 8D91                    BSR     INCH
+ 268  E0E7 16                      TAB               SPARA UNDAN
+ 269  E0E8 8DE2                    BSR     OUTS      BLANK
+ 270  E0EA C160                    CMPB    #$60      GÖR OM SMÅ BOKSTÄVER
+ 271  E0EC 2502                    BCS     CON50     TILL STORE
+ 272  E0EE C020                    SUBB    #$20
+ 273                       *
+ 274  E0F0 C03F            CON50   SUBB    #$3F      B ÄR NU 1 FÖR STOR
+ 275  E0F2 23E1                    BLS     CONTRL    FEL DÅ B < @
+ 276  E0F4 C11E                    CMPB    #$1E
+ 277  E0F6 22DD                    BHI     CONTRL    FEL DÅ B VAR > Ü
+ 278                       *
+ 279                       * INMATAT TECKEN OMGJORD TILL ADRESS
+ 280                       * I KOMMANDOTABELLEN
+ 281                       *
+ 282  E0F8 CEE403                  LDX     #KOMTAB-2
+ 283  E0FB 08              NESTA   INX
+ 284  E0FC 08                      INX
+ 285  E0FD 5A                      DECB
+ 286  E0FE 26FB                    BNE     NESTA
+ 287  E100 EE00                    LDX     ,X        INHOPPSADRESS TILL RUTIN
+ 288  E102 6E00                    JMP     ,X        PYS DIT & JOBBA
+ 289                       *
+ 290  E104 0D0A0000        STTBUG  FCB     $0D,$0A,$00,$00
+ 291  E108 54425547203243          FCC     "TBUG 2C"
+ 292  E10F 04                      FCB     4
+ 293                       *
+ 294                       * NMI AVBROTT - SINGLE STEP
+ 295                       *
+ 296  E110 BFA008          NONMSK  STS     SP
+ 297  E113 BDE443                  JSR     DISNMI
+ 298                       *
+ 299                       * HÄR PÅ 'R' KOMMANDO.
+ 300                       *
+ 301  E116 8D02            PRINT   BSR     PRREG
+ 302  E118 20BB            C2      BRA     CONTRL
+ 303                       *
+ 304                       * SKRIV UT STACKENS INNEHÅLL
+ 305                       *
+ 306  E11A 8D15            PRREG   BSR     PCRLF
+ 307  E11C FEA008                  LDX     SP
+ 308  E11F 08                      INX
+ 309  E120 8643                    LDA     #'C
+ 310  E122 BDE297                  JSR     UTMIN
+ 311  E125 8DA3                    BSR     OUT2HS    CC
+ 312  E127 8642                    LDA     #'B
+ 313  E129 BDE297                  JSR     UTMIN
+ 314  E12C 8D9C                    BSR     OUT2HS    ACC-B
+ 315  E12E 7EE6EC                  JMP     PRREG9
+ 316                       *
+ 317                       *
+ 318  E131 CEE1A6          PCRLF   LDX     #SCRLF    CR+LF
+ 319  E134 7EE07E          PDAT1   JMP     PDATA1    STRENG + RTS
+ 320                       *
+ 321                       * PUNCH DUMP I S1 FORMAT
+ 322                       *
+ 323  E137 0D0A0000000053  MTAPE1  FCB     $0D,$0A,0,0,0,0,'S,'1,4  PUNCH FORMATET
+ 324                       *
+ 325                       * HÄR PÅ 'P' KOMMANDO.
+ 326                       *
+ 327  E140 BDE094          PUNCH   JSR     IOINIT
+ 328                       *
+ 329  E143 8D3E            PUN11   BSR     CMPADR    JÄMFÖR START/STOPP ADR
+ 330  E145 2604                    BNE     PUN22
+ 331  E147 8110                    CMPA    #16
+ 332  E149 2502                    BCS     PUN23
+ 333                       *
+ 334                       * LÄGG UT 16 MINNESBYTE/RECORD
+ 335                       *
+ 336  E14B 860F            PUN22   LDA     #15
+ 337  E14D 8B04            PUN23   ADDA    #4        INKLUDERA DRESS I BYTE RÄKNAREN
+ 338  E14F B7A00E                  STA     MCONT
+ 339  E152 8003                    SUBA    #3
+ 340  E154 B7A051                  STA     BUFF      DETTA RECORS BYTE ANTAL
+ 341                       *
+ 342                       * PUNCHA CR,LF,NULL,S,1
+ 343                       *
+ 344  E157 CEE137                  LDX     #MTAPE1
+ 345  E15A 8DD8                    BSR     PDAT1
+ 346  E15C 5F                      CLRB              CHECKSUMMA
+ 347                       *
+ 348                       * PUNCHA RECORDETS BYTE RÄKNARE
+ 349                       *
+ 350  E15D CEA00E                  LDX     #MCONT
+ 351  E160 8D2E                    BSR     PUNT2     2 HEX
+ 352                       *
+ 353                       * PUNCHA ADRESSEN
+ 354                       *
+ 355  E162 CEA002                  LDX     #BEGA
+ 356  E165 8D29                    BSR     PUNT2
+ 357  E167 8D27                    BSR     PUNT2
+ 358                       *
+ 359                       * DATA
+ 360                       *
+ 361  E169 FEA002                  LDX     BEGA
+ 362  E16C 8D22            PUN32   BSR     PUNT2     2 ASCII TECKEN
+ 363  E16E 7AA051                  DEC     BUFF      BYTE RÄKNAREN
+ 364  E171 26F9                    BNE     PUN32
+ 365                       *
+ 366                       * KLAR
+ 367  E173 53                      COMB              CHECKSUMMAN INVERTERAS
+ 368  E174 17                      TBA
+ 369  E175 BDE0C2                  JSR     OUT2HT    2 TECKEN
+ 370  E178 FFA002                  STX     BEGA
+ 371  E17B 09                      DEX
+ 372  E17C BCA004                  CPX     ENDA      KLAR MED HELA DUMPEN
+ 373  E17F 26C2                    BNE     PUN11
+ 374  E181 2012                    BRA     S9REC     JA KLAR
+ 375                       *
+ 376                       * JÄMFÖR START/STOPP ADRESSER
+ 377                       *
+ 378  E183 B6A005          CMPADR  LDA     ENDA+1
+ 379  E186 B0A003                  SUBA    BEGA+1
+ 380  E189 F6A004                  LDB     ENDA
+ 381  E18C F2A002                  SBCB    BEGA
+ 382  E18F 39                      RTS
+ 383                       *
+ 384                       * PUNCHA 2 HEX, UPPDATERA CHECKSUMMAN
+ 385                       *
+ 386  E190 EB00            PUNT2   ADD B   ,X
+ 387  E192 7EE0BF                  JMP     OUT2H     PUNCHA 2 TECKEN OCH RTS
+ 388                       *
+ 389                       * AVSLUTA MED S9
+ 390                       *
+ 391  E195 CEE1CD          S9REC   LDX     #S9STR    'S901'
+ 392  E198 7EE6E6                  JMP     S9PAUS
+ 393                       *
+ 394                               ORG     $E19C
+ 395                       *
+ 396                       *
+ 397  E19C 13              MCLOFF  FCB     $13       READER RELAY OFF
+ 398  E19D 0D0A0000001400  MCL     FCB     $0D,$0A,0,0,0,$14,0,'*,4
+ 399                       *
+ 400  E1A6 0D0A00000004    SCRLF   FCB     $0D,$0A,0,0,0,4
+ 401                       *
+ 402                               ORG     $E1AC
+ 403                       *
+ 404                       * TAG IN ETT TECKEN I ACC A
+ 405                       *
+ 406  E1AC 8D0C            INEEE   BSR     INCHP
+ 407  E1AE 847F                    ANDA    #$7F      MASKA PARITETEN
+ 408  E1B0 817F                    CMPA    #$7F      IGNORERA 'RUBOUT'
+ 409  E1B2 27F8                    BEQ     INEEE
+ 410  E1B4 7DA011                  TST     EKO       SKALL TECKNET EKAS UT
+ 411  E1B7 2718                    BEQ     OUTEEE    HOPPA OM JA
+ 412  E1B9 39                      RTS
+ 413                       *
+ 414  E1BA B68008          INCHP   LDA     ACIAT     FINNS TECKEN
+ 415  E1BD 47                      ASRA
+ 416  E1BE 24FA                    BCC     INCHP
+ 417  E1C0 B68009                  LDA     ACIAT+1   DATA
+ 418  E1C3 39                      RTS
+ 419                       *
+ 420                       * NÄSTA INSTR
+ 421                       *
+ 422  E1C4 BEA008          NEST    LDS     SP
+ 423  E1C7 8634                    LDA     #$34
+ 424  E1C9 B780D2                  STA     PIACRA
+ 425  E1CC 3B                      RTI
+ 426                       *
+ 427  E1CD 00              S9STR   FCB     0
+ 428  E1CE 5339                    FCC     'S9'
+ 429  E1D0 04                      FCB     4
+ 430                       *
+ 431                       *
+ 432                       *
+ 433                               ORG     $E1D1
+ 434                       *
+ 435                       * MATA UT ETT TECKEN FRÅN A-ACC
+ 436                       *
+ 437  E1D1 37              OUTEEE  PSHB
+ 438                       *
+ 439  E1D2 F68008          OUTO    LDB     ACIAT     KONTROLLORDET
+ 440  E1D5 57                      ASRB
+ 441  E1D6 57                      ASRB
+ 442  E1D7 24F9                    BCC     OUTO
+ 443  E1D9 B78009                  STA     ACIAT+1   SÄND TECKNET
+ 444  E1DC 33                      PULB
+ 445  E1DD 39                      RTS
+ 446                       *
+ 447                       *
+ 448  E1DE CEE7AF          BEGENS  LDX     #TEXT04
+ 449  E1E1 BDE52B                  JSR     PDATA3
+ 450  E1E4 BDE09B                  JSR     BEGEND    FIXA START &STOPP
+ 451  E1E7 8D9A                    BSR     CMPADR
+ 452  E1E9 25F3                    BCS     BEGENS
+ 453  E1EB 39                      RTS
+ 454                       *
+ 455  E1EC 8DF0            BEGENT  BSR     BEGENS
+ 456  E1EE 08                      INX
+ 457  E1EF FFA004                  STX     ENDA
+ 458  E1F2 39                      RTS
+ 459                       *
+ 460  E1F3 4F70636F64653A  TEXT07  FCC     "Opcode:"
+ 461  E1FA 04                      FCB     $04
+ 462                       *
+ 463                       * HÄR PÅ 'M' KOMMANDO
+ 464                       *
+ 465                       *  MINNES MANIPULERING
+ 466                       *
+ 467  E1FB BDE0A6          CHANGE  JSR     BADDRS    BYGG ADRESS , PRINTA BLANK
+ 468  E1FE FEA00C          CHANG   LDX     XHI
+ 469  E201 BDE0CA                  JSR     OUT2HS    PRINTA GAMLA INNEHÅLLET
+ 470  E204 FFA002                  STX     BEGA
+ 471  E207 09                      DEX
+ 472  E208 BDE085          CHA1    JSR     INCH7     SMÅ EL STORA BOKST.
+ 473  E20B 812E                    CMPA    #'.       LINE FEED-ERSÄTTNING
+ 474  E20D 2730                    BEQ     LF
+ 475  E20F 812D                    CMPA    #'-       Ü
+ 476  E211 272A                    BEQ     UA
+ 477  E213 814F                    CMPA    #'O       BERÄKNA OFFSET
+ 478  E215 2618                    BNE     NYDATA
+ 479  E217 BDE0A0                  JSR     ENDADR    TAG IN DESTINATIONS ADRESSEN
+ 480  E21A BDE183                  JSR     CMPADR    JÄMFÖR ADRESSERNA
+ 481                       *
+ 482                       * OM B=00, INOM RECKHÅLL FRAMMÅT
+ 483                       *          OM A<80
+ 484                       * OM B=FF, INOM RECKHÅLL BAKÅT
+ 485                       *
+ 486  E21D 4D                      TSTA              OFFSET FRAMMÅT <80 ÄR OK
+ 487  E21E 2B04                    BMI     OK
+ 488  E220 5D                      TSTB
+ 489  E221 262E                    BNE     CHOFEL
+ 490  E223 5A                      DECB              B=FF NU
+ 491  E224 5C              OK      INCB
+ 492  E225 262A                    BNE     CHOFEL    FEL I OFFSET BAKÅT
+ 493  E227 BDE0C2                  JSR     OUT2HT    PRINTA OFFSET (A-ACC)
+ 494                       *
+ 495  E22A FEA002          CHOCON  LDX     BEGA      URSPRUNGLIGA OPCODE ADRESS
+ 496  E22D 200E                    BRA     UA
+ 497  E22F BDE0AC          NYDATA  JSR     INHEX2
+ 498  E232 BDE057                  JSR     BYTE2
+ 499  E235 A700                    STA     ,X
+ 500  E237 A100                    CMPA    ,X
+ 501  E239 2616                    BNE     CHOFEL
+ 502  E23B 08                      INX
+ 503  E23C 08                      INX
+ 504                       *
+ 505  E23D 09              UA      DEX
+ 506  E23E 85                      FCB     SKIP1     HOPPA ÖVER NÄSTA INSTRUKTION
+ 507  E23F 08              LF      INX
+ 508  E240 FFA00C                  STX     XHI
+ 509  E243 CEE19D                  LDX     #MCL      LF+CR,NULLS
+ 510  E246 BDE07E                  JSR     PDATA1
+ 511  E249 CEA00C                  LDX     #XHI
+ 512  E24C BDE0C8                  JSR     OUT4HS    SKRIV DATA ADRESSEN
+ 513  E24F 20AD                    BRA     CHANG     OM IGEN
+ 514                       *
+ 515  E251 8D3E            CHOFEL  BSR     PIIP
+ 516  E253 20D5                    BRA     CHOCON
+ 517                       *
+ 518                       *
+ 519                       * FORTSÄTTNING PÅ LOAD
+ 520                       *
+ 521  E255 FFA002          LOAD10  STX     BEGA
+ 522                       *
+ 523  E258 BDE055          LOAD11  JSR     BYTE
+ 524  E25B 7AA00B                  DEC     BYTECT    ANTAL BYTES I RECORDET
+ 525  E25E 270B                    BEQ     LOAD80    HOPPA OM KLAR
+ 526  E260 A700                    STA     ,X        LAGRA I TEMP. BUFFER
+ 527  E262 08                      INX
+ 528  E263 8CA083                  CPX     #BUFF+50  SLUT PÅ BUFFERT
+ 529  E266 26F0                    BNE     LOAD11
+ 530  E268 7EE040          LOAD70  JMP     LOAD19
+ 531                       *
+ 532                       * KOLLA CHECKSUMMAN
+ 533                       *
+ 534  E26B 7CA00A          LOAD80  INC     CKSM
+ 535  E26E 261C                    BNE     LOADA0
+ 536                       *
+ 537                       * TAG DATA FRÅN TEMPORÄRA BUFFERTEN
+ 538                       * OCH FLYTTA TILL MINNET
+ 539                       *
+ 540  E270 FEA002          LOAD90  LDX     BEGA
+ 541  E273 A600                    LDA     ,X
+ 542  E275 08                      INX
+ 543  E276 FFA002                  STX     BEGA
+ 544                       *
+ 545  E279 FEA051                  LDX     BUFF      ADRESS TILL MINNET
+ 546  E27C A700                    STA     ,X
+ 547  E27E A100                    CMPA    ,X
+ 548  E280 26E6                    BNE     LOAD70    FASTNADE DET
+ 549                       *
+ 550  E282 08                      INX
+ 551  E283 FFA051                  STX     BUFF
+ 552  E286 7AA053                  DEC     BUFF+2    BYTE RÄKNARE
+ 553  E289 26E5                    BNE     LOAD90
+ 554                       *
+ 555  E28B 8C                      FCB     SKIP2
+ 556  E28C 8D03            LOADA0  BSR     PIIP
+ 557  E28E 7EE016                  JMP     LOAD3
+ 558                       *
+ 559  E291 8607            PIIP    LDA     #$07
+ 560  E293 8D06                    BSR     OUTEE
+ 561  E295 863F                    LDA     #$3F
+ 562  E297 8D02            UTMIN   BSR     OUTEE
+ 563  E299 863D            UTMIN2  LDA     #'=
+ 564                       *
+ 565  E29B 7EE1D1          OUTEE   JMP     OUTEEE    INSTRUKTIONSSPARARE
+ 566                       *
+ 567  E29E 7FA041          KILL    CLR     VFLAG     TA BORT ALLA BRKPOINTS
+ 568  E2A1 2026            BIL300  BRA     CKSM30    MELLANHOPP
+ 569                       *
+ 570                       *
+ 571                       *
+ 572                       *
+ 573                       * C H K S M
+ 574                       *
+ 575  E2A3 BDE1EC          CHKSM   JSR     BEGENT
+ 576  E2A6 4F                      CLRA
+ 577  E2A7 5F                      CLRB
+ 578  E2A8 FEA002                  LDX     BEGA
+ 579                       *
+ 580  E2AB BCA004          CKSM10  CPX     ENDA
+ 581  E2AE 2707                    BEQ     CKSM20
+ 582  E2B0 AB00                    ADDA    ,X
+ 583  E2B2 C900                    ADCB    #$00
+ 584  E2B4 08                      INX
+ 585  E2B5 20F4                    BRA     CKSM10
+ 586                       *
+ 587  E2B7 F7A002          CKSM20  STA B   BEGA
+ 588  E2BA B7A003                  STA     BEGA+1
+ 589  E2BD CEE08E                  LDX     #TEXT06   "CKSM"
+ 590  E2C0 BDE52B                  JSR     PDATA3
+ 591  E2C3 CEA002                  LDX     #BEGA
+ 592  E2C6 BDE0C8                  JSR     OUT4HS
+ 593  E2C9 207B            CKSM30  BRA     BRKP30
+ 594                       *
+ 595  E2CB CEE7C6          LOADOF  LDX     #TEXT09   'SUBTRAHERA'
+ 596  E2CE BDE52B                  JSR     PDATA3
+ 597  E2D1 BDE055                  JSR     BYTE
+ 598  E2D4 85                      FCB     SKIP1
+ 599  E2D5 4F              LOADNO  CLRA              EJ OFFSET
+ 600  E2D6 B7A000                  STA     LOFFST
+ 601  E2D9 7EE012                  JMP     LOADL
+ 602                       *
+ 603                       * TILLVERKA SLUTLIG ADRESS
+ 604                       *
+ 605  E2DC FFA051          ADRMOD  STX     BUFF      INMATAD ADRESS
+ 606  E2DF B6A00C                  LDA     XHI       HÖG BYTE
+ 607  E2E2 B0A000                  SUBA    LOFFST    EVENTUELL MODIFIERING
+ 608  E2E5 B7A051                  STA     BUFF
+ 609  E2E8 39                      RTS
+ 610                       *
+ 611  E2E9 52756272696B3A  TEXT11  FCC     "Rubrik:"
+ 612  E2F0 04                      FCB     4
+ 613                       *
+ 614                               ORG     $E2F1
+ 615                       *
+ 616                       *
+ 617                       * SWI SERVICE RUNTIN (BREAK POINTS)
+ 618                       *
+ 619  E2F1 BFA008          SFE     STS     SP
+ 620  E2F4 BDE443                  JSR     DISNMI
+ 621  E2F7 30                      TSX
+ 622  E2F8 6D06                    TST     6,X       DECREMENTERA PC-VÄRDET
+ 623  E2FA 2602                    BNE     *+4
+ 624  E2FC 6A05                    DEC     5,X
+ 625  E2FE 6A06                    DEC     6,X
+ 626  E300 8D1E                    BSR     BRKP40    FINNS BREAK POINTS
+ 627  E302 2714                    BEQ     BRKP20    PRINTA REGISTREN
+ 628                       *
+ 629                       * TAG BORT BREAK POINTS NÄR
+ 630                       * VI ÄR INNE I TBUG MONITORN
+ 631                       *
+ 632  E304 FFA00C          BRKP00  STX     XHI       SKYDDA MOT FLERA
+ 633  E307 A602                    LDA     2,X       BRKPT'S PÅ SAMMA ADRESS
+ 634  E309 813F                    CMPA    #$3F      MULTIDEFINIERADE BRKPT'S
+ 635  E30B 2707                    BEQ     BRKP10
+ 636  E30D EE00                    LDX     ,X
+ 637  E30F A700                    STA     ,X
+ 638  E311 FEA00C                  LDX     XHI
+ 639  E314 8D05            BRKP10  BSR     ADD3X
+ 640  E316 26EC                    BNE     BRKP00
+ 641  E318 7EE116          BRKP20  JMP     PRINT
+ 642                       *
+ 643  E31B 08              ADD3X   INX
+ 644  E31C 08                      INX
+ 645  E31D 08                      INX
+ 646  E31E 5A                      DECB
+ 647  E31F 39                      RTS
+ 648                       *
+ 649  E320 CEA042          BRKP40  LDX     #BPTAB    TABELL ÖVER BREAK POINTS, OPCODER
+ 650  E323 F6A041                  LDB     VFLAG     ANTAL INSTALLERADE BRKPT'S
+ 651  E326 39                      RTS
+ 652                       *
+ 653                       * HÄR PÅ 'V' KOMMANDO
+ 654                       *
+ 655                       *
+ 656                       * SÄTT IN EN BRKPT.
+ 657                       *
+ 658  E327 BDE778          SETBR   JSR     SWIINS
+ 659                       *
+ 660  E32A 8DF4                    BSR     BRKP40    FINNS LEDIG PLATS
+ 661  E32C 270B                    BEQ     BRKP60    OM LEDIG, STOPPA IN BRKPT'
+ 662  E32E C105                    CMPB    #5        MAX 5 PLATSER
+ 663  E330 2503                    BCS     BRKP50
+ 664  E332 7EE040                  JMP     LOAD19
+ 665                       *
+ 666  E335 8DE4            BRKP50  BSR     ADD3X
+ 667  E337 26FC                    BNE     BRKP50
+ 668                       *
+ 669  E339 7CA041          BRKP60  INC     VFLAG
+ 670  E33C B6A00C                  LDA     XHI       ADRESS TILL MINNE
+ 671  E33F A700                    STA     ,X        IN I TABELLEN
+ 672  E341 B6A00D                  LDA     XLOW
+ 673  E344 A701                    STA     1,X
+ 674  E346 7EE0D5          BRKP30  JMP     CONTRL
+ 675                       *
+ 676                       *
+ 677                       * STOPPA IN ALLA BRKPTS I MINNET
+ 678                       * VID 'G' ELLER 'C'
+ 679                       *
+ 680  E349 8DD5            BRKPIN  BSR     BRKP40
+ 681  E34B 2601            BRKPRT  BNE     *+3
+ 682  E34D 39              PDKLAR  RTS
+ 683                       *
+ 684  E34E FFA00C          TBG     STX     XHI
+ 685  E351 EE00                    LDX     ,X
+ 686  E353 A600                    LDA     ,X
+ 687  E355 36                      PSHA
+ 688  E356 863F                    LDA     #$3F      SWI OPCODE
+ 689  E358 A700                    STA     ,X
+ 690  E35A FEA00C                  LDX     XHI
+ 691  E35D 32                      PULA
+ 692  E35E A702                    STA     2,X       SPARAD OPCODE
+ 693  E360 8DB9                    BSR     ADD3X
+ 694  E362 20E7                    BRA     BRKPRT
+ 695                       *
+ 696                       * HÄR PÅ 'G' KOMMANDO
+ 697                       *
+ 698                       *
+ 699                       * GÅ OCH EXEKVERA
+ 700                       *
+ 701  E364 BDE047          GOEXEC  JSR     BADDR     START ADRESS
+ 702  E367 FEA008                  LDX     SP
+ 703  E36A A707                    STA     7,X       LÅG ADRESS
+ 704  E36C B6A00C                  LDA     XHI       MSB ADRESS HALVA
+ 705  E36F A706                    STA     6,X       HÖG ADRESS
+ 706                       *
+ 707                       * HÄR PÅ 'C' KOMMANDO
+ 708                       *
+ 709                       *
+ 710  E371 8DD6            CONTIN  BSR     BRKPIN    STOPPA IN EV BRKPT'S
+ 711  E373 BEA008                  LDS     SP
+ 712  E376 3B                      RTI
+ 713                       *
+ 714                       *
+ 715                       * HÄR PÅ 'D' KOMMANDO.
+ 716                       *
+ 717                       * DUMP RUTIN
+ 718                       * UTLAGD SOM SUBRUTIN I FÖR ATT KUNNA
+ 719                       * ANVÄNDAS I AVLUSNINGSSYFTE I EGNA
+ 720                       * PROGRAM. DÅ MÅSTE BEGA/ENDA LADDAS
+ 721                       * MED START RESP. STOPPADRESSER.
+ 722                       * BEGA MODIFIERAS AV RUTINEN.
+ 723                       *
+ 724  E377 C608            DUMP    LDB     #8
+ 725  E379 F7A012                  STA B   DMASK
+ 726  E37C BDE1DE                  JSR     BEGENS    LÄGG UPP START/STOP
+ 727  E37F 8D03                    BSR     PDUMP
+ 728  E381 20C3                    BRA     BRKP30
+ 729                       *
+ 730                               ORG     $E384
+ 731                       *
+ 732  E384 B6A003          PDUMP   LDA     BEGA+1
+ 733  E387 84F8                    ANDA    #$F8      MASKA TILL FULL RAD
+ 734  E389 B7A003          PDUMP5  STA     BEGA+1
+ 735                       *
+ 736  E38C BDE131          PD1000  JSR     PCRLF     RADBYTE
+ 737                       *
+ 738                       * BÖRJA DUMPA
+ 739                       * FORMAT: AAAA BB BB BB BB BB BB BB BB .ASCII..
+ 740                       *
+ 741  E38F CEA002                  LDX     #BEGA
+ 742  E392 BDE0C8                  JSR     OUT4HS    PRINTA ADRESSEN
+ 743  E395 FEA002                  LDX     BEGA
+ 744  E398 F6A012                  LDB     DMASK     8 BYTES/RAD
+ 745  E39B BDE0CA          PD3000  JSR     OUT2HS
+ 746  E39E 5A                      DECB
+ 747  E39F 26FA                    BNE     PD3000
+ 748                       *
+ 749                       * PRINTA SAMMA BYTES MEN I
+ 750                       * EKVIVALENT ASCII.
+ 751                       *
+ 752  E3A1 BDE0CC                  JSR     OUTS      SPACE
+ 753  E3A4 F6A012                  LDB     DMASK
+ 754  E3A7 FEA002                  LDX     BEGA
+ 755  E3AA A600            PD4000  LDA     ,X
+ 756  E3AC 847F                    ANDA    #$7F      MASKA BIT 8
+ 757                       *
+ 758                       * SKRIV EJ UT KONTROLLTECKEN
+ 759                       * MEN SMÅ BOKSTÄVER,
+ 760                       * DVS OM A<$20
+ 761                       * ELLER A>$7F
+ 762                       * BY DÅ MOT '.'
+ 763                       *
+ 764  E3AE 8120                    CMPA    #$20
+ 765  E3B0 2D04                    BLT     PD5000
+ 766  E3B2 817F                    CMPA    #$7F
+ 767  E3B4 2D02                    BLT     PD6000
+ 768  E3B6 862E            PD5000  LDA     #$2E
+ 769  E3B8 BDE075          PD6000  JSR     OUTCH
+ 770  E3BB 08                      INX
+ 771  E3BC 5A                      DECB
+ 772  E3BD 26EB                    BNE     PD4000
+ 773                       *
+ 774  E3BF FFA002                  STX     BEGA
+ 775  E3C2 2789                    BEQ     PDKLAR    KOLLA OM KLAR
+ 776                       *
+ 777                       * KOMPARERA START/STOP ADRESSER
+ 778                       *
+ 779  E3C4 BDE183                  JSR     CMPADR
+ 780  E3C7 2584                    BCS     PDKLAR
+ 781  E3C9 BDE49D                  JSR     BREAK
+ 782  E3CC 20BE                    BRA     PD1000    1 RADF RAMMÅT
+ 783                       *
+ 784                       * KALLSTART
+ 785                       *
+ 786  E3CE                 CSTART  EQU     *
+ 787  E3CE 8EA038                  LDS     #STACK-8  STACKPOINTER INITIERING
+ 788  E3D1 BFA008                  STS     SP
+ 789  E3D4 8603                    LDA     #3        RESET ACIA
+ 790  E3D6 B78008                  STA     ACIAT
+ 791  E3D9 86FF                    LDA     #$FF      PIA UTGÅNGAR
+ 792  E3DB B780D0                  STA     PIASAH
+ 793  E3DE B780D1                  STA     PIASAL    LSB-HALVA
+ 794  E3E1 BDE443                  JSR     DISNMI    SET CA2 HÖG
+ 795  E3E4 8634                    LDA     #$34
+ 796  E3E6 B780D3                  STA     PIACRB    SET CB2 LÅG
+ 797  E3E9 7FA041                  CLR     VFLAG     0 ANTAL BRKPT'S INSATTA
+ 798  E3EC CEE110                  LDX     #NONMSK   PSEUDO NMI VEKTOR
+ 799  E3EF FFA006                  STX     NIO       GER NU SINGLE STEP FUNCTION
+ 800  E3F2 BDE77B                  JSR     SWIIN2
+ 801  E3F5 8615                    LDA     #$15      8 BIT, EJ PAR.,RTS LÅG,1STOPPB.
+ 802  E3F7 B78008                  STA     ACIAT
+ 803  E3FA 7FA011                  CLR     EKO       FULL DUPLEX
+ 804  E3FD 8608                    LDA     #8
+ 805  E3FF B7A012                  STA     DMASK
+ 806  E402 7EE0D0                  JMP     START     TILL RESTEN AV STARTEN
+ 807                       *
+ 808                       * KOMMANDOTABELL
+ 809                       *
+ 810  E405 E788            KOMTAB  FDB     FLEX0
+ 811  E407 E0D5                    FDB     CONTRL
+ 812  E409 E69D                    FDB     DISBRK
+ 813  E40B E371                    FDB     CONTIN
+ 814  E40D E377                    FDB     DUMP
+ 815  E40F E50A                    FDB     EXTE      EXTENDED SÖKNING
+ 816  E411 E723                    FDB     BOOT0     MINIDISKBOOT
+ 817  E413 E364                    FDB     GOEXEC
+ 818  E415 E2A3                    FDB     CHKSM
+ 819  E417 E0D5                    FDB     CONTRL
+ 820  E419 E449                    FDB     SUBR
+ 821  E41B E452                    FDB     COPY
+ 822  E41D E2CB                    FDB     LOADOF    LADDA MED EV. OFFSET
+ 823  E41F E1FB                    FDB     CHANGE    MINNESMANIPULERING
+ 824  E421 E1C4                    FDB     NEST
+ 825  E423 E4F5                    FDB     NOLLFF
+ 826  E425 E59D                    FDB     HEADER
+ 827  E427 E67A                    FDB     METRAM
+ 828  E429 E116                    FDB     PRINT
+ 829  E42B E6B4                    FDB     SOK2B
+ 830  E42D E0D5                    FDB     CONTRL
+ 831  E42F E29E                    FDB     KILL
+ 832  E431 E327                    FDB     SETBR
+ 833  E433 E5D2                    FDB     MEMTST
+ 834  E435 E537                    FDB     XCHA      EXCHANGE
+ 835  E437 E4C6                    FDB     VERIF
+ 836  E439 E70C                    FDB     DUMP16
+ 837  E43B E0D5                    FDB     CONTRL    Ä
+ 838  E43D E0D5                    FDB     CONTRL    Ö
+ 839  E43F E0D5                    FDB     CONTRL    Å
+ 840  E441 E0D5                    FDB     CONTRL    Ü
+ 841                       KOMTEN  *
+ 842                       *
+ 843                       * DISABLA NMI
+ 844                       *
+ 845  E443 863C            DISNMI  LDA     #$3C
+ 846  E445 B780D2                  STA     PIACRA
+ 847  E448 39                      RTS
+ 848                       *
+ 849  E449 BDE047          SUBR    JSR     BADDR     SUBRUTINTEST
+ 850  E44C 8EA040                  LDS     #STACK
+ 851  E44F AD00                    JSR     ,X        HOPPA DIT
+ 852  E451 3F                      SWI               SKRIV REGISTER OCH ÅTERGÅ
+ 853                       *
+ 854                       **************
+ 855                       * K O P I E R I N G *
+ 856                       ************************
+ 857                       *
+ 858  E452 8D26            COPY    BSR     BEGEN3
+ 859  E454 8D65            COPY10  BSR     CBEND
+ 860  E456 A600                    LDA     ,X
+ 861  E458 08                      INX
+ 862  E459 FFA002                  STX     BEGA      DATA HÄMTAT
+ 863                       *
+ 864  E45C FEA000                  LDX     TILL
+ 865  E45F A700                    STA     ,X        LAGRA
+ 866  E461 6D00                    TST     X         TIME OUT
+ 867  E463 A100                    CMPA    X         FASTNADE
+ 868  E465 2605                    BNE     COPY20
+ 869  E467 08                      INX
+ 870  E468 8D20                    BSR     STXRUT
+ 871  E46A 20E8                    BRA     COPY10    FORTSÄTT
+ 872                       *
+ 873                       * INGET MINNE I
+ 874                       *
+ 875  E46C CEE7A4          COPY20  LDX     #TEXT03   'EJ ÄNDRAT'
+ 876  E46F BDE52B                  JSR     PDATA3
+ 877  E472 CEA000                  LDX     #TILL
+ 878  E475 BDE0C8                  JSR     OUT4HS
+ 879  E478 2049                    BRA     CTRL10
+ 880                       *
+ 881  E47A CEE791          BEGEN3  LDX     #TEXT02
+ 882  E47D BDE52B                  JSR     PDATA3
+ 883  E480 BDE09B                  JSR     BEGEND
+ 884  E483 08                      INX
+ 885  E484 FFA004                  STX     ENDA
+ 886  E487 BDE0A6                  JSR     BADDRS
+ 887  E48A FFA000          STXRUT  STX     TILL
+ 888  E48D 39              BREART  RTS
+ 889                       *
+ 890                       *****
+ 891                       * HJÄLPRUTINER
+ 892                       ******
+ 893                       *
+ 894  E48E BDE131          ADDRDA  JSR     PCRLF
+ 895  E491 CEA002                  LDX     #BEGA
+ 896  E494 BDE0C8                  JSR     OUT4HS    NNNN DD
+ 897  E497 FEA002                  LDX     BEGA
+ 898  E49A 7EE0CA          UT2HS1  JMP     OUT2HS
+ 899                       *
+ 900  E49D B68008          BREAK   LDA     PORT
+ 901  E4A0 47                      ASRA
+ 902  E4A1 24EA                    BCC     BREART
+ 903  E4A3 B68009                  LDA     PORT+1
+ 904  E4A6 847F            BRE12   ANDA    #$7F
+ 905  E4A8 8130                    CMPA    #'0       PAUS ?
+ 906  E4AA 270A                    BEQ     BREKQ
+ 907  E4AC 8171            BRQ     CMPA    #'q       ÄVEN LILLA Q
+ 908  E4AE 2704                    BEQ     BREAQ
+ 909  E4B0 8151                    CMPA    #'Q'
+ 910  E4B2 26D9                    BNE     BREART
+ 911  E4B4 200D            BREAQ   BRA     CTRL10
+ 912                       *
+ 913  E4B6 BDE1BA          BREKQ   JSR     INCHP
+ 914  E4B9 20EB                    BRA     BRE12
+ 915                       *
+ 916  E4BB FEA002          CBEND   LDX     BEGA
+ 917  E4BE BCA004          CBEND1  CPX     ENDA
+ 918  E4C1 26CA                    BNE     BREART
+ 919  E4C3 7EE0D5          CTRL10  JMP     CONTRL
+ 920                       *
+ 921                       ************************
+ 922                       *
+ 923                       * V E R I F Y
+ 924                       *
+ 925                       ************************
+ 926                       *
+ 927  E4C6 8DB2            VERIF   BSR     BEGEN3
+ 928  E4C8 8DF1            VERI10  BSR     CBEND
+ 929  E4CA A600                    LDA     ,X
+ 930  E4CC FEA000                  LDX     TILL
+ 931  E4CF A100                    CMPA    ,X        VERIFIERA
+ 932  E4D1 2710                    BEQ     VERI20    HOPPA OM SAMMA
+ 933                       *
+ 934  E4D3 8DB9                    BSR     ADDRDA    NNNN DD
+ 935  E4D5 BDE0CC                  JSR     OUTS      SP
+ 936  E4D8 CEA000                  LDX     #TILL
+ 937  E4DB BDE0C8                  JSR     OUT4HS    MMMM
+ 938  E4DE FEA000                  LDX     TILL
+ 939  E4E1 8DB7                    BSR     UT2HS1    DD
+ 940                       *
+ 941  E4E3 FEA002          VERI20  LDX     BEGA
+ 942  E4E6 08                      INX
+ 943  E4E7 FFA002                  STX     BEGA
+ 944  E4EA FEA000                  LDX     TILL
+ 945  E4ED 08                      INX
+ 946  E4EE FFA000                  STX     TILL
+ 947  E4F1 8DAA                    BSR     BREAK
+ 948  E4F3 20D3                    BRA     VERI10    OM IGEN
+ 949                       *
+ 950                       *
+ 951                       **********************
+ 952                       *
+ 953                       * N O L L A  /  F F - S T Ä L L
+ 954                       *
+ 955                       **********************
+ 956                       *
+ 957                       *
+ 958  E4F5 BDE1EC          NOLLFF  JSR     BEGENT
+ 959                       *
+ 960  E4F8 CEE7BD                  LDX     #TEXT05   'TECKEN'
+ 961  E4FB 8D2E                    BSR     PDATA3
+ 962  E4FD BDE055                  JSR     BYTE
+ 963  E500 FEA002                  LDX     BEGA
+ 964  E503 8DB9            NOLL10  BSR     CBEND1
+ 965  E505 A700                    STA     ,X
+ 966  E507 08                      INX
+ 967  E508 20F9                    BRA     NOLL10
+ 968                       *
+ 969                       *
+ 970                       **********************************
+ 971                       *
+ 972                       * E X T E D E D  A D R -  T E S T
+ 973                       *
+ 974                       **********************************
+ 975                       *
+ 976                       *
+ 977  E50A BDE1EC          EXTE    JSR     BEGENT
+ 978  E50D CEE1F3                  LDX     #TEXT07   'OP-CODE'
+ 979  E510 8D19                    BSR     PDATA3
+ 980  E512 BDE055                  JSR     BYTE
+ 981  E515 B7A00B                  STA     SLASK
+ 982                       *
+ 983  E518 8DA1            EXTE10  BSR     CBEND
+ 984  E51A A600                    LDA     X
+ 985  E51C B1A00B                  CMPA    SLASK     MATCHAR ?
+ 986  E51F 2606                    BNE     EXTE20
+ 987                       *
+ 988                       * SKRIV NNNN OO PPPP
+ 989                       *
+ 990  E521 BDE48E                  JSR     ADDRDA
+ 991  E524 BDE0C8                  JSR     OUT4HS
+ 992  E527 8D6A            EXTE20  BSR     BEGINC
+ 993  E529 20ED                    BRA     EXTE10
+ 994                       *
+ 995  E52B FFA051          PDATA3  STX     BUFF
+ 996  E52E BDE131                  JSR     PCRLF
+ 997  E531 FEA051                  LDX     BUFF
+ 998  E534 7EE07E                  JMP     PDATA1
+ 999                       *
+1000                       * RUTIN FÖR ATT BYTA UT ADRESSER
+1001                       * I EXT. INSTRUKTIONER
+1002  E537 BDE1EC          XCHA    JSR     BEGENT    START+SLUT
+1003  E53A CEE1F3                  LDX     #TEXT07   'OPCODE'
+1004  E53D 8DEC                    BSR     PDATA3
+1005  E53F BDE055                  JSR     BYTE
+1006  E542 B7A00B                  STA     SLASK
+1007  E545 CEE7DD                  LDX     #TEXT12+3 'ADRESS'
+1008  E548 8DE1                    BSR     PDATA3
+1009  E54A BDE047                  JSR     BADDR     IN MED AAAA
+1010  E54D FFA053                  STX     BUFF+2    SPARA ADRESSEN
+1011  E550 CEE7DA                  LDX     #TEXT12   'NY ADRESS'
+1012  E553 8DD6                    BSR     PDATA3
+1013  E555 BDE047                  JSR     BADDR     FIXA NYA ADRESSEN
+1014  E558 FFA055                  STX     BUFF+4    SPARA DEN
+1015  E55B BDE4BB          XCHA30  JSR     CBEND     KOLLA OM BEG=END
+1016  E55E A600                    LDA     ,X        1:A BYTEN
+1017  E560 B1A00B                  CMPA    SLASK
+1018  E563 262A                    BNE     XCHA90
+1019  E565 A601                    LDA     1,X       2:A BYTEN
+1020  E567 B1A053                  CMPA    BUFF+2
+1021  E56A 2623                    BNE     XCHA90
+1022  E56C A602                    LDA     2,X
+1023  E56E B1A054                  CMPA    BUFF+3
+1024  E571 261C                    BNE     XCHA90
+1025  E573 B6A055                  LDA     BUFF+4    BYT 1:A
+1026  E576 F6A056                  LDB     BUFF+5
+1027  E579 A701                    STA     1,X
+1028  E57B E702                    STA B   2,X
+1029  E57D BDE48E                  JSR     ADDRDA
+1030  E580 CEA053                  LDX     #BUFF+2
+1031  E583 BDE0C8                  JSR     OUT4HS
+1032  E586 BDE299                  JSR     UTMIN2
+1033  E589 CEA055                  LDX     #BUFF+4
+1034  E58C BDE0C8                  JSR     OUT4HS
+1035  E58F 8D02            XCHA90  BSR     BEGINC
+1036  E591 20C8                    BRA     XCHA30
+1037                       *
+1038                       *
+1039  E593 FEA002          BEGINC  LDX     BEGA
+1040  E596 08                      INX
+1041  E597 FFA002                  STX     BEGA
+1042  E59A 7EE49D                  JMP     BREAK     +RTS
+1043                       *
+1044                       * PUNCHA MED KLARTEXTRUBRIK
+1045                       *
+1046  E59D BDE1DE          HEADER  JSR     BEGENS    START/STOPP
+1047  E5A0 CEE2E9                  LDX     #TEXT11   'RUBRIK:'
+1048  E5A3 8D86                    BSR     PDATA3
+1049  E5A5 CEA053                  LDX     #BUFF+2   TEMP BUFFER
+1050  E5A8 8604                    LDA     #4
+1051  E5AA A700                    STA     ,X        LÄGG IN EOT
+1052  E5AC BDE1AC          HEAD10  JSR     INEEE     TAG IN TECKEN
+1053  E5AF 811B                    CMPA    #$1B      OM ESC SKREV FEL
+1054  E5B1 27EA                    BEQ     HEADER
+1055  E5B3 810D                    CMPA    #$0D      'CR'
+1056  E5B5 270F                    BEQ     HEAD20    KLAR
+1057  E5B7 A700                    STA     X         LAGRA I BUFF
+1058  E5B9 08                      INX
+1059  E5BA 8604                    LDA     #4        EOF TECKEN
+1060  E5BC A700                    STA     X
+1061  E5BE 8CA082                  CPX     #BUFF+49  MAX TECKENANTAL
+1062  E5C1 26E9                    BNE     HEAD10
+1063                       *
+1064  E5C3 7EE040          HEAD30  JMP     LOAD19
+1065                       *
+1066                       * KLAR MED RUBRIKEN
+1067                       *
+1068  E5C6 BDE097          HEAD20  JSR     DC2OUT
+1069  E5C9 CEA053                  LDX     #BUFF+2
+1070  E5CC BDE52B                  JSR     PDATA3    UT MED RUBRIKEN
+1071  E5CF 7EE143                  JMP     PUN11     PUNCHA DATA
+1072                       *
+1073                       * MINNESTEST
+1074                       *
+1075  E5D2                 MEMTST  EQU     *
+1076                       *
+1077  E5D2 BDE1DE                  JSR     BEGENS
+1078  E5D5 8D74                    BSR     PCRLFW
+1079  E5D7 5F                      CLRB
+1080  E5D8 37              LOOP    PSHB
+1081  E5D9 FEA002                  LDX     BEGA
+1082  E5DC 09                      DEX
+1083  E5DD 08              INITLP  INX
+1084  E5DE E700                    STA B     X
+1085  E5E0 5C                      INCB
+1086  E5E1 BCA004                  CPX     ENDA
+1087  E5E4 26F7                    BNE     INITLP
+1088                       *
+1089                       *
+1090  E5E6 FFA053          BUBBLE  STX     BUFF+2
+1091  E5E9 FEA002                  LDX     BEGA
+1092  E5EC FFA051          EXCHG   STX     BUFF
+1093  E5EF A600                    LDA     X
+1094  E5F1 FEA053                  LDX     BUFF+2
+1095  E5F4 E600                    LDB     X
+1096  E5F6 A700                    STA     X
+1097  E5F8 09                      DEX
+1098  E5F9 FFA053                  STX     BUFF+2
+1099  E5FC FEA051                  LDX     BUFF
+1100  E5FF E700                    STA B     X
+1101  E601 BCA053                  CPX     BUFF+2
+1102  E604 2706                    BEQ     CHKL
+1103  E606 08                      INX
+1104  E607 BCA053                  CPX     BUFF+2
+1105  E60A 26E0                    BNE     EXCHG
+1106  E60C 32              CHKL    PULA
+1107  E60D 36                      PSHA
+1108  E60E 4A                      DECA
+1109  E60F FEA004                  LDX     ENDA
+1110  E612 FFA053                  STX     BUFF+2
+1111  E615 FEA002                  LDX     BEGA
+1112  E618 FFA051                  STX     BUFF
+1113                       *
+1114  E61B FEA053          CHECK   LDX     BUFF+2
+1115  E61E 4C                      INCA
+1116  E61F A100                    CMPA    ,X
+1117  E621 2630                    BNE     ERROR
+1118  E623 BCA002          CONTIW  CPX     BEGA
+1119  E626 2710                    BEQ     GOOD
+1120  E628 FEA051                  LDX     BUFF
+1121  E62B 08                      INX
+1122  E62C FFA051                  STX     BUFF
+1123  E62F FEA053                  LDX     BUFF+2
+1124  E632 09                      DEX
+1125  E633 FFA053                  STX     BUFF+2
+1126  E636 20E3                    BRA     CHECK
+1127                       *
+1128                       *
+1129  E638 8621            GOOD    LDA     #'!
+1130  E63A BDE075                  JSR     OUTCH
+1131  E63D BDE49D                  JSR     BREAK
+1132  E640 7AA00A                  DEC     CKSM
+1133  E643 2602                    BNE     PASS
+1134  E645 8D04                    BSR     PCRLFW
+1135  E647 33              PASS    PULB
+1136  E648 5C                      INCB
+1137  E649 208D                    BRA     LOOP
+1138                       *
+1139  E64B 8620            PCRLFW  LDA     #32
+1140  E64D B7A00A                  STA     CKSM
+1141  E650 7EE131                  JMP     PCRLF
+1142                       *
+1143  E653 E600            ERROR   LDB     X
+1144  E655 37                      PSHB
+1145  E656 36                      PSHA
+1146  E657 BDE131                  JSR     PCRLF
+1147  E65A B6A053                  LDA     BUFF+2
+1148  E65D BDE0C2                  JSR     OUT2HT
+1149  E660 B6A054                  LDA     BUFF+3
+1150  E663 8D0D                    BSR     WUT2HS
+1151  E665 32                      PULA
+1152  E666 16                      TAB
+1153  E667 8D09                    BSR     WUT2HS
+1154  E669 32                      PULA
+1155  E66A 8D06                    BSR     WUT2HS
+1156  E66C 17                      TBA
+1157  E66D FEA053                  LDX     BUFF+2
+1158  E670 20B1                    BRA     CONTIW
+1159                       *
+1160  E672 BDE0C2          WUT2HS  JSR     OUT2HT
+1161  E675 8620                    LDA     #$20
+1162  E677 7EE075          WOUTCH  JMP     OUTCH
+1163                       *
+1164                       * MÄT RAMSTORLEK
+1165                       *
+1166  E67A                 METRAM  EQU     *
+1167  E67A CEE7E6                  LDX     #STRRAM
+1168  E67D BDE52B                  JSR     PDATA3
+1169  E680 CE0000                  LDX     #0
+1170  E683 08              MET10   INX
+1171  E684 8655                    LDA     #$55
+1172  E686 E600                    LDB     ,X
+1173  E688 A700                    STA     ,X
+1174  E68A A600                    LDA     ,X
+1175  E68C E700                    STA B     ,X
+1176  E68E 8155                    CMPA    #$55
+1177  E690 27F1                    BEQ     MET10
+1178                       *
+1179  E692 09              MET80   DEX
+1180  E693 FFA00C                  STX     XHI       SPARA MAXADRESSEN
+1181  E696 CEA00C                  LDX     #XHI
+1182  E699 8D6B                    BSR     AUT4HS
+1183  E69B 204C                    BRA     S0P95
+1184                       *
+1185                       * DISPLAY BREAK POINTS
+1186                       *
+1187  E69D F6A041          DISBRK  LDB     VFLAG     HÄMTA ANTAL
+1188  E6A0 270C                    BEQ     DISB00
+1189  E6A2 CEA042                  LDX     #BPTAB    HÄMTA TABELLEN
+1190  E6A5 BDE0C8          DISB50  JSR     OUT4HS
+1191  E6A8 08                      INX               HOPPA ÖVER OPKOD
+1192  E6A9 5A                      DECB
+1193  E6AA 26F9                    BNE     DISB50
+1194  E6AC 203B                    BRA     S0P95
+1195                       *
+1196  E6AE 8630            DISB00  LDA     #$30      SÄND EN NOLLA
+1197  E6B0 8DC5                    BSR     WOUTCH
+1198  E6B2 2035                    BRA     S0P95
+1199                       *
+1200                       * SÖK 2 BYTES ADRESS
+1201                       *
+1202  E6B4 BDE1EC          SOK2B   JSR     BEGENT
+1203  E6B7 CEE7DD                  LDX     #TEXT12+3 'ADRESS'
+1204  E6BA BDE52B                  JSR     PDATA3
+1205  E6BD BDE047                  JSR     BADDR     FIXA 4 TECKEN
+1206  E6C0 FEA002                  LDX     BEGA
+1207  E6C3 BDE4BE          SOK2B4  JSR     CBEND1
+1208  E6C6 A600                    LDA     ,X        KOLLA FÖRSTA BYTEN
+1209  E6C8 B1A00C                  CMPA    XHI
+1210  E6CB 2614                    BNE     SOK2B7
+1211  E6CD E601                    LDB     1,X
+1212  E6CF F1A00D                  CMPB    XHI+1
+1213  E6D2 260D                    BNE     SOK2B7
+1214  E6D4 BDE131                  JSR     PCRLF
+1215  E6D7 CEA002                  LDX     #BEGA     HÄMTA ADRESSEN
+1216  E6DA 8D2A                    BSR     AUT4HS
+1217  E6DC CEA00C                  LDX     #XHI
+1218  E6DF 8D25                    BSR     AUT4HS    LÄGG UT DATAT
+1219  E6E1 BDE593          SOK2B7  JSR     BEGINC
+1220  E6E4 20DD                    BRA     SOK2B4
+1221                       *
+1222  E6E6 BDE52B          S9PAUS  JSR     PDATA3
+1223  E6E9 7EE0D5          S0P95   JMP     CONTRL
+1224                       *
+1225                       * FORTSÄTTNING PÅ REG-PRINT
+1226                       *
+1227  E6EC 8641            PRREG9  LDA     #'A
+1228  E6EE 8D19                    BSR     UTMIN8
+1229  E6F0 BDE0CA                  JSR     OUT2HS    A-ACK
+1230  E6F3 8658                    LDA     #'X
+1231  E6F5 8D12                    BSR     UTMIN8
+1232  E6F7 8D0D                    BSR     AUT4HS    X-REG
+1233  E6F9 8650                    LDA     #'P
+1234  E6FB 8D0C                    BSR     UTMIN8
+1235  E6FD 8D07                    BSR     AUT4HS
+1236  E6FF 8653                    LDA     #'S
+1237  E701 8D06                    BSR     UTMIN8
+1238  E703 CEA008                  LDX     #SP
+1239  E706 7EE0C8          AUT4HS  JMP     OUT4HS    SP +RTS
+1240                       *
+1241  E709 7EE297          UTMIN8  JMP     UTMIN
+1242                       *
+1243                       *
+1244  E70C C610            DUMP16  LDB     #16
+1245  E70E F7A012                  STA B   DMASK
+1246  E711 BDE1DE                  JSR     BEGENS    FIXA START & STOPP
+1247  E714 B6A003                  LDA     BEGA+1
+1248  E717 84F0                    ANDA    #$F0      FULL RAD
+1249  E719 BDE389                  JSR     PDUMP5
+1250  E71C 8608                    LDA     #8
+1251  E71E B7A012                  STA     DMASK
+1252  E721 20C6                    BRA     S0P95
+1253                       *
+1254  E723 867E            BOOT0   LDA     #$7E      FIXA ÅTERSTART
+1255  E725 B72400                  STA     $2400
+1256  E728 CEE733                  LDX     #BOOT2
+1257  E72B FF2401                  STX     $2401
+1258  E72E C6D0                    LDB     #$D0      FORCE INTERRUPT
+1259  E730 F78018                  STA B   COMREG
+1260  E733 4F              BOOT2   CLRA
+1261  E734 CE7000                  LDX     #$7000
+1262  E737 B78014          BOOT3   STA     DRVREG    DRIVE #0 MOTOR ON
+1263  E73A 08                      INX
+1264  E73B 26FA                    BNE     BOOT3
+1265  E73D C60F            BOOT4   LDB     #$0F      RESTORE
+1266  E73F F78018                  STA B   COMREG
+1267  E742 8D31                    BSR     BOTRTS
+1268  E744 F68018          LOOP1   LDB     COMREG
+1269  E747 C501                    BITB    #1
+1270  E749 26F9                    BNE     LOOP1
+1271  E74B 7F801A                  CLR     SECREG
+1272  E74E 8D25                    BSR     BOTRTS
+1273  E750 C69C                    LDB     #$9C      READ W LOAD
+1274  E752 F78018                  STA B   COMREG
+1275  E755 8D1E                    BSR     BOTRTS
+1276  E757 CE2400                  LDX     #$2400
+1277  E75A C502            LOOP2   BITB    #2        DRQ?
+1278  E75C 2706                    BEQ     LOOP3
+1279  E75E B6801B                  LDA     DATREG
+1280  E761 A700                    STA     ,X
+1281  E763 08                      INX
+1282  E764 F68018          LOOP3   LDB     COMREG
+1283  E767 C501                    BITB    #1        BUSY ?
+1284  E769 26EF                    BNE     LOOP2
+1285  E76B F68018                  LDB     COMREG    CRC FEL ?
+1286  E76E C40C                    ANDB    #$0C
+1287  E770 26CB                    BNE     BOOT4
+1288  E772 7E2400                  JMP     $2400
+1289                       *
+1290  E775 8D00            BOTRTS  BSR     BOOTRT
+1291  E777 39              BOOTRT  RTS
+1292                       *
+1293  E778                 SWIINS  EQU     *
+1294  E778 BDE047                  JSR     BADDR
+1295  E77B                 SWIIN2  EQU     *
+1296  E77B FEA00F                  LDX     SWIVEK
+1297  E77E FFA013                  STX     SWIFLX
+1298  E781 CEE2F1                  LDX     #SFE      LÄGG IN TBUGS VEKTOR
+1299  E784 FFA00F          SWI90   STX     SWIVEK
+1300  E787 39                      RTS
+1301                       *
+1302  E788 FEA013          FLEX0   LDX     SWIFLX    LÄGG TILLBAKS
+1303  E78B FFA00F                  STX     SWIVEK
+1304  E78E 7EAD03                  JMP     $AD03     GÅ TILL FLEX VARMSTART
+1305                       *
+1306  E791 53746172742053  TEXT02  FCC     "Start Slut Till"
+1307  E7A0 0D0A3E04                FCB     $0D,$0A,'>,4
+1308                       *
+1309  E7A4 456A207B6E6472  TEXT03  FCC     "Ej {ndrat:"
+1310  E7AE 04                      FCB     4
+1311                       *
+1312  E7AF 53746172742053  TEXT04  FCC     "Start Slut"
+1313  E7B9 0D0A3E04                FCB     $0D,$0A,'>,4
+1314                       *
+1315  E7BD 5465636B656E3A  TEXT05  FCC     "Tecken: "
+1316  E7C5 04                      FCB     4
+1317                       *
+1318  E7C6 53756274726168  TEXT09  FCC     "Subtrahera (00-FF):"
+1319  E7D9 04                      FCB     4
+1320                       *
+1321  E7DA 4E792041647265  TEXT12  FCC     "Ny Adress: "
+1322  E7E5 04                      FCB     4
+1323                       *
+1324  E7E6 52616D20736C75  STRRAM  FCC     "Ram slut="
+1325  E7EF 04                      FCB     4
+1326                       *
+1327                       * VEKTORER
+1328                       *
+1329                               ORG     $E7F8
+1330                       *
+1331  E7F8 E000                    FDB     IO        IRQ VEKTOR
+1332  E7FA E00A                    FDB     SWISER    SWI VEKTOR
+1333  E7FC E005                    FDB     POWDWN    NMI VEKTOR
+1334  E7FE E3CE                    FDB     CSTART    RESTART VEKTOR KALL START
+1335                       *
+1336                               END
+
+0 error(s), 0 warning(s)
