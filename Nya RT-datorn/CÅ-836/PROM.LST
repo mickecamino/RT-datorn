@@ -284,62 +284,63 @@
  284                       *
  285  E5D9 BEE7FA          LOAD1   LDX     PRMSTA    START ADDRESS IN EPROM
  286                       *
- 287  E5DC 8D36            LOAD2   BSR     LESPRM    GET 1 BYTE, PUT IN A
+ 287  E5DC 8D38            LOAD2   BSR     LESPRM    GET 1 BYTE, PUT IN A
  288  E5DE 8102                    CMPA    #2        IS IT 02? I.E. START OF RECORD?
- 289  E5E0 2712                    BEQ     LESREC    YES, READ THE RECORD AND DATA
+ 289  E5E0 2714                    BEQ     LESREC    YES, READ THE RECORD AND DATA
  290  E5E2 8116                    CMPA    #$16      IS IT TRANSFER ADDRESS?
- 291  E5E4 8D2E                    BSR     LESPRM    GET TRANSFER ADDRESS MSB
- 292  E5E6 B7E7FE                  STA     TRNSFR    SAVE MSB
- 293  E5E9 8D29                    BSR     LESPRM    GET TRANSFER ADDRESS LSB
- 294  E5EB B7E7FF                  STA     TRNSFR+1  SAVE LSB
- 295  E5EE 3576                    PULS    X,Y,A,B,U RESTORE REGISTERS
- 296  E5F0 6E9FE7FE                JMP     [TRNSFR]  AND JUMP TO START ADDRESS
- 297                       *
- 298                       * READ FLEX FILE RECORD
- 299                       *
- 300  E5F4 8D1E            LESREC  BSR     LESPRM    GET RAM ADDRESS MSB
- 301  E5F6 1F89                    TFR     A,B       PUT IN B
- 302  E5F8 8D1A                    BSR     LESPRM    GET RAM-ADDRESS LSB
- 303  E5FA 1E89                    EXG     A,B       SWAP THE TWO BYTES TO GET IT RIGHT
- 304  E5FC FDE7FC                  STD     RAMSTO    SAVE IN RAMSTO
- 305  E5FF 8D13                    BSR     LESPRM    GET NUMBER OF BYTES IN RECORD
- 306  E601 1F89                    TFR     A,B       PUT IT IN B
- 307                       *
- 308                       * DONE WITH FLEX FILE RECORD
- 309                       * NOW LOAD THE PROGRAM INTO RAM
- 310                       *
- 311  E603 8D0F            LESRCD2 BSR     LESPRM    GET ONE BYTE
- 312  E605 10BEE7FC                LDY     RAMSTO    WHERE IT SHOULD BE STORED
- 313  E609 A7A0                    STA     0,Y+      SAVE IT, INCREASE Y
- 314  E60B 10BFE7FC                STY     RAMSTO    SAVE NEXT RAM ADDRESS
- 315  E60F 5A                      DECB              ARE WE AT 0?
- 316  E610 26F1                    BNE     LESRCD2   NO, CONTINUE UNTIL WE ARE
- 317  E612 20C8                    BRA     LOAD2     YES, LOOK FOR MORE RECORDS
- 318                       *
- 319                       * SUB ROUTINE THAT READS ONE BYTE FROM THE NEW EPROM
- 320                       * CARD 836 AT ADDRESSES $E0B0, $E0C0 OR $E0D0
- 321                       * IN: X-REG - ADDRESS IN EPROM TO READ FROM
- 322                       *     U-REG - WHAT EPROM TO READ
- 323                       *
- 324                       * RETURNS: A-REG - ONE BYTE READ FROM EPROM
- 325                       *
- 326  E614 119302          LESPRM  CMPU    PROMVAL   WHAT EPROM SHOULD WE READ FROM
- 327  E617 2504                    BLO     PROM1     LESS THAN 2 = PROM #1
- 328  E619 270A                    BEQ     PROM2     EQUAL WITH 2 = PROM #2
- 329  E61B 2E10                    BGT     PROM3     LARGER THAN 2 = PROM #3
- 330                       *
- 331  E61D BFE0B0          PROM1   STX     EPROM     FIRST EPROM
- 332  E620 B6E0B0                  LDA     EPROM     READ DATA
- 333  E623 200E                    BRA     LAGRA     PUT IN RAM
- 334  E625 BFE0C0          PROM2   STX     EPROM+$10 SECOND EPROM
- 335  E628 B6E0C0                  LDA     EPROM+$10 READ DATA
- 336  E62B 2006                    BRA     LAGRA     PUT IN RAM
- 337  E62D BFE0D0          PROM3   STX     EPROM+$20 THIRD EPROM
- 338  E630 B6E0D0                  LDA     EPROM+$20 READ DATA
- 339                       *
- 340  E633 3001            LAGRA   INX               NEXT POSITIONS
- 341  E635 39                      RTS               RETURN
- 342                       *
- 343                               END
+ 291  E5E4 26F6                    BNE     LOAD2     SKIP 00 PADDING
+ 292  E5E6 8D2E                    BSR     LESPRM    GET TRANSFER ADDRESS MSB
+ 293  E5E8 B7E7FE                  STA     TRNSFR    SAVE MSB
+ 294  E5EB 8D29                    BSR     LESPRM    GET TRANSFER ADDRESS LSB
+ 295  E5ED B7E7FF                  STA     TRNSFR+1  SAVE LSB
+ 296  E5F0 3576                    PULS    X,Y,A,B,U RESTORE REGISTERS
+ 297  E5F2 6E9FE7FE                JMP     [TRNSFR]  AND JUMP TO START ADDRESS
+ 298                       *
+ 299                       * READ FLEX FILE RECORD
+ 300                       *
+ 301  E5F6 8D1E            LESREC  BSR     LESPRM    GET RAM ADDRESS MSB
+ 302  E5F8 1F89                    TFR     A,B       PUT IN B
+ 303  E5FA 8D1A                    BSR     LESPRM    GET RAM-ADDRESS LSB
+ 304  E5FC 1E89                    EXG     A,B       SWAP THE TWO BYTES TO GET IT RIGHT
+ 305  E5FE FDE7FC                  STD     RAMSTO    SAVE IN RAMSTO
+ 306  E601 8D13                    BSR     LESPRM    GET NUMBER OF BYTES IN RECORD
+ 307  E603 1F89                    TFR     A,B       PUT IT IN B
+ 308                       *
+ 309                       * DONE WITH FLEX FILE RECORD
+ 310                       * NOW LOAD THE PROGRAM INTO RAM
+ 311                       *
+ 312  E605 8D0F            LESRCD2 BSR     LESPRM    GET ONE BYTE
+ 313  E607 10BEE7FC                LDY     RAMSTO    WHERE IT SHOULD BE STORED
+ 314  E60B A7A0                    STA     0,Y+      SAVE IT, INCREASE Y
+ 315  E60D 10BFE7FC                STY     RAMSTO    SAVE NEXT RAM ADDRESS
+ 316  E611 5A                      DECB              ARE WE AT 0?
+ 317  E612 26F1                    BNE     LESRCD2   NO, CONTINUE UNTIL WE ARE
+ 318  E614 20C6                    BRA     LOAD2     YES, LOOK FOR MORE RECORDS
+ 319                       *
+ 320                       * SUB ROUTINE THAT READS ONE BYTE FROM THE NEW EPROM
+ 321                       * CARD 836 AT ADDRESSES $E0B0, $E0C0 OR $E0D0
+ 322                       * IN: X-REG - ADDRESS IN EPROM TO READ FROM
+ 323                       *     U-REG - WHAT EPROM TO READ
+ 324                       *
+ 325                       * RETURNS: A-REG - ONE BYTE READ FROM EPROM
+ 326                       *
+ 327  E616 119302          LESPRM  CMPU    PROMVAL   WHAT EPROM SHOULD WE READ FROM
+ 328  E619 2504                    BLO     PROM1     LESS THAN 2 = PROM #1
+ 329  E61B 270A                    BEQ     PROM2     EQUAL WITH 2 = PROM #2
+ 330  E61D 2E10                    BGT     PROM3     LARGER THAN 2 = PROM #3
+ 331                       *
+ 332  E61F BFE0B0          PROM1   STX     EPROM     FIRST EPROM
+ 333  E622 B6E0B0                  LDA     EPROM     READ DATA
+ 334  E625 200E                    BRA     LAGRA     PUT IN RAM
+ 335  E627 BFE0C0          PROM2   STX     EPROM+$10 SECOND EPROM
+ 336  E62A B6E0C0                  LDA     EPROM+$10 READ DATA
+ 337  E62D 2006                    BRA     LAGRA     PUT IN RAM
+ 338  E62F BFE0D0          PROM3   STX     EPROM+$20 THIRD EPROM
+ 339  E632 B6E0D0                  LDA     EPROM+$20 READ DATA
+ 340                       *
+ 341  E635 3001            LAGRA   INX               NEXT POSITIONS
+ 342  E637 39                      RTS               RETURN
+ 343                       *
+ 344                               END
 
 0 error(s), 0 warning(s)
