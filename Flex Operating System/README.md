@@ -21,8 +21,15 @@ Skapa ny Flex för RT-datorn:
 APPEND FLEX.COR,DISK.BIN,IO.BIN,RTFLEX.SYS  
 LINK RTFLEX.SYS 
 ```
-Tryck Reset, och boota flex med F
-Du ska nu få en prompt med fråga om datum. Mata in dagens datum med mellanslag mellan månad, dag och år, t.ex 03 11 24, tryck Enter.
-Du ska nu få upp +++
+Tryck Reset, och boota flex med F  
+Du ska nu få en prompt med fråga om datum. Mata in dagens datum med mellanslag mellan månad, dag och år, t.ex 03 11 24, tryck Enter.  
+Du ska nu få upp +++  
 
+Om du använder den "gamla" RT-datorn, eller den "nya" med CÅ-817 är du klar och kan köra FLEX 9.1  
+Om du använder den "nya" RT-datorn med CÅ-837 (Double Density Floppy Controller) måste du knappa in DISK.ASM och kompilera med följande kommando:  
+```
+ASMB DISK.ASM +LSGY  
+```
+Svara Yes på att skriva över den gamla DISK.BIN.  
+Repetera ovanstånde APPEN och LINK för at lägga till denna drivrutin till FLEX. Botta om och du har en FLEX som stöder enkel eller dubbelsidiga disketter och enkel eller dubbel densitetr, 35, 40 eller 80 spår.  
 I mappen Utilities har jag samlat lite olika program som är "bra att ha".
