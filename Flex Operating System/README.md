@@ -31,5 +31,5 @@ Om du använder den "nya" RT-datorn med CÅ-837 (Double Density Floppy Controlle
 ASMB DISK.ASM +LSGY  
 ```
 Svara Yes på att skriva över den gamla DISK.BIN.  
-Repetera ovanstånde APPEN och LINK för at lägga till denna drivrutin till FLEX. Botta om och du har en FLEX som stöder enkel eller dubbelsidiga disketter och enkel eller dubbel densitetr, 35, 40 eller 80 spår.  
+Repetera ovanstående APPEND och LINK för att lägga till denna drivrutin till FLEX. Boota om och du har en FLEX som stöder enkel eller dubbelsidiga disketter och enkel eller dubbel densitetr, 35, 40 eller 80 spår.  
 I mappen Utilities har jag samlat lite olika program som är "bra att ha".
