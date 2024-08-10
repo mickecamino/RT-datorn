@@ -11,7 +11,7 @@ Byte 2 - Least significant byte of the load address
 Byte 3 - Number of bytes in the record  
 Byte 4-n - The binary data of the record.  
 Då det är en byte som innehåller antalet bytes i recordet (posten) är det max 255 bytes som får plats i ett record..  
-Ett stort program innehåller många records (poster) och programmet slutar alltid med 0x16 som markerar slutet, följst av två bytes som innehåller startadressen till programmet.  
+Ett stort program innehåller många records (poster) och programmet slutar alltid med 0x16 som markerar slutet, följt av två bytes som innehåller startadressen till programmet.  
   
 RAM-minnet på 1kb används av programmet PROM som laddas via STARTUP.TXT med kommandot GET PROM, programmet laddas i minnet på adresserna $E400, $E500 och $E700.  
  
