@@ -42,7 +42,7 @@ Tangenten visar registren i processorns stack. Först visas på dataindikatorn C
 
 
 ### Fig 1
-![Fig 1](/images/fig1.jpg)
+![Fig 1](/Gamla RT-datorn/CÅ-8006/images/fig1.jpg)
 
 ### Fig 2
 ![Fig 2](/images/fig2.jpg)
