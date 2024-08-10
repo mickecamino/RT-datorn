@@ -42,19 +42,19 @@ Tangenten visar registren i processorns stack. Först visas på dataindikatorn C
 
 
 ### Fig 1
-![/images/fig1.jpg]
+![Fig 1](/images/fig1.jpg)
 
 ### Fig 2
-![/images/fig2.jpg]
+![Fig 2](/images/fig2.jpg)
 
 ### Fig 3
-![/images/fig3.jpg]
+![Fig 3](/images/fig3.jpg)
 
 ### Fig 4
-![/images/fig4.jpg]
+![Fig 4](/images/fig4.jpg)
 
 ### Fig 5
-![/images/fig5.jpg]
+![Fig 5](/images/fig5.jpg)
 
 Kompletta satser enligt ovan kan beställas från CÅ-Elektronik AB, box 2010, 135 02 Tyresö, tel, 08-XXX XX XX, från Telko i Stockholm, Göteborg och Malmö, samt från Digitronic. En komplett sats med ett monitorprogram kostar 448 kr exkl. moms.  
 
