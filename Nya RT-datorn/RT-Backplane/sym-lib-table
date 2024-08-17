@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "RT-Backplane")(type "KiCad")(uri "${KIPRJMOD}/RT-Backplane.kicad_sym")(options "")(descr ""))
+)
