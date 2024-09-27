@@ -19,102 +19,102 @@
  E083                 PIAAD3  EQU     $E083   KONTROLLREG. DITO
  E0E0                 DISPL   EQU     $E0E0   ADRESS TILL FÖRSTA DISPLAY
                       *
-                              ORG     $A100
+                              ORG     $C100
                       *
- A100 7FE081          START   CLR     PIAAD1  NOLLA KONTROLLREG.
- A103 7FE083                  CLR     PIAAD3
- A106 7FE082                  CLR     PIAAD2  PB0-7 INGÅNGAR
- A109 8636                    LDA     #$36    CB2 UTGÅNG, CB1 INGÅNG
- A10B B7E083                  STA     PIAAD3
- A10E 860F                    LDA     #$0F    PA0-3 UTGÅNGAR
- A110 B7E080                  STA     PIAAD0
- A113 8604                    LDA     #4
- A115 B7E081                  STA     PIAAD1
+ C100 7FE081          START   CLR     PIAAD1  NOLLA KONTROLLREG.
+ C103 7FE083                  CLR     PIAAD3
+ C106 7FE082                  CLR     PIAAD2  PB0-7 INGÅNGAR
+ C109 8636                    LDA     #$36    CB2 UTGÅNG, CB1 INGÅNG
+ C10B B7E083                  STA     PIAAD3
+ C10E 860F                    LDA     #$0F    PA0-3 UTGÅNGAR
+ C110 B7E080                  STA     PIAAD0
+ C113 8604                    LDA     #4
+ C115 B7E081                  STA     PIAAD1
                       *
- A118 5F              LOOP00  CLRB            NOLLA FÖR INGÅNG 0
- A119 8EA1A8                  LDX     #BINTAB
- A11C 8D28                    BSR     INPUT   HÄMTA MÄTVÄRDE KANAL 0
- A11E 8D3C                    BSR     BCDCON  OMVANDLA TILL DECIMALT
- A120 A602                    LDA     2,X
- A122 B7E0E0                  STA     DISPL   LÄGG UT PÅ FÖRSTA DISPLAYEN
- A125 A603                    LDA     3,X     HÄMTA 2:A SIFFRAN
- A127 B7E0E1                  STA     DISPL+1 LÄGG UT PÅ 2:A DISPLAYEN
- A12A A604                    LDA     4,X     HÄMTA 3:E SIFFRAN
- A12C B7E0E2                  STA     DISPL+2 LÄGG UT PÅ 3:E DISPLAYEN
- A12F C601                    LDB     #1      HÄMTA FRÅN KANAL 1
- A131 8D13                    BSR     INPUT
- A133 8D27                    BSR     BCDCON
- A135 A602                    LDA     2,X     HÄMTA 1:A SIFFRAN
- A137 B7E0E3                  STA     DISPL+3 LÄGG UT PÅ 4:E DISPLAYEN
- A13A A603                    LDA     3,X     HÄMTA 2:A SIFFRAN
- A13C B7E0E4                  STA     DISPL+4 LÄGG UT PÅ 5:E DISPLAYEN
- A13F A604                    LDA     4,X     HÄMTA 3:E SIFFRAN
- A141 B7E0E5                  STA     DISPL+5 LÄGG UT PÅ 6:E DISPLAYEN
- A144 20D2                    BRA     LOOP00  FORTSÄTT
+ C118 5F              LOOP00  CLRB            NOLLA FÖR INGÅNG 0
+ C119 8EC1A8                  LDX     #BINTAB
+ C11C 8D28                    BSR     INPUT   HÄMTA MÄTVÄRDE KANAL 0
+ C11E 8D3C                    BSR     BCDCON  OMVANDLA TILL DECIMALT
+ C120 A602                    LDA     2,X
+ C122 B7E0E0                  STA     DISPL   LÄGG UT PÅ FÖRSTA DISPLAYEN
+ C125 A603                    LDA     3,X     HÄMTA 2:A SIFFRAN
+ C127 B7E0E1                  STA     DISPL+1 LÄGG UT PÅ 2:A DISPLAYEN
+ C12A A604                    LDA     4,X     HÄMTA 3:E SIFFRAN
+ C12C B7E0E2                  STA     DISPL+2 LÄGG UT PÅ 3:E DISPLAYEN
+ C12F C601                    LDB     #1      HÄMTA FRÅN KANAL 1
+ C131 8D13                    BSR     INPUT
+ C133 8D27                    BSR     BCDCON
+ C135 A602                    LDA     2,X     HÄMTA 1:A SIFFRAN
+ C137 B7E0E3                  STA     DISPL+3 LÄGG UT PÅ 4:E DISPLAYEN
+ C13A A603                    LDA     3,X     HÄMTA 2:A SIFFRAN
+ C13C B7E0E4                  STA     DISPL+4 LÄGG UT PÅ 5:E DISPLAYEN
+ C13F A604                    LDA     4,X     HÄMTA 3:E SIFFRAN
+ C141 B7E0E5                  STA     DISPL+5 LÄGG UT PÅ 6:E DISPLAYEN
+ C144 20D2                    BRA     LOOP00  FORTSÄTT
                       *
- A146 F7E080          INPUT   STAB    PIAAD0
- A149 863E                    LDA     #$3E    GE HÖG PULS PÅ CB2
- A14B C636                    LDB     #$36
- A14D B7E083                  STA     PIAAD3  HÖG NU
- A150 F7E083                  STAB    PIAAD3  LÅG IGEN
- A153 B6E083          INPUTS  LDA     PIAAD3  HÄMTA STATUS
- A156 2AFB                    BPL     INPUTS  VÄNTA TILLS AD-CONV. KLAR
- A158 B6E082                  LDA     PIAAD2  HÄMTA MÄTVÄRDE
- A15B 39                      RTS
+ C146 F7E080          INPUT   STAB    PIAAD0
+ C149 863E                    LDA     #$3E    GE HÖG PULS PÅ CB2
+ C14B C636                    LDB     #$36
+ C14D B7E083                  STA     PIAAD3  HÖG NU
+ C150 F7E083                  STAB    PIAAD3  LÅG IGEN
+ C153 B6E083          INPUTS  LDA     PIAAD3  HÄMTA STATUS
+ C156 2AFB                    BPL     INPUTS  VÄNTA TILLS AD-CONV. KLAR
+ C158 B6E082                  LDA     PIAAD2  HÄMTA MÄTVÄRDE
+ C15B 39                      RTS
                       *
                       * RUTIN FÖR OMVANDLING AV EN
                       * HEX-BYTE TILL DECIMALTAL 0-255
                       * A-ACC LSB HALVA
                       * B-ACC MSB HALVA
                       *
- A15C BFA1A6          BCDCON  STX     SAVEX   SPARA PEKAREN
- A15F 8EA199                  LDX     #CONST  TABELL FÖR KONSTANTEN
- A162 5F                      CLRB
- A163 7FA1A3          B10     CLR     SAVEA   ATT BILDA DECIMALTECKEN
- A166 A001            B20     SUBA    1,X     DRAG IFRÅN TILLS UNDERFLOW
- A168 E200                    SBCB    0,X
- A16A 2505                    BCS     B30
- A16C 7CA1A3                  INC     SAVEA
- A16F 20F5                    BRA     B20
+ C15C BFC1A6          BCDCON  STX     SAVEX   SPARA PEKAREN
+ C15F 8EC199                  LDX     #CONST  TABELL FÖR KONSTANTEN
+ C162 5F                      CLRB
+ C163 7FC1A3          B10     CLR     SAVEA   ATT BILDA DECIMALTECKEN
+ C166 A001            B20     SUBA    1,X     DRAG IFRÅN TILLS UNDERFLOW
+ C168 E200                    SBCB    0,X
+ C16A 2505                    BCS     B30
+ C16C 7CC1A3                  INC     SAVEA
+ C16F 20F5                    BRA     B20
                       *
- A171 AB01            B30     ADDA    1,X
- A173 E900                    ADCB    0,X
- A175 3402                    PSHA
- A177 BFA1A4                  STX     SAVEK0  SPARA AKTUELLT VÄRDE
- A17A BEA1A6                  LDX     SAVEX   VAR SKALL DET LAGRAS
- A17D B6A1A3                  LDA     SAVEA   LÄGG IN DET
- A180 A700                    STA     0,X     I TABELLEN
- A182 3502                    PULA            ÅTERTAG
- A184 3001                    INX
- A186 BFA1A6                  STX     SAVEX   SPARA NYA VÄRDET
- A189 BEA1A4                  LDX     SAVEK0
- A18C 3001                    INX
- A18E 3001                    INX
- A190 8CA1A3                  CPX     #KONEND SLUT PÅ KONSTANTERNA ?
- A193 26CE                    BNE     B10
- A195 8EA1A8                  LDX     #BINTAB PEKA PÅ TABELLEN
- A198 39                      RTS
+ C171 AB01            B30     ADDA    1,X
+ C173 E900                    ADCB    0,X
+ C175 3402                    PSHA
+ C177 BFC1A4                  STX     SAVEK0  SPARA AKTUELLT VÄRDE
+ C17A BEC1A6                  LDX     SAVEX   VAR SKALL DET LAGRAS
+ C17D B6C1A3                  LDA     SAVEA   LÄGG IN DET
+ C180 A700                    STA     0,X     I TABELLEN
+ C182 3502                    PULA            ÅTERTAG
+ C184 3001                    INX
+ C186 BFC1A6                  STX     SAVEX   SPARA NYA VÄRDET
+ C189 BEC1A4                  LDX     SAVEK0
+ C18C 3001                    INX
+ C18E 3001                    INX
+ C190 8CC1A3                  CPX     #KONEND SLUT PÅ KONSTANTERNA ?
+ C193 26CE                    BNE     B10
+ C195 8EC1A8                  LDX     #BINTAB PEKA PÅ TABELLEN
+ C198 39                      RTS
                       *
- A199 2710            CONST   FDB     10000
- A19B 03E8                    FDB     1000
- A19D 0064                    FDB     100
- A19F 000A                    FDB     10
- A1A1 0001                    FDB     1
- A1A3                 KONEND  EQU     *
+ C199 2710            CONST   FDB     10000
+ C19B 03E8                    FDB     1000
+ C19D 0064                    FDB     100
+ C19F 000A                    FDB     10
+ C1A1 0001                    FDB     1
+ C1A3                 KONEND  EQU     *
                       *
- A1A3                 SAVEA   RMB     1
- A1A4                 SAVEK0  RMB     2
- A1A6                 SAVEX   RMB     2
- A1A8                 BINTAB  RMB     5
+ C1A3                 SAVEA   RMB     1
+ C1A4                 SAVEK0  RMB     2
+ C1A6                 SAVEX   RMB     2
+ C1A8                 BINTAB  RMB     5
                       *
- A100                         END     START
+ C100                         END     START
 
 SYMBOL TABLE
-       B10 02 A163       B20 02 A166       B30 02 A171    BCDCON 02 A15C
-    BINTAB 02 A1A8     CONST 02 A199     DISPL 00 E0E0     INPUT 02 A146
-    INPUTS 02 A153    KONEND 02 A1A3    LOOP00 02 A118    PIAAD0 00 E080
-    PIAAD1 00 E081    PIAAD2 00 E082    PIAAD3 00 E083     SAVEA 02 A1A3
-    SAVEK0 02 A1A4     SAVEX 02 A1A6     START 02 A100
+       B10 02 C163       B20 02 C166       B30 02 C171    BCDCON 02 C15C
+    BINTAB 02 C1A8     CONST 02 C199     DISPL 00 E0E0     INPUT 02 C146
+    INPUTS 02 C153    KONEND 02 C1A3    LOOP00 02 C118    PIAAD0 00 E080
+    PIAAD1 00 E081    PIAAD2 00 E082    PIAAD3 00 E083     SAVEA 02 C1A3
+    SAVEK0 02 C1A4     SAVEX 02 C1A6     START 02 C100
 19 SYMBOLS
 
 0 error(s), 0 warning(s)
