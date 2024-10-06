@@ -1,8 +1,8 @@
 # Flex Operating System
 ## Drivrutiner och annat för att kunna starta RT-datorn
-RT-datorn, både den gamla (i 6809 läge) och den nya, ska köra Flex 9.1.  
-Då original Flex 9.1 kör I/O via serieporten på adress $E004/$E005 fungerar detta inte på RT-datorn.  
-En Quick-And-Dirty lösning är att boota Flex 9.1, vänta tills diskettstationen slocknat + 5 sekunder.  
+RT-datorn, både den gamla (i 6809 läge) och den nya, ska köra FLEX 9.1 eller FLEX 3.01.  
+Då original FLEX 9.1 kör I/O via serieporten på adress $E004/$E005 fungerar detta inte på RT-datorn.  
+En Quick-And-Dirty lösning är att boota FLEX 9.1, vänta tills diskettstationen slocknat + 5 sekunder.  
 Tryck sedan Reset för att komma in i CBUG-monitor.  
 Tryck D för att dumpa minne, skriv D3E0 D3FF och se om det står $E005 och $E004 i någon adress.  
 Kör M och modifiera adresserna till $E009 och $E008.  

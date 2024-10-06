@@ -3,7 +3,7 @@ C1  - 0,1 uF polyester
 C2  - 220 pF styrol
 D1  - röd lysdiod
 IC1 - 6821
-IC2 - ADC 0817 eller ADC 8016
+IC2 - ADC 0817 eller ADC 0816
 IC3 - 4001 eller 4011
 (IC4 - 74LS130)
 R1  - 220 ohm
