@@ -14,7 +14,7 @@
                       * på displaykort CÅ-8006
                       *
  E080                 PIAAD0  EQU     $E080   DATAREGISTER ADRESSVAL
- E081                 PIAAD1  EQU     $E081   KONTROLLRED. DITO
+ E081                 PIAAD1  EQU     $E081   KONTROLLREG. DITO
  E082                 PIAAD2  EQU     $E082   DATAREGISTER MÄTVÄRDE
  E083                 PIAAD3  EQU     $E083   KONTROLLREG. DITO
  E0E0                 DISPL   EQU     $E0E0   ADRESS TILL FÖRSTA DISPLAY

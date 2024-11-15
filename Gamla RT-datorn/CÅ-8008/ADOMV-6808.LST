@@ -14,7 +14,7 @@
                       * på displaykort CÅ-8006
                       *
  8080                 PIAAD0  EQU     $8080   DATAREGISTER ADRESSVAL
- 8081                 PIAAD1  EQU     $8081   KONTROLLRED. DITO
+ 8081                 PIAAD1  EQU     $8081   KONTROLLREG. DITO
  8082                 PIAAD2  EQU     $8082   DATAREGISTER MÄTVÄRDE
  8083                 PIAAD3  EQU     $8083   KONTROLLREG. DITO
  80E0                 DISPL   EQU     $80E0   ADRESS TILL FÖRSTA DISPLA
