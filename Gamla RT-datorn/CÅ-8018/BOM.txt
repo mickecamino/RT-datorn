@@ -1,0 +1,15 @@
+C1      47 uF 25 V el lyt
+Dl      röd lysdiod
+IC1     MC 68488 (Motorola)
+IC2     74LS240
+IC3     74LS00
+IC4-7   MC 3448A (Motorola)
+R1      220 ohm
+R2      4,7 k
+R3      7x4,7 k
+SI      8-pol dip-omkopplare
+l       kretskort CÅ-8018
+1       IC-hållare l4-pin
+4       IC-hållare l6-pin
+l       IC-hållare 20-pin
+1       IC-hållare 40-pin
