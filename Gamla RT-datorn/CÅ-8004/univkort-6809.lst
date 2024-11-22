@@ -1,19 +1,18 @@
                               NAM     UNIVKORT
-                              OPT     M09
                       *
                       * PROGRAMEXEMPEL FÖR SPECIALKORTET
                       * TILL RT:S DATORSERIE
                       *
                       * AV ÅKE HOLM 790215
                       *
- E030                 PTM     EQU     $E030   ADRESS FÖR MC6840
+ E030                 PTM     EQU     $E030     ADRESS FÖR MC6840
                       *
                       * RAMCELLER FÖR DATALAGRING
                       *
                               ORG     $0000
- 0000                 NOT     RMB     2       TEMPORÄR BUFFERT FÖR NOT
- 0002                 PNOT    RMB     2       NOT MED OFFSET
- 0004                 PTIMER  RMB     2       ADRESS TILL REGISTER
+ 0000                 NOT     RMB     2         TEMPORÄR BUFFERT FÖR NOT
+ 0002                 PNOT    RMB     2         NOT MED OFFSET
+ 0004                 PTIMER  RMB     2         ADRESS TILL REGISTER
  0006                 TAKT    RMB     1
  0007                 TOP     RMB     1
                       *
@@ -21,87 +20,87 @@
                       *
                               ORG     $0100
                       *
- 0100 8682                    LDA     #$82    TIMER OUTPUT ENABLE
- 0102 B7E030                  STA     PTM     KONTROLLREG 3
+ 0100 8682            START   LDA     #$82      TIMER OUTPUT ENABLE
+ 0102 B7E030                  STA     PTM       KONTROLLREG 3
  0105 C683                    LDB     #$83
- 0107 F7E031                  STB     PTM+1   KONTROLLREG 2
- 010A B7E030                  STA     PTM     KONTROLLREG 1
+ 0107 F7E031                  STB     PTM+1     KONTROLLREG 2
+ 010A B7E030                  STA     PTM       KONTROLLREG 1
                       *
                       * MUSIKPROGRAM
                       *
  010D 8E0022          MUSIK   LDX     #VALS
  0110 8D09                    BSR     SPELA
  0112 8E00FF          MERA    LDX     #$FF
- 0115 301F            DELAY   DEX             GÖR EN PAUS
+ 0115 301F            DELAY   DEX               GÖR EN PAUS
  0117 26FC                    BNE     DELAY
  0119 20F2                    BRA     MUSIK
                       *
  011B 9F00            SPELA   STX     NOT
  011D 8EE032          NYTON   LDX     #PTM+2
  0120 9F04            PTMREG  STX     PTIMER
- 0122 9E00            NESTA   LDX     NOT     HÄMTA NÄSTA NOT
- 0124 A600                    LDA     0,X     TILL A-ACKUM
- 0126 2601                    BNE     MSTOP   OM A=00 ÄR DET SLUT
+ 0122 9E00            NESTA   LDX     NOT       HÄMTA NÄSTA NOT
+ 0124 A600                    LDA     0,X       TILL A-ACKUM
+ 0126 2601                    BNE     MSTOP     OM A=00 ÄR DET SLUT
  0128 39                      RTS
                       *
- 0129 3001            MSTOP   INX             FÖRBERED NÄSTA TON
- 012B 9F00                    STX     NOT     OCH LAGRA I "NOT"
- 012D 1F894D                  TAB             SPARA BYTEN I B-ACK
- 0130 C00D                    SUBB    #$0D    TESTA OM TAKTDATA
- 0132 C50F                    BITB    #$0F    (LÅGA HALVAN =D)
+ 0129 3001            MSTOP   INX               FÖRBERED NÄSTA TON
+ 012B 9F00                    STX     NOT       OCH LAGRA I "NOT"
+ 012D 1F894D                  TAB               SPARA BYTEN I B-ACK
+ 0130 C00D                    SUBB    #$0D      TESTA OM TAKTDATA
+ 0132 C50F                    BITB    #$0F      (LÅGA HALVAN =D)
  0134 2604                    BNE     NOTER
                       *
                       * XO=KOD FÖR TAKTEN
                       * X= 1-F
                       *
- 0136 D706                    STB     TAKT    SPARA TAKTEN
+ 0136 D706                    STB     TAKT      SPARA TAKTEN
  0138 20E8                    BRA     NESTA
                       *
- 013A 3402            NOTER   PSHA            SPARA NOTEN
+ 013A 3402            NOTER   PSHS    A         SPARA NOTEN
  013C 1F894D                  TAB
- 013F 840F                    ANDA    #$0F    NOTDELEN INOM OKTAVEN
- 0141 48                      ASLA            OMVANDLA NOTEN TILL EN
- 0142 8B08                    ADDA    #SKALA  DIVISOR FÖR TIMERN
- 0144 9703                    STA     PNOT+1  LSB-HALVAN
+ 013F 840F                    ANDA    #$0F      NOTDELEN INOM OKTAVEN
+ 0141 48                      ASLA              OMVANDLA NOTEN TILL EN
+ 0142 8B08                    ADDA    #SKALA    DIVISOR FÖR TIMERN
+ 0144 9703                    STA     PNOT+1    LSB-HALVAN
  0146 4F                      CLRA
- 0147 8900                    ADCA    #0      ADDERA MED CARRYFLAGGAN
+ 0147 8900                    ADCA    #0        ADDERA MED CARRYFLAGGAN
  0149 9702                    STA     PNOT
  014B 9E02                    LDX     PNOT
- 014D A600                    LDA     0,X     PEKA PÅ DIVISORN
- 014F 9707                    STA     TOP     SPARA DIVISORN FÖR
- 0151 A601                    LDA     1,X     TOPPOKTAVEN
+ 014D A600                    LDA     0,X       PEKA PÅ DIVISORN
+ 014F 9707                    STA     TOP       SPARA DIVISORN FÖR
+ 0151 A601                    LDA     1,X       TOPPOKTAVEN
  0153 58                      ASLB
                       *
                       * MULTIPLICERA DIVISORN FÖR VARJE LÄGRE OKTAV
                       *
- 0154 C0E0            MULTI   SUBB    #$E0    MASKA UT OKTAVNUMRET
+ 0154 C0E0            MULTI   SUBB    #$E0      MASKA UT OKTAVNUMRET
  0156 2405                    BCC     MULTI0
- 0158 49                      ROLA            MED CARRYBITEN=1
+ 0158 49                      ROLA              MED CARRYBITEN=1
  0159 0907                    ROL     TOP
  015B 20F7                    BRA     MULTI
                       *
- 015D 4A              MULTI0  DECA            FÖR DIVISION MED N+1
- 015E 9E04                    LDX     PTIMER  HÄMTA ADR TILL TIMERREG.
- 0160 D607                    LDB     TOP     HÄMTA MSB-DIVISORN
- 0162 E700                    STB     0,X     OCH LÄGG UT TILL TIMERN
- 0164 A701                    STA     1,X     LÄGG UT LSB-DIV. TILL TIMERN
+ 015D 4A              MULTI0  DECA              FÖR DIVISION MED N+1
+ 015E 9E04                    LDX     PTIMER    HÄMTA ADR TILL TIMERREG.
+ 0160 D607                    LDB     TOP       HÄMTA MSB-DIVISORN
+ 0162 E700                    STB     0,X       OCH LÄGG UT TILL TIMERN
+ 0164 A701                    STA     1,X       LÄGG UT LSB-DIV. TILL TIMERN
  0166 3001                    INX
  0168 3001                    INX
- 016A 3502                    PULA            HÄMTA TILLBAKA NOTEN
- 016C 4D                      TSTA            TESTA OM HÖGSTA BITEN ÄR 1
- 016D 2AB1                    BPL     PTMREG  OM DEN ÄR 0 ÅTERGÅ
+ 016A 3502                    PULS    A         HÄMTA TILLBAKA NOTEN
+ 016C 4D                      TSTA              TESTA OM HÖGSTA BITEN ÄR 1
+ 016D 2AB1                    BPL     PTMREG    OM DEN ÄR 0 ÅTERGÅ
                       *
                       * OM HÖGSTA BITEN ÄR=1 SKALL TON(ERNA) UT
                       * UNDER TAKTTIDEN
                       *
- 016F 9606            TONUT   LDA     TAKT    HÄMTA TAKTVÄRDET
+ 016F 9606            TONUT   LDA     TAKT      HÄMTA TAKTVÄRDET
  0171 8E0340          TONUT2  LDX     #TEMPO
- 0174 301F            TONUT3  DEX             VÄNTLOOP
+ 0174 301F            TONUT3  DEX               VÄNTLOOP
  0176 4A                      DECA
  0177 26FB                    BNE     TONUT3
  0179 4A                      DECA
- 017A 26F5                    BNE     TONUT2  VÄNTA UT TAKTVÄRDET
- 017C 209F                    BRA     NYTON   ÅTERGÅ OCH HÄMTA NÄSTA
+ 017A 26F5                    BNE     TONUT2    VÄNTA UT TAKTVÄRDET
+ 017C 209F                    BRA     NYTON     ÅTERGÅ OCH HÄMTA NÄSTA
                       *
                       * TEMPERERAD 12-TONSSKALA
                       * SIFFRORNA GÄLLER FÖR EN KLOCKFREKVENS
@@ -110,7 +109,6 @@
                       *
                               ORG     0008
  0008 00000115010600  SKALA   FDB     0,277,262,247 (0,451,426,402)
- 000F F7
  0010 00E900DC00D0            FDB     233,220,208 (379,358,338)
  0016 00C400B900AF            FDB     196,185,175 (319,301,284)
  001C 00A5009B0093            FDB     165,155,147 (268,253,239)
@@ -120,30 +118,21 @@
  0022 20724AE0EA65F0  VALS    FCB     $20,$72,$4A,$E0,$EA,$65,$F0
  0029 724AE0EA65E0            FCB     $72,$4A,$E0,$EA,$65,$E0
  002F 1D6C55C9F2F3EC          FCB     $1D,$6C,$55,$C9,$F2,$F3,$EC,$6A,$C5,$E9
- 0036 6AC5E9
  0039 6A52CAE9EAF22D          FCB     $6A,$52,$CA,$E9,$EA,$F2,$2D,$65,$60,$E0
- 0040 6560E0
  0043 74CA1DF7F46CE0          FCB     $74,$CA,$1D,$F7,$F4,$6C,$E0,$F4
- 004A F4
- 004B 754CCCF4754CCC          FCB     $75,$4C,$CC,$F4,$75,$4C,$CC,$F9,$2D,$6C,$4
-C,$CC
- 0052 F92D6C4CCC
- 0057 1D724AE0EA69CC          FCB     $1D,$72,$4A,$E0,$EA,$69,$CC,$E7,$65,$BC,$E
-4
- 005E E765BCE4
- 0062 2D4575E91DD5D4          FCB     $2D,$45,$75,$E9,$1D,$D5,$D4,$52,$60,$E0,$C
-C,0
- 0069 5260E0CC00
+ 004B 754CCCF4754CCC          FCB     $75,$4C,$CC,$F4,$75,$4C,$CC,$F9,$2D,$6C,$4C,$CC
+ 0057 1D724AE0EA69CC          FCB     $1D,$72,$4A,$E0,$EA,$69,$CC,$E7,$65,$BC,$E4
+ 0062 2D4575E91DD5D4          FCB     $2D,$45,$75,$E9,$1D,$D5,$D4,$52,$60,$E0,$CC,0
                       *
-                              END     ,START
+ 0100                         END     START
 
 SYMBOL TABLE
      DELAY 02 0115      MERA 02 0112     MSTOP 02 0129     MULTI 02 0154
     MULTI0 02 015D     MUSIK 02 010D     NESTA 02 0122       NOT 02 0000
      NOTER 02 013A     NYTON 02 011D      PNOT 02 0002    PTIMER 02 0004
        PTM 00 E030    PTMREG 02 0120     SKALA 02 0008     SPELA 02 011B
-      TAKT 02 0006     TEMPO 00 0340     TONUT 02 016F    TONUT2 02 0171
-    TONUT3 02 0174       TOP 02 0007      VALS 02 0022
-23 SYMBOLS
+     START 02 0100      TAKT 02 0006     TEMPO 00 0340     TONUT 02 016F
+    TONUT2 02 0171    TONUT3 02 0174       TOP 02 0007      VALS 02 0022
+24 SYMBOLS
 
 0 error(s), 0 warning(s)

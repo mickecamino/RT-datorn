@@ -1,19 +1,18 @@
         NAM     UNIVKORT
-        OPT     M09
 *
 * PROGRAMEXEMPEL FÖR SPECIALKORTET
 * TILL RT:S DATORSERIE
 *
 * AV ÅKE HOLM 790215
 *
-PTM     EQU     $E030   ADRESS FÖR MC6840
+PTM     EQU     $E030     ADRESS FÖR MC6840
 *
 * RAMCELLER FÖR DATALAGRING
 *
         ORG     $0000
-NOT     RMB     2       TEMPORÄR BUFFERT FÖR NOT
-PNOT    RMB     2       NOT MED OFFSET
-PTIMER  RMB     2       ADRESS TILL REGISTER
+NOT     RMB     2         TEMPORÄR BUFFERT FÖR NOT
+PNOT    RMB     2         NOT MED OFFSET
+PTIMER  RMB     2         ADRESS TILL REGISTER
 TAKT    RMB     1
 TOP     RMB     1
 *
@@ -21,87 +20,87 @@ TEMPO   EQU     $340
 *
         ORG     $0100
 *
-        LDA     #$82    TIMER OUTPUT ENABLE
-        STA     PTM     KONTROLLREG 3
+START   LDA     #$82      TIMER OUTPUT ENABLE
+        STA     PTM       KONTROLLREG 3
         LDB     #$83
-        STB     PTM+1   KONTROLLREG 2
-        STA     PTM     KONTROLLREG 1
+        STB     PTM+1     KONTROLLREG 2
+        STA     PTM       KONTROLLREG 1
 *
 * MUSIKPROGRAM
 *
 MUSIK   LDX     #VALS
         BSR     SPELA
 MERA    LDX     #$FF
-DELAY   DEX             GÖR EN PAUS
+DELAY   DEX               GÖR EN PAUS
         BNE     DELAY
         BRA     MUSIK
 *
 SPELA   STX     NOT
 NYTON   LDX     #PTM+2
 PTMREG  STX     PTIMER
-NESTA   LDX     NOT     HÄMTA NÄSTA NOT
-        LDA     0,X     TILL A-ACKUM
-        BNE     MSTOP   OM A=00 ÄR DET SLUT
+NESTA   LDX     NOT       HÄMTA NÄSTA NOT
+        LDA     0,X       TILL A-ACKUM
+        BNE     MSTOP     OM A=00 ÄR DET SLUT
         RTS
 *
-MSTOP   INX             FÖRBERED NÄSTA TON
-        STX     NOT     OCH LAGRA I "NOT"
-        TAB             SPARA BYTEN I B-ACK
-        SUBB    #$0D    TESTA OM TAKTDATA
-        BITB    #$0F    (LÅGA HALVAN =D)
+MSTOP   INX               FÖRBERED NÄSTA TON
+        STX     NOT       OCH LAGRA I "NOT"
+        TAB               SPARA BYTEN I B-ACK
+        SUBB    #$0D      TESTA OM TAKTDATA
+        BITB    #$0F      (LÅGA HALVAN =D)
         BNE     NOTER
 *
 * XO=KOD FÖR TAKTEN
 * X= 1-F
 *
-        STB     TAKT    SPARA TAKTEN
+        STB     TAKT      SPARA TAKTEN
         BRA     NESTA
 *
-NOTER   PSHA            SPARA NOTEN
+NOTER   PSHS    A         SPARA NOTEN
         TAB
-        ANDA    #$0F    NOTDELEN INOM OKTAVEN
-        ASLA            OMVANDLA NOTEN TILL EN
-        ADDA    #SKALA  DIVISOR FÖR TIMERN
-        STA     PNOT+1  LSB-HALVAN
+        ANDA    #$0F      NOTDELEN INOM OKTAVEN
+        ASLA              OMVANDLA NOTEN TILL EN
+        ADDA    #SKALA    DIVISOR FÖR TIMERN
+        STA     PNOT+1    LSB-HALVAN
         CLRA
-        ADCA    #0      ADDERA MED CARRYFLAGGAN
+        ADCA    #0        ADDERA MED CARRYFLAGGAN
         STA     PNOT
         LDX     PNOT
-        LDA     0,X     PEKA PÅ DIVISORN
-        STA     TOP     SPARA DIVISORN FÖR
-        LDA     1,X     TOPPOKTAVEN
+        LDA     0,X       PEKA PÅ DIVISORN
+        STA     TOP       SPARA DIVISORN FÖR
+        LDA     1,X       TOPPOKTAVEN
         ASLB
 *
 * MULTIPLICERA DIVISORN FÖR VARJE LÄGRE OKTAV
 *
-MULTI   SUBB    #$E0    MASKA UT OKTAVNUMRET
+MULTI   SUBB    #$E0      MASKA UT OKTAVNUMRET
         BCC     MULTI0
-        ROLA            MED CARRYBITEN=1
+        ROLA              MED CARRYBITEN=1
         ROL     TOP
         BRA     MULTI
 *
-MULTI0  DECA            FÖR DIVISION MED N+1
-        LDX     PTIMER  HÄMTA ADR TILL TIMERREG.
-        LDB     TOP     HÄMTA MSB-DIVISORN
-        STB     0,X     OCH LÄGG UT TILL TIMERN
-        STA     1,X     LÄGG UT LSB-DIV. TILL TIMERN
+MULTI0  DECA              FÖR DIVISION MED N+1
+        LDX     PTIMER    HÄMTA ADR TILL TIMERREG.
+        LDB     TOP       HÄMTA MSB-DIVISORN
+        STB     0,X       OCH LÄGG UT TILL TIMERN
+        STA     1,X       LÄGG UT LSB-DIV. TILL TIMERN
         INX
         INX
-        PULA            HÄMTA TILLBAKA NOTEN
-        TSTA            TESTA OM HÖGSTA BITEN ÄR 1
-        BPL     PTMREG  OM DEN ÄR 0 ÅTERGÅ
+        PULS    A         HÄMTA TILLBAKA NOTEN
+        TSTA              TESTA OM HÖGSTA BITEN ÄR 1
+        BPL     PTMREG    OM DEN ÄR 0 ÅTERGÅ
 *
 * OM HÖGSTA BITEN ÄR=1 SKALL TON(ERNA) UT
 * UNDER TAKTTIDEN
 *
-TONUT   LDA     TAKT    HÄMTA TAKTVÄRDET
+TONUT   LDA     TAKT      HÄMTA TAKTVÄRDET
 TONUT2  LDX     #TEMPO
-TONUT3  DEX             VÄNTLOOP
+TONUT3  DEX               VÄNTLOOP
         DECA
         BNE     TONUT3
         DECA
-        BNE     TONUT2  VÄNTA UT TAKTVÄRDET
-        BRA     NYTON   ÅTERGÅ OCH HÄMTA NÄSTA
+        BNE     TONUT2    VÄNTA UT TAKTVÄRDET
+        BRA     NYTON     ÅTERGÅ OCH HÄMTA NÄSTA
 *
 * TEMPERERAD 12-TONSSKALA
 * SIFFRORNA GÄLLER FÖR EN KLOCKFREKVENS
@@ -125,4 +124,4 @@ VALS    FCB     $20,$72,$4A,$E0,$EA,$65,$F0
         FCB     $1D,$72,$4A,$E0,$EA,$69,$CC,$E7,$65,$BC,$E4
         FCB     $2D,$45,$75,$E9,$1D,$D5,$D4,$52,$60,$E0,$CC,0
 *
-        END     ,START
+        END     START
