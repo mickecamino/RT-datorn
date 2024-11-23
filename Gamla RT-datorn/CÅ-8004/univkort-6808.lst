@@ -1,5 +1,4 @@
                               NAM     UNIVKORT
-                              OPT     M08
                       *
                       * PROGRAMEXEMPEL FÖR SPECIALKORTET
                       * TILL RT:S DATORSERIE
@@ -97,53 +96,42 @@
  0166 9606            TONUT   LDA     TAKT    HÄMTA TAKTVÄRDET
  0168 CE0340          TONUT2  LDX     #TEMPO
  016B 09              TONUT3  DEX             VÄNTLOOP
- 016C 4A                      DECA
- 016D 26FC                    BNE     TONUT3
- 016F 4A                      DECA
- 0170 26F6                    BNE     TONUT2  VÄNTA UT TAKTVÄRDET
- 0172 20A8                    BRA     NYTON   ÅTERGÅ OCH HÄMTA NÄSTA
+ 016C 26FD                    BNE     TONUT3
+ 016E 4A                      DECA
+ 016F 26F7                    BNE     TONUT2  VÄNTA UT TAKTVÄRDET
+ 0171 20A9                    BRA     NYTON   ÅTERGÅ OCH HÄMTA NÄSTA
                       *
                       * TEMPERERAD 12-TONSSKALA
                       * SIFFRORNA GÄLLER FÖR EN KLOCKFREKVENS
                       * AV 614,4 KHZ. FÖR 1,000 MHZ GÄLLER
                       * DE VÄRDENA SOM STÅR INOM PARENTES
-                      *
+                      * ÄNDRAD TILL !MHZ 2024-11-23
                               ORG     0008
- 0008 00000115010600  SKALA   FDB     0,277,262,247 (0,451,426,402)
- 000F F7
- 0010 00E900DC00D0            FDB     233,220,208 (379,358,338)
- 0016 00C400B900AF            FDB     196,185,175 (319,301,284)
- 001C 00A5009B0093            FDB     165,155,147 (268,253,239)
+ 0008 000001C301AA01  SKALA   FDB     0,451,426,402 (0,277,262,247)
+ 0010 017B01660152            FDB     379,358,338 (233,220,208)
+ 0016 013F012D011C            FDB     319,301,284 (196,185,175)
+ 001C 010C00FD00EF            FDB     268,253,239 (165,155,147)
                       *
                       * VALSNOTER AV MOZART
                       *
  0022 20724AE0EA65F0  VALS    FCB     $20,$72,$4A,$E0,$EA,$65,$F0
  0029 724AE0EA65E0            FCB     $72,$4A,$E0,$EA,$65,$E0
  002F 1D6C55C9F2F3EC          FCB     $1D,$6C,$55,$C9,$F2,$F3,$EC,$6A,$C5,$E9
- 0036 6AC5E9
  0039 6A52CAE9EAF22D          FCB     $6A,$52,$CA,$E9,$EA,$F2,$2D,$65,$60,$E0
- 0040 6560E0
  0043 74CA1DF7F46CE0          FCB     $74,$CA,$1D,$F7,$F4,$6C,$E0,$F4
- 004A F4
- 004B 754CCCF4754CCC          FCB     $75,$4C,$CC,$F4,$75,$4C,$CC,$F9,$2D,$6C,$4
-C,$CC
- 0052 F92D6C4CCC
- 0057 1D724AE0EA69CC          FCB     $1D,$72,$4A,$E0,$EA,$69,$CC,$E7,$65,$BC,$E
-4
- 005E E765BCE4
- 0062 2D4575E91DD5D4          FCB     $2D,$45,$75,$E9,$1D,$D5,$D4,$52,$60,$E0,$C
-C,0
- 0069 5260E0CC00
+ 004B 754CCCF4754CCC          FCB     $75,$4C,$CC,$F4,$75,$4C,$CC,$F9,$2D,$6C,$4C,$CC
+ 0057 1D724AE0EA69CC          FCB     $1D,$72,$4A,$E0,$EA,$69,$CC,$E7,$65,$BC,$E4
+ 0062 2D4575E91DD5D4          FCB     $2D,$45,$75,$E9,$1D,$D5,$D4,$52,$60,$E0,$CC,0
                       *
-                              END     ,START
+ 0000                         END     START
 
 SYMBOL TABLE
      DELAY 02 0115      MERA 02 0112     MSTOP 02 0128     MULTI 02 014D
     MULTI0 02 0157     MUSIK 02 010D     NESTA 02 0121       NOT 02 0000
      NOTER 02 0136     NYTON 02 011C      PNOT 02 0002    PTIMER 02 0004
        PTM 00 8030    PTMREG 02 011F     SKALA 02 0008     SPELA 02 011A
-      TAKT 02 0006     TEMPO 00 0340     TONUT 02 0166    TONUT2 02 0168
-    TONUT3 02 016B       TOP 02 0007      VALS 02 0022
-23 SYMBOLS
+     START 06 0000      TAKT 02 0006     TEMPO 00 0340     TONUT 02 0166
+    TONUT2 02 0168    TONUT3 02 016B       TOP 02 0007      VALS 02 0022
+24 SYMBOLS
 
 0 error(s), 0 warning(s)
