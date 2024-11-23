@@ -96,22 +96,21 @@
  016F 9606            TONUT   LDA     TAKT      HÄMTA TAKTVÄRDET
  0171 8E0340          TONUT2  LDX     #TEMPO
  0174 301F            TONUT3  DEX               VÄNTLOOP
- 0176 4A                      DECA
- 0177 26FB                    BNE     TONUT3
- 0179 4A                      DECA
- 017A 26F5                    BNE     TONUT2    VÄNTA UT TAKTVÄRDET
- 017C 209F                    BRA     NYTON     ÅTERGÅ OCH HÄMTA NÄSTA
+ 0176 26FC                    BNE     TONUT3
+ 0178 4A                      DECA
+ 0179 26F6                    BNE     TONUT2    VÄNTA UT TAKTVÄRDET
+ 017B 20A0                    BRA     NYTON     ÅTERGÅ OCH HÄMTA NÄSTA
                       *
                       * TEMPERERAD 12-TONSSKALA
                       * SIFFRORNA GÄLLER FÖR EN KLOCKFREKVENS
                       * AV 614,4 KHZ. FÖR 1,000 MHZ GÄLLER
                       * DE VÄRDENA SOM STÅR INOM PARENTES
-                      *
+                      * ÄNDRAT FÖR 1MHZ 2024-11-23
                               ORG     0008
- 0008 00000115010600  SKALA   FDB     0,277,262,247 (0,451,426,402)
- 0010 00E900DC00D0            FDB     233,220,208 (379,358,338)
- 0016 00C400B900AF            FDB     196,185,175 (319,301,284)
- 001C 00A5009B0093            FDB     165,155,147 (268,253,239)
+ 0008 000001C301AA01  SKALA   FDB     0,451,426,402 (0,277,262,247)
+ 0010 017B01660152            FDB     379,358,338 (233,220,208)
+ 0016 013F012D011C            FDB     319,301,284 (196,185,175)
+ 001C 010C00FD00EF            FDB     268,253,239 (165,155,147)
                       *
                       * VALSNOTER AV MOZART
                       *
