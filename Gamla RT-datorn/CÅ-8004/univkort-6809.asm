@@ -40,10 +40,10 @@ NYTON   LDX     #PTM+2
 PTMREG  STX     PTIMER
 NESTA   LDX     NOT       HÄMTA NÄSTA NOT
         LDA     0,X       TILL A-ACKUM
-        BNE     MSTOP     OM A=00 ÄR DET SLUT
+        BNE     NSTOP     OM A=00 ÄR DET SLUT
         RTS
 *
-MSTOP   INX               FÖRBERED NÄSTA TON
+NSTOP   INX               FÖRBERED NÄSTA TON
         STX     NOT       OCH LAGRA I "NOT"
         TAB               SPARA BYTEN I B-ACK
         SUBB    #$0D      TESTA OM TAKTDATA
@@ -106,7 +106,7 @@ TONUT3  DEX               VÄNTLOOP
 * AV 614,4 KHZ. FÖR 1,000 MHZ GÄLLER
 * DE VÄRDENA SOM STÅR INOM PARENTES
 * ÄNDRAT FÖR 1MHZ 2024-11-23
-        ORG     0008
+        ORG     $0008
 SKALA   FDB     0,451,426,402 (0,277,262,247)
         FDB     379,358,338 (233,220,208)
         FDB     319,301,284 (196,185,175)
@@ -114,7 +114,7 @@ SKALA   FDB     0,451,426,402 (0,277,262,247)
 *
 * VALSNOTER AV MOZART
 *
-VALS    FCB     $20,$72,$4A,$E0,$EA,$65,$F0
+VALS    FCB     $2D,$72,$4A,$E0,$EA,$65,$F0
         FCB     $72,$4A,$E0,$EA,$65,$E0
         FCB     $1D,$6C,$55,$C9,$F2,$F3,$EC,$6A,$C5,$E9
         FCB     $6A,$52,$CA,$E9,$EA,$F2,$2D,$65,$60,$E0
