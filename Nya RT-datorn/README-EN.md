@@ -1,5 +1,5 @@
 # The New RT-computer
-## A 6809 computer designed by Åke Holm (CÅ-Elektronik) during the 1980's. It was featured in the magazine Radio & Television, hence the name RT-computer.
+## A FLEX 6809 computer designed by Åke Holm (CÅ-Elektronik) during the 1980's. It was featured in the magazine Radio & Television, hence the name RT-computer.
 ### With permission by Åke Holm to publish all details about the RT-computer
 
 ## The following boards were made for the "new" RT-computer:
@@ -36,7 +36,7 @@ The simple hexadecimal terminal 8006 is replaced by 831, almost identical except
 
 * CÅ-833 - I/O  
 A newer design that replaces CÅ-813.  
-Serial communication is done with 6850, a parallel printer output (Centronics) and a Real Time Clock with battery backup.  
+Serial communication with 6850, a parallel printer output (Centronics) and a Real Time Clock with battery backup.  
 
 * CÅ-834 - memory board  
 New memory board for static memory, 6116 2k or EPROM 2716. Replaces CÅ-814.  
