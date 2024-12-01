@@ -1,5 +1,5 @@
 # Nya RT-datorn
-## En 6809-dator designad av Åke Holm (CÅ-Elektronik) på 80-talet. Den presenterades i tidningen Radio & Television, därav namnet RT-datorn.
+## En FLEX 6809-dator designad av Åke Holm (CÅ-Elektronik) på 80-talet. Den presenterades i tidningen Radio & Television, därav namnet RT-datorn.
 ### Med tillstånd av Åke Holm att publicera alla detaljer om RT-datorn
 
 ## Följande kort fanns till den "nya" RT-datorn:
@@ -30,14 +30,15 @@ Kortet ersätter 8025-kortet.
 Se även CÅ-836  
 
 * CÅ-817 - Flexskivekort  
-Drivkretsarna för flexskiveminnet finns på kortet 817 som helt motsvarar det i byggboken beskriva kortet 8017. Det är avsett för anslutning av upp till fyra enkel- eller dubbelsidiga drivenheter (5 1/4") med enkel (ej dubbel) packningstäthet.
+Drivkretsarna för flexskiveminnet finns på kortet 817 som helt motsvarar det i byggboken beskriva kortet 8017. Det är avsett för anslutning av upp till fyra enkel- eller dubbelsidiga drivenheter (5 1/4") med enkel (ej dubbel) packningstäthet.  
+Se även CÅ-837  
 
 * CÅ-831 - Terminalkort enkelt  
 Den enkla hexadecimala terminalen 8006 har fått en efterföljare 831 som förutom lysdiodsindikatorer och tangentbord även har en PIA-krets för labuppkopplingar.
 
 * CÅ-833 - kommunikation  
 Ett nyare kort I/O som ersätter CÅ-813.  
-Här finns en programmeringsbar seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp (Centronics) och en realtidsklocka med batteriuppbackning.
+Här finns en seriekommunikationskrets med V24-snitt, en skrivarutgång av parallelltyp (Centronics) och en realtidsklocka med batteriuppbackning.
 
 * CÅ-834 - minneskort  
 Nytt kort med plats för 24 st 2k minnes-kretsar, 6116 och/eller 2716 EPROM. Ersätter CÅ-814.  
