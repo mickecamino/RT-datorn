@@ -52,11 +52,11 @@ LOOP00  CLRB            NOLLA FÖR INGÅNG 0
         STA     DISPL+5 LÄGG UT PÅ 6:E DISPLAYEN
         BRA     LOOP00  FORTSÄTT
 *
-INPUT   STAB    PIAAD0
+INPUT   STB     PIAAD0
         LDA     #$3E    GE HÖG PULS PÅ CB2
         LDB     #$36
         STA     PIAAD3  HÖG NU
-        STAB    PIAAD3  LÅG IGEN
+        STB     PIAAD3  LÅG IGEN
 INPUTS  LDA     PIAAD3  HÄMTA STATUS
         BPL     INPUTS  VÄNTA TILLS AD-CONV. KLAR
         LDA     PIAAD2  HÄMTA MÄTVÄRDE
@@ -79,12 +79,12 @@ B20     SUBA    1,X     DRAG IFRÅN TILLS UNDERFLOW
 *
 B30     ADDA    1,X
         ADCB    0,X
-        PSHA
+        PSHS    A
         STX     SAVEK0  SPARA AKTUELLT VÄRDE
         LDX     SAVEX   VAR SKALL DET LAGRAS
         LDA     SAVEA   LÄGG IN DET
         STA     0,X     I TABELLEN
-        PULA            ÅTERTAG
+        PULS    A       ÅTERTAG
         INX
         STX     SAVEX   SPARA NYA VÄRDET
         LDX     SAVEK0

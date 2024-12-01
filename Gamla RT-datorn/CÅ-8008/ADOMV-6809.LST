@@ -52,11 +52,11 @@
  C141 B7E0E5                  STA     DISPL+5 LÄGG UT PÅ 6:E DISPLAYEN
  C144 20D2                    BRA     LOOP00  FORTSÄTT
                       *
- C146 F7E080          INPUT   STAB    PIAAD0
+ C146 F7E080          INPUT   STB     PIAAD0
  C149 863E                    LDA     #$3E    GE HÖG PULS PÅ CB2
  C14B C636                    LDB     #$36
  C14D B7E083                  STA     PIAAD3  HÖG NU
- C150 F7E083                  STAB    PIAAD3  LÅG IGEN
+ C150 F7E083                  STB     PIAAD3  LÅG IGEN
  C153 B6E083          INPUTS  LDA     PIAAD3  HÄMTA STATUS
  C156 2AFB                    BPL     INPUTS  VÄNTA TILLS AD-CONV. KLAR
  C158 B6E082                  LDA     PIAAD2  HÄMTA MÄTVÄRDE
@@ -79,12 +79,12 @@
                       *
  C171 AB01            B30     ADDA    1,X
  C173 E900                    ADCB    0,X
- C175 3402                    PSHA
+ C175 3402                    PSHS    A
  C177 BFC1A4                  STX     SAVEK0  SPARA AKTUELLT VÄRDE
  C17A BEC1A6                  LDX     SAVEX   VAR SKALL DET LAGRAS
  C17D B6C1A3                  LDA     SAVEA   LÄGG IN DET
  C180 A700                    STA     0,X     I TABELLEN
- C182 3502                    PULA            ÅTERTAG
+ C182 3502                    PULS    A       ÅTERTAG
  C184 3001                    INX
  C186 BFC1A6                  STX     SAVEX   SPARA NYA VÄRDET
  C189 BEC1A4                  LDX     SAVEK0
