@@ -139,9 +139,9 @@
 3128 PRINT TAB(4);"Goes high when CRA-7 is set!."
 3130 PRINT "2. Goes low as above. Goes high on negative edge of E during a deselect."
 3132 PRINT "3. Goes low when CRA-3 goes low as a result of a WRITE to CRA."
-3134 PRINT TAB(4);"Goes high when a WRITE sets CRA sets CRA-3 high."
+3134 PRINT TAB(4);"Goes high when a WRITE to CRA sets CRA-3 high."
 3136 PRINT "4. Goes low when a WRITE to CRA sets CRA-3 to low."
-3138 PRINT TAB(4);"Goes high when CRAA-3 is set high as a result of WRITE to CRA."
+3138 PRINT TAB(4);"Goes high when CRA-3 is set high as a result of WRITE to CRA."
 3140 PRINT
 3142 INPUT "Make selection ";S
 3144 IF S<1 THEN 3122
