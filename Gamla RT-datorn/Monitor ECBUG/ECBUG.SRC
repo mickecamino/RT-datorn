@@ -1,0 +1,752 @@
+        NAM ECBUG
+*
+* COPYRIGHT CÅ-ELEKTRONIK AB
+*           BOX 2010
+*           S-135 02 TYRESÖ SWEDEN
+*
+* 1980-03-20
+*
+*****************************************************
+*
+* MONITORPROGRAM FÖR MC6808
+* PROGRAMMET INGÅR SOM EN DEL I ETT DATORBYGGE
+* FÖR NYBÖRJARE OCH ENKLARE TILLÄMPNINGAR.
+* DATORN BESTÅR AV :
+* CPU-KORT CÅ-6819 MED MC6808 OCH 1 K DATAMINNE (RAM)
+* MODERKORT CÅ-800 MED 2 KONTAKTER (J15 OCH J16).
+* DISPLAYKORT CÅ-8006 MED TANGENTKORT
+* PROGRAMMINNE ECBUG I EPROM (PÅ KORT CÅ-6819).
+*
+*****************************************************
+* FUNGERAR SOM MOTOROLAS D2-KIT
+* MEN HAR STATISK DISPLAY
+* ECBUG FINNS ÄVEN FÖR 6809 CPU OCH HETER DÅ F0BUG
+*****************************************************
+*
+* TANGENTERNAS FUNKTIONER :
+* 0-9 SAMT A-F HEXADECIMAL TECKENINMATNING
+* A-F ÄR ÄVEN KOMMANDOTANGENTER
+* A ALTER MEMORY, MINNESMANIPULERING
+* B SÄTT IN EN BRYTPUNKT
+* C CONTINUE, FORTSÄTT PROGRAMMET FRÅN BRYTPUNKT
+* D DELETE BRKPT, TA BORT ALLA BRYTPUNKTER
+* E EXECUTE PROGRAM, GÅ TILL ADRESS OCH STARTA PROGRAM
+* L LADDA MINNET FRÅN KASSETT S1-FORMAT
+* P PUNCH MEMORY, SPELA IN DATA PÅ KASSETT S1-FORMAT
+* R DISPLAY REGISTERS
+*
+*
+* ECBUG LIGGER I EPROM 2708 PÅ ADRESS $EC00
+*
+* DE SEX LYSDIODDISPLAYERNA ADRESSERAS SOM RAM-CELLER
+* BIT 0-3 GER ETT HEXADECIMALT TAL MELLAN 0 OCH F
+* BIT 4-6 ANVÄNDS EJ
+* BIT 7 HÖG TÄNDER DECIMALPUNKTEN
+*
+* DATA FRÅN TANGENTBORDET ERHÅLLS SOM
+* ETT TAL MELLAN $00 - $13
+*
+DS1     EQU     $80E0     MSB ADRESSINDIKATOR (VÄNSTRA DISPLAYEN)
+DS2     EQU     $80E1
+DS3     EQU     $80E2
+DS4     EQU     $80E3     LSB ADRESS
+DS5     EQU     $80E4     MSB DATA
+DS6     EQU     $80E5     LSB DATAINDIKATOR
+*
+KEY     EQU     $80E6     DATA FRÅN TANGENTBORD
+INFLG   EQU     $80E8     BIT 7 ÄR NOLL OM TANGENT ÄR
+BELL    EQU     $80EE     ACCESS GER PULS TILL BELLKORT
+SKIP2   EQU     $8C
+TAPE    EQU     $8020
+TAPED   EQU     $8021
+*
+* RAMCELLER FÖR DATALAGRING
+*
+        ORG     $A000
+RAM     EQU     *
+*
+IRQV    RMB     2         IRQ-VEKTOR
+BEGA    RMB     2         STARTADRESS VID PUNCH MM
+ENDA    RMB     2         SLUTADRESS VID PUNCH MM
+NMIV    RMB     2         NMI VEKTOR
+SPEK    RMB     2         ANVÄNDARENS STACKPEKARE
+CKSM    RMB     1         CHECKSUMMA
+BYTECT  RMB     1         BYTE RÄKNARE
+XHI     RMB     1         TEMP LAGRING AV X-REGISTER MSB-HALVA
+XLO     RMB     1         TEMP LAGRING AV X-REGISTER MLSB-HALVA
+SWIVEK  RMB     2         EGEN SWI-VEKTOR
+VFLAG   RMB     1         ANTAL INSATTA BRYTPUNKTER
+BPTAB   RMB     15        TABELL MED MAX 5 BRYTPUNKTER
+RDS1    RMB     1         RAMCELL FÖR DS1
+RDS2    RMB     1
+RDS3    RMB     1
+RDS4    RMB     1
+RDS5    RMB     1
+RDS6    RMB     1
+MCONT   RMB     1
+ADRESS  RMB     2
+DSPEK   RMB     2         PEKARE FÖR AKTUELL DISPLAY
+BLRAM   RMB     2         CELL FÖR BLINKANDE DISPLAY
+BLFLG   RMB     1         FLAGGA FÖR BLINKNING
+DPFLG   RMB     1         1=TÄND DEC.PUNKT, 0=SLÄCKT
+BLTID   RMB     2         CELL FÖR BLINKHASTIGHET
+BUFF    RMB     10
+STACK   EQU     RAM+$7F
+*
+        ORG     $EC00
+PGM     EQU     *
+*
+* SERVICERUTIN FÖR IRQ
+*
+IRQSER  LDX     IRQV    ADRESS FÖR IRQ-RUTIN
+        JMP     0,X       HOPPA DIT OCH TAG HAND OM AVBROTTET
+*
+* SERVICERUTIN FÖR NMI
+*
+NMISER  LDX     NMIV      ADRESS FÖR NMI-RUTIN
+        JMP     0,X       HOPPA DIT OCH TAG HAND OM AVBROTTET
+*
+* SERVICERUTIN FÖR SW1
+*
+SWISER  LDX     SWIVEK    ADRESS FÖR SWI-RUTIN
+        JMP     0,X       HOPPA DIT OCH TAG HAND OM AVBROTTET
+*
+CLEARD  LDX     #DS1      RUTIN FÖR ATT NOLLA INDIKATORERNA
+CLEAR   LDB     #6
+CL300   CLR     0,X
+        INX
+        DECB              6 POSITIONER
+        BNE     CL300
+        RTS
+*
+START   LDX     #RETINT
+        STX     IRQV
+        LDX     #$FE      ADRESS FÖR SWI
+        STX     NMIV
+        STX     SWIVEK
+        LDS     #STACK-8  INITIERA STACKPEKAREN
+        STS     SPEK
+        LDA     #3        NOLLA ACIA FÖR KCS
+        STA     $8020
+        CLR     DPFLG
+KILL    CLR     VFLAG
+CONTRL  LDS     SPEK      FRISKA UPP STACKEN
+        BSR     CLEARD
+ST200   LDX     #RDS1     NOLLSTÄLL ÄVEN RAMCELL
+        BSR     CLEAR
+        BSR     LBLINK    LÅNGSAMT BLINK
+        JSR     DEL200
+*
+* ÅTERSTÄLL DISPLAYPEKAREN PÅ FÖRSTA DISPLAYEN OCH TÄND
+* BLINKANDE DECIMALPUNKT
+*
+        LDX     #RDS1     ADRESS TILL FÖRSTA DISPLAYEN
+        STX     DSPEK     ADRESSEN TILL FÖRSTA DISPLYEN
+LOOP10  BSR     INCH      HÄMTA TECKEN
+        BSR     SBLINK
+        LDX     #INTAB    KOLLA MED KOMMANDOTABELLEN
+LOOP20  CMPA    0,X       OM TECKNET FINNS
+        BEQ     MATCH     I SÅ FALL HOPPA
+        CPX     #TABEND   SLUT PÅ TABELLEN
+        BNE     LOOP30    FEL TECKEN INMATAT
+        TST     BELL
+        BRA     LOOP10
+*
+LOOP30  INX
+        INX               GÅ TILL NÄSTA TECKEN I TABELLEN
+        INX
+        BRA     LOOP20
+*
+MATCH   LDX     1,X       HÄMTA ADRESS TILL SUBRUTIN
+        JSR     0,X
+        BRA     CONTRL    GÅ SEDAN TILLBAKA
+*
+* LÅNGSAM BLINKNING
+*
+LBLINK  LDB     #$22
+        FCB     SKIP2
+*
+* SNABB BLINKNING
+*
+SBLINK  LDB     #$07
+        STAB    BLTID
+        STAB    BLFLG
+        RTS
+*
+* SUBRUTIN FÖR ATT HÄMTA IN TECKEN FRÅN TANGENTBORDET
+* DECIMALPUNKTEN PÅ DISPLAYEN VARS ADRESS FINNS I DSP
+* BLINKAR MED EN HASTIGHET SOM BEROR AV VÄRDET I BLTI
+*
+INCH    PSHB              SPARA B-ACK
+        STX     BUFF      SPARA INDEXREGISTRET
+IN100   BSR     DELAY     BLINKRUTINEN
+        TST     BLFLG     SKALL PUNKTEN SLÄCKAS ELLER
+        BEQ     IN250     INGEN ÄNDRING=0
+        BSR     STODSP    LAGG UT PÅ DISPLAYEN
+*
+IN250   LDA     INFLG     ÄR KNAPP INTRYCKT ?
+        BMI     IN100     NEJ, GÅ RUNT IGEN
+        CLR     DPFLG     SLÄCK DEC.PUNKTEN
+        BSR     STODSP
+        LDA     KEY       HÄMTA DATA
+        ANDA    #$1F      MASKA DE TRE HÖGSTB  ITARNA
+        LDX     BUFF
+        PULB
+        RTS
+*
+* SUBRUTIN FÖR ATT FLYTTA A+B ACKUM. TILL X-REG.
+*
+TFRDX   STA     XHI
+        STAB     XLO
+        LDX XHI
+        RTS
+*
+* SUBRUTIN FÖR ATT FLYTTA X TILL A+B
+*
+TFRXD   STX     XHI
+        LDA     XHI
+        LDB     XLO
+        RTS
+*
+* RUTIN FÖR ATT LAGGA A-ACK 1 RAM OCH DISPLAY
+*
+STODS   LDX     <DSPEK    HÄMTA ADRESSEN
+        STA     0,X       LÄGG 1 RAM
+        BRA     DPOFF     OCH PA DISPLAY
+*
+STODSP  LDX     DSPEK     HÄMTA ADRESSEN
+        LDA     0,X       OCH TECKNET
+        TST     DPFLG
+        BEQ     DPOFF
+DPON    ADDA    #$80      LÄGG TILL DECIMALPUNKTEN
+        FCB     SKIP2     HOPPA ÖVER NÄSTA INSTRUKTION
+*
+DPOFF   ANDA    #$0F      INGEN DEC.PT.
+IN200   PSHA              SPARA A
+        BSR     TFRXD     FLYTTA X TILL A &B
+        SUBA    #$20      PEKAREN STÅR NU PÅ
+        ADDB    #$C0
+        BSR     TFRDX     DISPLYENS ADRESS
+        PULA              ÅTERTAG A
+        STA     0,X       LAGG UT PÅ DISPLAYEN
+        CLR     BLFLG
+        RTS
+*
+* SUBRUTIN FÖR BLINKFUNKTIONEN
+*
+DELAY   LDX     BLRAM    HÄMTA DET PÅ TIDSCELLEN
+        DEX               MINSKA
+        STX     BLRAM    LÄGG TILLBAKA
+        BNE     DEL500    OM X EJ ÄR NOLL GÅ RTS
+DEL200  LDX     BLTID     NYTT VÄRDE PÅ BLINKCELLEN
+        STX     BLRAM     LÄGG IN DET
+        INC     BLFLG     VÄXLA FLAGGAN
+        COM     DPFLG
+DEL500  RTS
+*
+* TAG IN HEXADECIMALT TECKEN
+*
+INHEX   BSR     INCH
+        CMPA    #$0F      KOLLA OM HEX
+        BLS     DEL500
+        TST     BELL      GE PIIP OM EJ HEXADECIMALT
+        BRA     INHEX     OM EJ HEX SÅ FÖRSÖK IGEN
+*
+* BYGG ADRESS I X-REG + "ADRESS"
+*
+BADDR   BSR     BYTE      HÖGSTA 8 BITARNA
+        STA     ADRESS
+        BSR     BYTE      LÄGSTA 8 BITARNA
+BADDR7  STA     ADRESS+1
+        LDX     ADRESS
+        RTS
+*
+* TAG IN TVÅ HEX. TECKEN I A-ACK OCH LAGRA I DSPEK
+*
+BYTE    BSR     INHEX     IN ETT HEXADECIMALT TAL
+BYTE2   BSR     STODS     LÄGG UT PÅ DISPLAY
+        BSR     INCDSP    INCREMENTA DSPEK
+        ASLA
+        ASLA
+        ASLA
+        ASLA               HHHH 0000
+        TAB
+        PSHB              SPARA B-ACK
+        BSR     INHEX     TAG IN DET ANDRA TECKNET
+        BSR     STODS     LÄGG UT PÅ DISPLAYEN
+        PULB
+        ABA
+        BRA     INCDSP
+*
+* LÄGG UT PÅ ADRESSDISPLYEN
+*
+UTADR   LDX     #RDS1     RAM-CELL FÖR DS1
+        STX     DSPEK
+        LDX     #ADRESS   VÄRDE SOM SKA UT
+        BSR     OUT2H     MSB BYTE
+        LDX     #ADRESS+1
+*
+* MATA UT 2 HEX TECKEN
+*
+OUT2H   LDA     0,X       HÄMTA EN BYTE
+OUT2H2  PSHA
+        LSRA
+        LSRA
+        LSRA
+        LSRA
+        BSR     STODS     LÄGG UT DET FÖRSTA TECKNET
+        PULA
+        BSR     INCDSP
+        JSR     STODS     LÄGG UT DET ANDRA TECKNET
+INCDSP  INC     DSPEK+1   PEKA PÅ NÄSTA
+INHEX5  RTS
+*
+* MINNESMANIPULERING
+*
+MEMCHG  BSR     BADDR     BEGÄR FÖRSTA  DRESS
+MEM10   BSR     UTADR     LÄGG UT ADRESS PÅ DISPLAY
+        LDX     ADRESS
+        JSR     DATAIX    LÄGG UT DATA PA DISPLAYEN
+MEM15   JSR     INCH      HÄMTA TECKEN
+        CMPA    #$12      OM RETURN GÅ RTS "R"
+        BEQ     INHEX5    GÅ TILL RTS
+MEM2O   CMPA    #$11      FÖREGÅENDE ? "P"
+        BEQ     MEM88
+        CMPA    #$10      NÄSTA ? "L"
+        BEQ     MEM94
+        CMPA    #$13      OFFSETBERÄKNING ? "S"
+        BNE     MEM60
+        LDX     ADRESS
+        STX     BEGA      SPARA MINNESPOSITIONEN
+        LDX     #RDS1     PEKA PÅ FÖRSTA DISPLYEN
+        STX     DSPEK
+        BSR     BADDR     BEGÄR IN HOPPADRESSEN
+        DEX               KORRIGERA FÖR OFFSET
+        STX     ENDA      SPARA
+        BSR     UTADR     LÄGG UT PÅ DISPLAYEN
+        JSR     CMPADR    JÄMFÖR ADRESSERNA
+        LDX     BEGA
+        STX     ADRESS
+*
+* OM B=00 INOM RÄCKHÅLL FRAMÅT OM A<S0
+* OM B=FF INOM RÄCKHÅLL BAKÅT OM A>7F
+*
+        TSTA              FRAM/BAKÅT
+        BMI     OK        HOPPA OM BAKÅT
+        TSTB              =0 OM FRAMÅT
+        BNE     MEMFEL    PI1P OM FÖR STOR OFFSET
+        DECB               B=FF NU
+OK      INCB
+        BNE     MEMFEL    FEL I OFFSET BAKÅT
+        PSHA
+        BSR     DATADS    SKRIV UT OFFSET PÅ DISPLAYEN
+        PULA
+        FCB     SKIP2     HOPPA ÖVER NÄSTA INSTRUKTION
+*
+MEM60   BSR     BYTE2     NYTT DATA
+        LDX     ADRESS
+MEM62   STA     0,X       LAGRA I RAM
+        CMPA    0,X       FASTNADE DET ?
+        BEQ     MEM92     NIX
+MEMFEL  TST     BELL      GE PIIP
+        BRA     MEM95
+*
+* GÅ TILL FÖREGÅENDE ADRESS I MINNET
+*
+MEM88   DEX
+        BRA     MEM95
+*
+* STEGA TILL NÄSTA  DRESSPOSITION
+*
+MEM92   BSR     DELAYD
+MEM93   LDX     ADRESS
+MEM94   INX
+MEM95   STX     ADRESS    LAGRA NY ADRESS
+        BRA     MEM10
+*
+* FÖRDRÖJNINGSLOOP FÖR ATT HINNA LÄSA
+* AV ADRESS-DATA DISPLAYEN
+*
+DELAYD  STX     XHI
+        PSHB              SPARA X OCH B
+        LDB     #2
+DELLDX  LDX     #$AFFF
+DELDEX  DEX               MINSKA X-LOOPEN
+        BNE     DELDEX
+        DECB
+        BNE     DELLDX
+        PULB
+        LDX     XHI
+        RTS
+*
+* LAGG UT A-ACK PÅ DATADISPLAYEN
+*
+DATAIX  LDA     0,X       HÄMTA INDEXERAT
+DATADS  STX     BEGA      SPARA X
+        PSHB              SPARA B
+        JSR     OUT2H2    LÄGG UT
+        PULB
+DEC2DS  LDX     #RDS5
+        STX     DSPEK
+        LDX     BEGA      ÅTERTAG X
+        RTS
+*
+*
+* GÅ TILL ADRESS OCH STARTA PROGRAM
+*
+GOEXEC  JSR     BADDR     HÄMTA IN EN ADRESS
+        LDX     SPEK      LÄGG IN PC-VÄRDET
+        STA     7,X       PÅ STACKEN
+        LDA     ADRESS
+        STA     6,X
+*
+* CONTINUE
+*
+CONTIN  JSR     BRKPIN
+        LDS     SPEK      HÄMTA USER STACKPOINTER
+RETINT  RTI               OCH GÖR EN RTI
+*
+* SWI SERVICERUTIN
+*
+SFE     STS     SPEK
+        TSX
+        TST     6,X       DECREMENTERA
+        BNE     *+4
+        DEC     5,X
+        DEC     6,X
+        JSR     BRKP40    FINNS DREAKPOINTS ?
+        BEQ     PRREG     PRINTA REGISTREN
+*
+* TAG BORT BREAKPOINTS I ECBUG
+*
+BRKP00  STX     XHI
+        LDA     2,X       SKYDDA MOT MULTIDEF.
+        CMPA    #$3F
+        BEQ     BRKP10
+        LDX     0,X
+        STA     0,X
+        LDX     XHI
+BRKP10  BSR     ADD3X
+        BNE     BRKP00
+*
+* PRESENTERA REGISTREN
+*
+PRREG   JSR     CLEARD    NOLLA INDIKATORERNA
+        BSR     DEC2DS    PEKA PÅ DS5
+        LDX     SPEK      HÄMTA STACKADRESSEN
+        INX               PEKAR NU PÅ CC-REG
+        BSR     DATAIX
+        BSR     INTECK    VÄNTA IN NYTT TECKEN
+        INX
+        BSR     DATAIX    UT MED B-ACK
+        BSR     INTECK
+        INX
+        BSR     DATAIX    UT MED A-ACK
+        BSR     INTECK
+        INX
+        STX     BEGA
+        LDX     0,X
+        STX     ADRESS    VÄRDET PÅ X I STACKEN
+        JSR     UTADR     UT MED X-REG
+        LDX     BEGA
+        INX
+        INX
+        STX     BEGA
+        LDX     0,X
+        STX     ADRESS    VÄRDET PÅ Y I STACKEN
+        BSR     INTECK
+        JSR     UTADR     UT MED X-REG
+        LDX     SPEK
+        STX     ADRESS
+        BSR     INTECK
+        JSR     UTADR     UT MED STACKPEKAREN
+        BSR     INTECK
+        BRA     PRREG
+*
+INTECK  LDA     INFLG     KOLLA OM KNAPP TRYCKT
+        BMI     INTECK
+        LDA     KEY       HÄMTA TECKNET
+        ANDA    #$1F      MASKA D5-D7
+        CMPA    #$13      KOLLA OM S-KNAPPEN
+        BEQ     INTRTS    JO
+        JMP     CONTRL    HOPPA TILLBAKS
+*
+INTRTS  STX     XHI
+        JSR     CLEARD
+        LDX     XHI
+        RTS
+*
+ADD3X   INX
+        INX
+        INX
+        DECB
+        RTS
+*
+BRKP40  LDX     #BPTAB    TABELL ÖVER INSATTA BREAKPOINTS
+        LDB     VFLAG     ANTAL BRKP'S
+BRKRTS  RTS
+*
+* V-KOMMANDO SÄTT IN EN BRYTPUNKT
+*
+SETBR   JSR     BADDR     FIXA ADRESSEN
+        BSR     BRKP40    FINNS LEDIG PLATS ?
+        BEQ     BRKP60    OM LEDIG SÅ STOPPA IN DEN
+        CMPB    #5        MAX FEM BRYTPUNKTER
+        BCS     BRKP50    OK
+BELRTS  TST     BELL      GE PIIP OM FÖR MÅNGA
+        RTS
+*
+BRKP50  BSR     ADD3X     ÖKA X MED 3
+        BNE     BRKP50
+*
+BRKP60  INC     VFLAG     ÖKA ANTALSRÄKNAREN
+        LDA     ADRESS    ADRESS TILL MINNET
+        STA     0,X       IN I TABELLEN
+        LDA     ADRESS+1
+        STA     1,X       LSB-DELEN
+        JMP     DELAYD    VÄNTA EN STUND
+*
+* STOPPA IN ALLA BRKPT'S I MINNET VID 'G'
+*
+BRKPIN  BSR     BRKP40
+BRKPRT  BEQ     CMPRTS
+*
+TGB     STX     XHI
+        LDX     0,X       HÄMTA ADRESSEN
+        LDA     0,X       HÄMTA INSTRUKTIONEN
+        PSHA
+        LDA     #$3F      OPCODE FÖR SWI
+        STA     0,X       I MINNET
+        LDX     XHI
+        PULA
+        STA     2,X       SPARAD OPCODE
+        BSR     ADD3X
+        BRA     BRKPRT
+*
+* JÄMFÖR START/STOPPADDRESSER
+*
+CMPADR  LDA     ENDA+1
+        SUBA    BEGA+1
+        LDB     ENDA
+        SBCB    BEGA
+CMPRTS  RTS
+*
+* PUNCHA TILL KASSETT I S1-FORMAT
+* ERFORDRAR KCS-MODEM MED ACIA PA $E020
+* UNDER PUNCHNING VISAS ADRESS OCH DATA
+* PA INDIKATORERNA
+*
+PNCHOO  LDA     #$11      SATT UPP ACIAN FÖR
+        STA     TAPE      TVÅ STOPPBITAR VID PUNCH
+        JSR     BADDR     BEGÄR STARTADRESS
+        STX     BEGA
+        JSR     DELAYD
+        LDX     #RDS1     PEKA PÅ FÖRSTA DISPLYEN
+        STX     DSPEK
+        JSR     BADDR     BEGÄR STOPPADRESS
+        STX     ENDA
+PUN11   BSR     CMPADR    JÄMFÖR START/STOPP
+        BNE     PUN22
+        CMPA    #16       MINDRE ÄN 16 BYTES KVAR ?
+        BCS     PUN23     HOPPA ISÅFALL ÖVER NÄSTA INSTRUKTION
+*
+* LAGG UT 16 MINNESBYTES PER RECORD
+*
+PUN22   LDA     #15
+PUN23   ADDA    #4        INKLUDERA ADRESS I BYTERÄKNARE
+        STA     MCONT     SPARA RESULTATET
+        SUBA    #3
+        STA     BUFF      DETTA RECORDS BYTEANTAL
+*
+* SÄND CR,LF,NULL OCH S1(BBAAAADDDDDDDDDDDDCC)
+*
+        LDX     #MTAPE1   STRÄNG MED DATA
+        BSR     TDATA     IVÄG MED DET
+        CLRB              CHECKSUMMA
+*
+* SÄND BYTEANTALET (S1)BBAAAADDDDDDDDDDDDCC)
+*
+        LDX     #MCONT
+        BSR     PUNT2
+*
+* SÄND ADRESSEN (S1BB)AAAA(DDDDDDDDDDDDCC)
+*
+        LDX     BEGA      HÄMTA ADRESS FÖR RECORD
+        STX     ADRESS
+        PSHB
+        JSR     UTADR     LAGG UT PÅ DISPLAYEN
+        PULB
+        LDX     #BEGA     STARTADRESS FÖR VARJE RECORD
+        BSR     PUNT2     FÖRSTA 2 HEX
+        BSR     PUNT2     ANDRA 2 HEX
+*
+* SÄND DATA (S1BBAAAA)DDDDDDDDDDDD(CC)
+*
+        LDX     BEGA      ADRESSEN TILL DATAT
+PUN32   JSR     DATAIX
+        BSR     PUNT2
+        DEC     BUFF
+        BNE     PUN32
+*
+* SÄND CHECKSUMMAN (S1BBAAAADDDDDDDDDDDD)CC
+*
+        COMB              CHECKSUMMAN INVERTERAS
+        TBA
+        BSR     OUT2HT
+        STX     BEGA
+        DEX
+        CPX     ENDA      KLAR ?
+        BNE     PUN11
+        LDX     #S9STR
+*
+TDATA   LDA     0,X       HÄMTA TECKEN
+        CMPA    #4        SLUT ?
+        BEQ     TRTS
+        BSR     TAPEUT
+        INX
+        BRA     TDATA
+*
+* SÄND 2 HEX TAL SAMT UPPDATERA CHECKSUMMAN
+*
+PUNT2   ADDB    0,X       UPPDATERA CHECKSUMMAN
+        LDA     0,X       SÄND 2 HEX TECKEN
+        INX
+OUT2HT  PSHA
+        BSR     OUTHL     OMVANDLA TILL ASCII
+        PULA
+OUTHR   ANDA    #$0F      MASKA BORT MSD-DELEN
+        ADDA    #$30      TILLVERKA ASCII
+        CMPA    #$39
+        BLS     TAPEUT
+        ADDA    #7        FÖR A-F
+*
+* UTRUTIN FÖR TAPE
+*
+TAPEUT  PSHA
+TAPUT   LDA     TAPE
+        ASRA
+        ASRA
+        BCC     TAPUT     LEDIG ?
+        PULA
+        STA     TAPED
+TRTS    RTS
+*
+OUTHL   LSRA
+        LSRA
+        LSRA
+        LSRA
+        BRA     OUTHR
+*
+* LADDA MINNET FRÅN KASSETT I S1-FORMAT
+* UNDER LADDNINGEN VISAS MINNESADRESSEN
+* PÅ ADRESSDISPLAYEN DS1-4
+* OCH DATA PÅ DS5-6
+*
+LOADOO  LDA     #$15      SÄTT UPP ACIAN FÖR
+        STA     TAPE      EN STOPPBIT
+LOAD3   BSR     TAPEIN    HÄMTA TECKEN
+        CMPA    #'S       SÖK TYP AV RECORD
+        BNE     LOAD3
+        BSR     TAPEIN
+        CMPA    #'9       ÄR DET EOF ?
+        BEQ     TRTS
+        CMPA    #'1       DATA RECORD
+        BNE     LOAD3
+        CLR     CKSM      NOLLA CHECKSUMMECELLEN
+        BSR     TBYTE     LÄS IN ANTAL BYTES I RECORDET
+        SUBA    #2        KOMMANDE ADRESS= 2 BYTE
+        STA     BYTECT
+*
+* BYGG ADRESSEN
+*
+        BSR     TBYTE     HÄMTA MSB
+        STA      ADRESS
+        BSR     TBYTE     HÄMTA LSB
+        STA      ADRESS+1
+        JSR     UTADR     LÄGG UT PÅ DISPLAYEN
+        LDX     ADRESS    X HAR NU LADDADRESSEN
+*
+* LAGRA DATA
+*
+LOAD11  BSR     TBYTE     GÖR EN BYTE
+        DEC     BYTECT    MINSKA ANTALSRÄKNAREN
+        BEQ     LOAD15    OM NOLL SA GÅ TILL BÖRJAN
+        PSHA
+        JSR     DATADS    LÄGG UT DATA PÅ DISPLAYEN
+        PULA
+        STA     0,X       LAGRA I MINNET
+        CMPA    0,X       FASTNADE DET
+        BNE     LOAD19
+        INX
+        BRA     LOAD11
+*
+LOAD15  INC     CKSM
+        BEQ     LOAD3
+LOAD19  JMP     BELRTS
+*
+TAPEIN  LDA     TAPE
+        ASRA
+        BCC     TAPEIN
+        LDA     TAPED
+        RTS
+*
+TINHEX  BSR     TAPEIN
+        SUBA    #$30
+        BMI     C1        EJ HEX
+        CMPA    #$09
+        BLE     IN1HG
+        CMPA    #$11
+        BMI     C1
+        CMPA    #$16
+        BGT     C1        EJ HEX
+        SUBA    #7
+IN1HG   RTS
+*
+TBYTE   BSR     TINHEX
+        ASLA
+        ASLA
+        ASLA
+        ASLA
+        TAB
+        BSR     TINHEX
+        ABA
+        TAB
+        ADDB    CKSM
+        STAB     CKSM
+        RTS
+*
+C1      TST     BELL      GE PIIP OCH ÅTERGÅ
+        JMP     CONTRL
+*
+MTAPE1  FCB     $D,$A,0,0,0,0,'S,'1,4
+*
+S9STR   FCB     'S,'9,4
+*
+*
+* TABELL FÖR KOMMANDON
+*
+INTAB   FCB     $0A
+        FDB     MEMCHG    MINNESMANIPULERING  "M"
+        FCB     $0B       SET BREAKPOINTS
+        FDB     SETBR
+        FCB     $0C       CONTINUE
+        FDB     CONTIN
+        FCB     $0D       DELETE BREAKPOINTS
+        FDB     KILL
+        FCB     $0E       EXECUTE PROGRAM
+        FDB     GOEXEC
+        FCB     $10       LADDA I S1-FORMAT
+        FDB     LOADOO
+        FCB     $11       PUNCHA I S1-FORMAT TILL KASSETT
+        FDB     PNCHOO
+        FCB     $12       REGISTERDISPLAY
+        FDB     PRREG
+TABEND  EQU     *
+*
+*
+        ORG     PGM+$3F8
+        FDB     IRQSER
+        FDB     SWISER
+        FDB     NMISER
+        FDB     START
+        END

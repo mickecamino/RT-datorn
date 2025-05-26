@@ -1,0 +1,796 @@
+                              NAM ECBUG
+                      *
+                      * COPYRIGHT CÅ-ELEKTRONIK AB
+                      *           BOX 2010
+                      *           S-135 02 TYRESÖ SWEDEN
+                      *
+                      * 1980-03-20
+                      *
+                      *****************************************************
+                      *
+                      * MONITORPROGRAM FÖR MC6808
+                      * PROGRAMMET INGÅR SOM EN DEL I ETT DATORBYGGE
+                      * FÖR NYBÖRJARE OCH ENKLARE TILLÄMPNINGAR.
+                      * DATORN BESTÅR AV :
+                      * CPU-KORT CÅ-6819 MED MC6808 OCH 1 K DATAMINNE (RAM)
+                      * MODERKORT CÅ-800 MED 2 KONTAKTER (J15 OCH J16).
+                      * DISPLAYKORT CÅ-8006 MED TANGENTKORT
+                      * PROGRAMMINNE ECBUG I EPROM (PÅ KORT CÅ-6819).
+                      *
+                      *****************************************************
+                      * FUNGERAR SOM MOTOROLAS D2-KIT
+                      * MEN HAR STATISK DISPLAY
+                      * ECBUG FINNS ÄVEN FÖR 6809 CPU OCH HETER DÅ F0BUG
+                      *****************************************************
+                      *
+                      * TANGENTERNAS FUNKTIONER :
+                      * 0-9 SAMT A-F HEXADECIMAL TECKENINMATNING
+                      * A-F ÄR ÄVEN KOMMANDOTANGENTER
+                      * A ALTER MEMORY, MINNESMANIPULERING
+                      * B SÄTT IN EN BRYTPUNKT
+                      * C CONTINUE, FORTSÄTT PROGRAMMET FRÅN BRYTPUNKT
+                      * D DELETE BRKPT, TA BORT ALLA BRYTPUNKTER
+                      * E EXECUTE PROGRAM, GÅ TILL ADRESS OCH STARTA PROGRAM
+                      * L LADDA MINNET FRÅN KASSETT S1-FORMAT
+                      * P PUNCH MEMORY, SPELA IN DATA PÅ KASSETT S1-FORMAT
+                      * R DISPLAY REGISTERS
+                      *
+                      *
+                      * ECBUG LIGGER I EPROM 2708 PÅ ADRESS $EC00
+                      *
+                      * DE SEX LYSDIODDISPLAYERNA ADRESSERAS SOM RAM-CELLER
+                      * BIT 0-3 GER ETT HEXADECIMALT TAL MELLAN 0 OCH F
+                      * BIT 4-6 ANVÄNDS EJ
+                      * BIT 7 HÖG TÄNDER DECIMALPUNKTEN
+                      *
+                      * DATA FRÅN TANGENTBORDET ERHÅLLS SOM
+                      * ETT TAL MELLAN $00 - $13
+                      *
+ 80E0                 DS1     EQU     $80E0     MSB ADRESSINDIKATOR (VÄNSTRA DISPLAYEN)
+ 80E1                 DS2     EQU     $80E1
+ 80E2                 DS3     EQU     $80E2
+ 80E3                 DS4     EQU     $80E3     LSB ADRESS
+ 80E4                 DS5     EQU     $80E4     MSB DATA
+ 80E5                 DS6     EQU     $80E5     LSB DATAINDIKATOR
+                      *
+ 80E6                 KEY     EQU     $80E6     DATA FRÅN TANGENTBORD
+ 80E8                 INFLG   EQU     $80E8     BIT 7 ÄR NOLL OM TANGENT ÄR
+ 80EE                 BELL    EQU     $80EE     ACCESS GER PULS TILL BELLKORT
+ 008C                 SKIP2   EQU     $8C
+ 8020                 TAPE    EQU     $8020
+ 8021                 TAPED   EQU     $8021
+                      *
+                      * RAMCELLER FÖR DATALAGRING
+                      *
+                              ORG     $A000
+ A000                 RAM     EQU     *
+                      *
+ A000                 IRQV    RMB     2         IRQ-VEKTOR
+ A002                 BEGA    RMB     2         STARTADRESS VID PUNCH MM
+ A004                 ENDA    RMB     2         SLUTADRESS VID PUNCH MM
+ A006                 NMIV    RMB     2         NMI VEKTOR
+ A008                 SPEK    RMB     2         ANVÄNDARENS STACKPEKARE
+ A00A                 CKSM    RMB     1         CHECKSUMMA
+ A00B                 BYTECT  RMB     1         BYTE RÄKNARE
+ A00C                 XHI     RMB     1         TEMP LAGRING AV X-REGISTER MSB-HALVA
+ A00D                 XLO     RMB     1         TEMP LAGRING AV X-REGISTER MLSB-HALVA
+ A00E                 SWIVEK  RMB     2         EGEN SWI-VEKTOR
+ A010                 VFLAG   RMB     1         ANTAL INSATTA BRYTPUNKTER
+ A011                 BPTAB   RMB     15        TABELL MED MAX 5 BRYTPUNKTER
+ A020                 RDS1    RMB     1         RAMCELL FÖR DS1
+ A021                 RDS2    RMB     1
+ A022                 RDS3    RMB     1
+ A023                 RDS4    RMB     1
+ A024                 RDS5    RMB     1
+ A025                 RDS6    RMB     1
+ A026                 MCONT   RMB     1
+ A027                 ADRESS  RMB     2
+ A029                 DSPEK   RMB     2         PEKARE FÖR AKTUELL DISPLAY
+ A02B                 BLRAM   RMB     2         CELL FÖR BLINKANDE DISPLAY
+ A02D                 BLFLG   RMB     1         FLAGGA FÖR BLINKNING
+ A02E                 DPFLG   RMB     1         1=TÄND DEC.PUNKT, 0=SLÄCKT
+ A02F                 BLTID   RMB     2         CELL FÖR BLINKHASTIGHET
+ A031                 BUFF    RMB     10
+ A07F                 STACK   EQU     RAM+$7F
+                      *
+                              ORG     $EC00
+ EC00                 PGM     EQU     *
+                      *
+                      * SERVICERUTIN FÖR IRQ
+                      *
+ EC00 FEA000          IRQSER  LDX     IRQV    ADRESS FÖR IRQ-RUTIN
+ EC03 6E00                    JMP     0,X       HOPPA DIT OCH TAG HAND OM AVBROTTET
+                      *
+                      * SERVICERUTIN FÖR NMI
+                      *
+ EC05 FEA006          NMISER  LDX     NMIV      ADRESS FÖR NMI-RUTIN
+ EC08 6E00                    JMP     0,X       HOPPA DIT OCH TAG HAND OM AVBROTTET
+                      *
+                      * SERVICERUTIN FÖR SW1
+                      *
+ EC0A FEA00E          SWISER  LDX     SWIVEK    ADRESS FÖR SWI-RUTIN
+ EC0D 6E00                    JMP     0,X       HOPPA DIT OCH TAG HAND OM AVBROTTET
+                      *
+ EC0F CE80E0          CLEARD  LDX     #DS1      RUTIN FÖR ATT NOLLA INDIKATORERNA
+ EC12 C606            CLEAR   LDB     #6
+ EC14 6F00            CL300   CLR     0,X
+ EC16 08                      INX
+ EC17 5A                      DECB              6 POSITIONER
+ EC18 26FA                    BNE     CL300
+ EC1A 39                      RTS
+                      *
+ EC1B CEEDDC          START   LDX     #RETINT
+ EC1E FFA000                  STX     IRQV
+ EC21 CE00FE                  LDX     #$FE      ADRESS FÖR SWI
+ EC24 FFA006                  STX     NMIV
+ EC27 FFA00E                  STX     SWIVEK
+ EC2A 8EA077                  LDS     #STACK-8  INITIERA STACKPEKAREN
+ EC2D BFA008                  STS     SPEK
+ EC30 8603                    LDA     #3        NOLLA ACIA FÖR KCS
+ EC32 B78020                  STA     $8020
+ EC35 7FA02E                  CLR     DPFLG
+ EC38 7FA010          KILL    CLR     VFLAG
+ EC3B BEA008          CONTRL  LDS     SPEK      FRISKA UPP STACKEN
+ EC3E 8DCF                    BSR     CLEARD
+ EC40 CEA020          ST200   LDX     #RDS1     NOLLSTÄLL ÄVEN RAMCELL
+ EC43 8DCD                    BSR     CLEAR
+ EC45 8D29                    BSR     LBLINK    LÅNGSAMT BLINK
+ EC47 BDECDF                  JSR     DEL200
+                      *
+                      * ÅTERSTÄLL DISPLAYPEKAREN PÅ FÖRSTA DISPLAYEN OCH TÄND
+                      * BLINKANDE DECIMALPUNKT
+                      *
+ EC4A CEA020                  LDX     #RDS1     ADRESS TILL FÖRSTA DISPLAYEN
+ EC4D FFA029                  STX     DSPEK     ADRESSEN TILL FÖRSTA DISPLYEN
+ EC50 8D2A            LOOP10  BSR     INCH      HÄMTA TECKEN
+ EC52 8D1F                    BSR     SBLINK
+ EC54 CEEFDF                  LDX     #INTAB    KOLLA MED KOMMANDOTABELLEN
+ EC57 A100            LOOP20  CMPA    0,X       OM TECKNET FINNS
+ EC59 270F                    BEQ     MATCH     I SÅ FALL HOPPA
+ EC5B 8CEFF7                  CPX     #TABEND   SLUT PÅ TABELLEN
+ EC5E 2605                    BNE     LOOP30    FEL TECKEN INMATAT
+ EC60 7D80EE                  TST     BELL
+ EC63 20EB                    BRA     LOOP10
+                      *
+ EC65 08              LOOP30  INX
+ EC66 08                      INX               GÅ TILL NÄSTA TECKEN I
+TABELLEN
+ EC67 08                      INX
+ EC68 20ED                    BRA     LOOP20
+                      *
+ EC6A EE01            MATCH   LDX     1,X       HÄMTA ADRESS TILL SUBRUTIN
+ EC6C AD00                    JSR     0,X
+ EC6E 20CB                    BRA     CONTRL    GÅ SEDAN TILLBAKA
+                      *
+                      * LÅNGSAM BLINKNING
+                      *
+ EC70 C622            LBLINK  LDB     #$22
+ EC72 8C                      FCB     SKIP2
+                      *
+                      * SNABB BLINKNING
+                      *
+ EC73 C607            SBLINK  LDB     #$07
+ EC75 F7A02F                  STAB    BLTID
+ EC78 F7A02D                  STAB    BLFLG
+ EC7B 39                      RTS
+                      *
+                      * SUBRUTIN FÖR ATT HÄMTA IN TECKEN FRÅN TANGENTBORDET
+                      * DECIMALPUNKTEN PÅ DISPLAYEN VARS ADRESS FINNS I DSP
+                      * BLINKAR MED EN HASTIGHET SOM BEROR AV VÄRDET I BLTI
+                      *
+ EC7C 37              INCH    PSHB              SPARA B-ACK
+ EC7D FFA031                  STX     BUFF      SPARA INDEXREGISTRET
+ EC80 8D54            IN100   BSR     DELAY     BLINKRUTINEN
+ EC82 7DA02D                  TST     BLFLG     SKALL PUNKTEN SLÄCKAS ELLER
+ EC85 2702                    BEQ     IN250     INGEN ÄNDRING=0
+ EC87 8D2E                    BSR     STODSP    LAGG UT PÅ DISPLAYEN
+                      *
+ EC89 B680E8          IN250   LDA     INFLG     ÄR KNAPP INTRYCKT ?
+ EC8C 2BF2                    BMI     IN100     NEJ, GÅ RUNT IGEN
+ EC8E 7FA02E                  CLR     DPFLG     SLÄCK DEC.PUNKTEN
+ EC91 8D24                    BSR     STODSP
+ EC93 B680E6                  LDA     KEY       HÄMTA DATA
+ EC96 841F                    ANDA    #$1F      MASKA DE TRE HÖGSTB  ITARNA
+ EC98 FEA031                  LDX     BUFF
+ EC9B 33                      PULB
+ EC9C 39                      RTS
+                      *
+                      * SUBRUTIN FÖR ATT FLYTTA A+B ACKUM. TILL X-REG.
+                      *
+ EC9D B7A00C          TFRDX   STA     XHI
+ ECA0 F7A00D                  STAB     XLO
+ ECA3 FEA00C                  LDX XHI
+ ECA6 39                      RTS
+                      *
+                      * SUBRUTIN FÖR ATT FLYTTA X TILL A+B
+                      *
+ ECA7 FFA00C          TFRXD   STX     XHI
+ ECAA B6A00C                  LDA     XHI
+ ECAD F6A00D                  LDB     XLO
+ ECB0 39                      RTS
+                      *
+                      * RUTIN FÖR ATT LAGGA A-ACK 1 RAM OCH DISPLAY
+                      *
+ ECB1 DE29            STODS   LDX     <DSPEK    HÄMTA ADRESSEN
+ ECB3 A700                    STA     0,X       LÄGG 1 RAM
+ ECB5 200D                    BRA     DPOFF     OCH PA DISPLAY
+                      *
+ ECB7 FEA029          STODSP  LDX     DSPEK     HÄMTA ADRESSEN
+ ECBA A600                    LDA     0,X       OCH TECKNET
+ ECBC 7DA02E                  TST     DPFLG
+ ECBF 2703                    BEQ     DPOFF
+ ECC1 8B80            DPON    ADDA    #$80      LÄGG TILL DECIMALPUNKTEN
+ ECC3 8C                      FCB     SKIP2     HOPPA ÖVER NÄSTA INSTRUKTION
+                      *
+ ECC4 840F            DPOFF   ANDA    #$0F      INGEN DEC.PT.
+ ECC6 36              IN200   PSHA              SPARA A
+ ECC7 8DDE                    BSR     TFRXD     FLYTTA X TILL A &B
+ ECC9 8020                    SUBA    #$20      PEKAREN STÅR NU PÅ
+ ECCB CBC0                    ADDB    #$C0
+ ECCD 8DCE                    BSR     TFRDX     DISPLYENS ADRESS
+ ECCF 32                      PULA              ÅTERTAG A
+ ECD0 A700                    STA     0,X       LAGG UT PÅ DISPLAYEN
+ ECD2 7FA02D                  CLR     BLFLG
+ ECD5 39                      RTS
+                      *
+                      * SUBRUTIN FÖR BLINKFUNKTIONEN
+                      *
+ ECD6 FEA02B          DELAY   LDX     BLRAM    HÄMTA DET PÅ TIDSCELLEN
+ ECD9 09                      DEX               MINSKA
+ ECDA FFA02B                  STX     BLRAM    LÄGG TILLBAKA
+ ECDD 260C                    BNE     DEL500    OM X EJ ÄR NOLL GÅ RTS
+ ECDF FEA02F          DEL200  LDX     BLTID     NYTT VÄRDE PÅ BLINKCELLEN
+ ECE2 FFA02B                  STX     BLRAM     LÄGG IN DET
+ ECE5 7CA02D                  INC     BLFLG     VÄXLA FLAGGAN
+ ECE8 73A02E                  COM     DPFLG
+ ECEB 39              DEL500  RTS
+                      *
+                      * TAG IN HEXADECIMALT TECKEN
+                      *
+ ECEC 8D8E            INHEX   BSR     INCH
+ ECEE 810F                    CMPA    #$0F      KOLLA OM HEX
+ ECF0 23F9                    BLS     DEL500
+ ECF2 7D80EE                  TST     BELL      GE PIIP OM EJ HEXADECIMALT
+ ECF5 20F5                    BRA     INHEX     OM EJ HEX SÅ FÖRSÖK IGEN
+                      *
+                      * BYGG ADRESS I X-REG + "ADRESS"
+                      *
+ ECF7 8D0C            BADDR   BSR     BYTE      HÖGSTA 8 BITARNA
+ ECF9 B7A027                  STA     ADRESS
+ ECFC 8D07                    BSR     BYTE      LÄGSTA 8 BITARNA
+ ECFE B7A028          BADDR7  STA     ADRESS+1
+ ED01 FEA027                  LDX     ADRESS
+ ED04 39                      RTS
+                      *
+                      * TAG IN TVÅ HEX. TECKEN I A-ACK OCH LAGRA I DSPEK
+                      *
+ ED05 8DE5            BYTE    BSR     INHEX     IN ETT HEXADECIMALT TAL
+ ED07 8DA8            BYTE2   BSR     STODS     LÄGG UT PÅ DISPLAY
+ ED09 8D2B                    BSR     INCDSP    INCREMENTA DSPEK
+ ED0B 48                      ASLA
+ ED0C 48                      ASLA
+ ED0D 48                      ASLA
+ ED0E 48                      ASLA               HHHH 0000
+ ED0F 16                      TAB
+ ED10 37                      PSHB              SPARA B-ACK
+ ED11 8DD9                    BSR     INHEX     TAG IN DET ANDRA TECKNET
+ ED13 8D9C                    BSR     STODS     LÄGG UT PÅ DISPLAYEN
+ ED15 33                      PULB
+ ED16 1B                      ABA
+ ED17 201D                    BRA     INCDSP
+                      *
+                      * LÄGG UT PÅ ADRESSDISPLYEN
+                      *
+ ED19 CEA020          UTADR   LDX     #RDS1     RAM-CELL FÖR DS1
+ ED1C FFA029                  STX     DSPEK
+ ED1F CEA027                  LDX     #ADRESS   VÄRDE SOM SKA UT
+ ED22 8D03                    BSR     OUT2H     MSB BYTE
+ ED24 CEA028                  LDX     #ADRESS+1
+                      *
+                      * MATA UT 2 HEX TECKEN
+                      *
+ ED27 A600            OUT2H   LDA     0,X       HÄMTA EN BYTE
+ ED29 36              OUT2H2  PSHA
+ ED2A 44                      LSRA
+ ED2B 44                      LSRA
+ ED2C 44                      LSRA
+ ED2D 44                      LSRA
+ ED2E 8D81                    BSR     STODS     LÄGG UT DET FÖRSTA TECKNET
+ ED30 32                      PULA
+ ED31 8D03                    BSR     INCDSP
+ ED33 BDECB1                  JSR     STODS     LÄGG UT DET ANDRA TECKNET
+ ED36 7CA02A          INCDSP  INC     DSPEK+1   PEKA PÅ NÄSTA
+ ED39 39              INHEX5  RTS
+                      *
+                      * MINNESMANIPULERING
+                      *
+ ED3A 8DBB            MEMCHG  BSR     BADDR     BEGÄR FÖRSTA  DRESS
+ ED3C 8DDB            MEM10   BSR     UTADR     LÄGG UT ADRESS PÅ DISPLAY
+ ED3E FEA027                  LDX     ADRESS
+ ED41 BDEDB5                  JSR     DATAIX    LÄGG UT DATA PA DISPLAYEN
+ ED44 BDEC7C          MEM15   JSR     INCH      HÄMTA TECKEN
+ ED47 8112                    CMPA    #$12      OM RETURN GÅ RTS "R"
+ ED49 27EE                    BEQ     INHEX5    GÅ TILL RTS
+ ED4B 8111            MEM2O   CMPA    #$11      FÖREGÅENDE ? "P"
+ ED4D 2744                    BEQ     MEM88
+ ED4F 8110                    CMPA    #$10      NÄSTA ? "L"
+ ED51 2748                    BEQ     MEM94
+ ED53 8113                    CMPA    #$13      OFFSETBERÄKNING ? "S"
+ ED55 262C                    BNE     MEM60
+ ED57 FEA027                  LDX     ADRESS
+ ED5A FFA002                  STX     BEGA      SPARA MINNESPOSITIONEN
+ ED5D CEA020                  LDX     #RDS1     PEKA PÅ FÖRSTA DISPLYEN
+ ED60 FFA029                  STX     DSPEK
+ ED63 8D92                    BSR     BADDR     BEGÄR IN HOPPADRESSEN
+ ED65 09                      DEX               KORRIGERA FÖR OFFSET
+ ED66 FFA004                  STX     ENDA      SPARA
+ ED69 8DAE                    BSR     UTADR     LÄGG UT PÅ DISPLAYEN
+ ED6B BDEEAA                  JSR     CMPADR    JÄMFÖR ADRESSERNA
+ ED6E FEA002                  LDX     BEGA
+ ED71 FFA027                  STX     ADRESS
+                      *
+                      * OM B=00 INOM RÄCKHÅLL FRAMÅT OM A<S0
+                      * OM B=FF INOM RÄCKHÅLL BAKÅT OM A>7F
+                      *
+ ED74 4D                      TSTA              FRAM/BAKÅT
+ ED75 2B04                    BMI     OK        HOPPA OM BAKÅT
+ ED77 5D                      TSTB              =0 OM FRAMÅT
+ ED78 2614                    BNE     MEMFEL    PI1P OM FÖR STOR OFFSET
+ ED7A 5A                      DECB               B=FF NU
+ ED7B 5C              OK      INCB
+ ED7C 2610                    BNE     MEMFEL    FEL I OFFSET BAKÅT
+ ED7E 36                      PSHA
+ ED7F 8D36                    BSR     DATADS    SKRIV UT OFFSET PÅ DISPLAYEN
+ ED81 32                      PULA
+ ED82 8C                      FCB     SKIP2     HOPPA ÖVER NÄSTA INSTRUKTION
+                      *
+ ED83 8D82            MEM60   BSR     BYTE2     NYTT DATA
+ ED85 FEA027                  LDX     ADRESS
+ ED88 A700            MEM62   STA     0,X       LAGRA I RAM
+ ED8A A100                    CMPA    0,X       FASTNADE DET ?
+ ED8C 2708                    BEQ     MEM92     NIX
+ ED8E 7D80EE          MEMFEL  TST     BELL      GE PIIP
+ ED91 2009                    BRA     MEM95
+                      *
+                      * GÅ TILL FÖREGÅENDE ADRESS I MINNET
+                      *
+ ED93 09              MEM88   DEX
+ ED94 2006                    BRA     MEM95
+                      *
+                      * STEGA TILL NÄSTA  DRESSPOSITION
+                      *
+ ED96 8D09            MEM92   BSR     DELAYD
+ ED98 FEA027          MEM93   LDX     ADRESS
+ ED9B 08              MEM94   INX
+ ED9C FFA027          MEM95   STX     ADRESS    LAGRA NY ADRESS
+ ED9F 209B                    BRA     MEM10
+                      *
+                      * FÖRDRÖJNINGSLOOP FÖR ATT HINNA LÄSA
+                      * AV ADRESS-DATA DISPLAYEN
+                      *
+ EDA1 FFA00C          DELAYD  STX     XHI
+ EDA4 37                      PSHB              SPARA X OCH B
+ EDA5 C602                    LDB     #2
+ EDA7 CEAFFF          DELLDX  LDX     #$AFFF
+ EDAA 09              DELDEX  DEX               MINSKA X-LOOPEN
+ EDAB 26FD                    BNE     DELDEX
+ EDAD 5A                      DECB
+ EDAE 26F7                    BNE     DELLDX
+ EDB0 33                      PULB
+ EDB1 FEA00C                  LDX     XHI
+ EDB4 39                      RTS
+                      *
+                      * LAGG UT A-ACK PÅ DATADISPLAYEN
+                      *
+ EDB5 A600            DATAIX  LDA     0,X       HÄMTA INDEXERAT
+ EDB7 FFA002          DATADS  STX     BEGA      SPARA X
+ EDBA 37                      PSHB              SPARA B
+ EDBB BDED29                  JSR     OUT2H2    LÄGG UT
+ EDBE 33                      PULB
+ EDBF CEA024          DEC2DS  LDX     #RDS5
+ EDC2 FFA029                  STX     DSPEK
+ EDC5 FEA002                  LDX     BEGA      ÅTERTAG X
+ EDC8 39                      RTS
+                      *
+                      *
+                      * GÅ TILL ADRESS OCH STARTA PROGRAM
+                      *
+ EDC9 BDECF7          GOEXEC  JSR     BADDR     HÄMTA IN EN ADRESS
+ EDCC FEA008                  LDX     SPEK      LÄGG IN PC-VÄRDET
+ EDCF A707                    STA     7,X       PÅ STACKEN
+ EDD1 B6A027                  LDA     ADRESS
+ EDD4 A706                    STA     6,X
+                      *
+                      * CONTINUE
+                      *
+ EDD6 BDEE90          CONTIN  JSR     BRKPIN
+ EDD9 BEA008                  LDS     SPEK      HÄMTA USER STACKPOINTER
+ EDDC 3B              RETINT  RTI               OCH GÖR EN RTI
+                      *
+                      * SWI SERVICERUTIN
+                      *
+ EDDD BFA008          SFE     STS     SPEK
+ EDE0 30                      TSX
+ EDE1 6D06                    TST     6,X       DECREMENTERA
+ EDE3 2602                    BNE     *+4
+ EDE5 6A05                    DEC     5,X
+ EDE7 6A06                    DEC     6,X
+ EDE9 BDEE66                  JSR     BRKP40    FINNS DREAKPOINTS ?
+ EDEC 2714                    BEQ     PRREG     PRINTA REGISTREN
+                      *
+                      * TAG BORT BREAKPOINTS I ECBUG
+                      *
+ EDEE FFA00C          BRKP00  STX     XHI
+ EDF1 A602                    LDA     2,X       SKYDDA MOT MULTIDEF.
+ EDF3 813F                    CMPA    #$3F
+ EDF5 2707                    BEQ     BRKP10
+ EDF7 EE00                    LDX     0,X
+ EDF9 A700                    STA     0,X
+ EDFB FEA00C                  LDX     XHI
+ EDFE 8D61            BRKP10  BSR     ADD3X
+ EE00 26EC                    BNE     BRKP00
+                      *
+                      * PRESENTERA REGISTREN
+                      *
+ EE02 BDEC0F          PRREG   JSR     CLEARD    NOLLA INDIKATORERNA
+ EE05 8DB8                    BSR     DEC2DS    PEKA PÅ DS5
+ EE07 FEA008                  LDX     SPEK      HÄMTA STACKADRESSEN
+ EE0A 08                      INX               PEKAR NU PÅ CC-REG
+ EE0B 8DA8                    BSR     DATAIX
+ EE0D 8D37                    BSR     INTECK    VÄNTA IN NYTT TECKEN
+ EE0F 08                      INX
+ EE10 8DA3                    BSR     DATAIX    UT MED B-ACK
+ EE12 8D32                    BSR     INTECK
+ EE14 08                      INX
+ EE15 8D9E                    BSR     DATAIX    UT MED A-ACK
+ EE17 8D2D                    BSR     INTECK
+ EE19 08                      INX
+ EE1A FFA002                  STX     BEGA
+ EE1D EE00                    LDX     0,X
+ EE1F FFA027                  STX     ADRESS    VÄRDET PÅ X I STACKEN
+ EE22 BDED19                  JSR     UTADR     UT MED X-REG
+ EE25 FEA002                  LDX     BEGA
+ EE28 08                      INX
+ EE29 08                      INX
+ EE2A FFA002                  STX     BEGA
+ EE2D EE00                    LDX     0,X
+ EE2F FFA027                  STX     ADRESS    VÄRDET PÅ Y I STACKEN
+ EE32 8D12                    BSR     INTECK
+ EE34 BDED19                  JSR     UTADR     UT MED X-REG
+ EE37 FEA008                  LDX     SPEK
+ EE3A FFA027                  STX     ADRESS
+ EE3D 8D07                    BSR     INTECK
+ EE3F BDED19                  JSR     UTADR     UT MED STACKPEKAREN
+ EE42 8D02                    BSR     INTECK
+ EE44 20BC                    BRA     PRREG
+                      *
+ EE46 B680E8          INTECK  LDA     INFLG     KOLLA OM KNAPP TRYCKT
+ EE49 2BFB                    BMI     INTECK
+ EE4B B680E6                  LDA     KEY       HÄMTA TECKNET
+ EE4E 841F                    ANDA    #$1F      MASKA D5-D7
+ EE50 8113                    CMPA    #$13      KOLLA OM S-KNAPPEN
+ EE52 2703                    BEQ     INTRTS    JO
+ EE54 7EEC3B                  JMP     CONTRL    HOPPA TILLBAKS
+                      *
+ EE57 FFA00C          INTRTS  STX     XHI
+ EE5A BDEC0F                  JSR     CLEARD
+ EE5D FEA00C                  LDX     XHI
+ EE60 39                      RTS
+                      *
+ EE61 08              ADD3X   INX
+ EE62 08                      INX
+ EE63 08                      INX
+ EE64 5A                      DECB
+ EE65 39                      RTS
+                      *
+ EE66 CEA011          BRKP40  LDX     #BPTAB    TABELL ÖVER INSATTA BREAKPOINTS
+ EE69 F6A010                  LDB     VFLAG     ANTAL BRKP'S
+ EE6C 39              BRKRTS  RTS
+                      *
+                      * V-KOMMANDO SÄTT IN EN BRYTPUNKT
+                      *
+ EE6D BDECF7          SETBR   JSR     BADDR     FIXA ADRESSEN
+ EE70 8DF4                    BSR     BRKP40    FINNS LEDIG PLATS ?
+ EE72 270C                    BEQ     BRKP60    OM LEDIG SÅ STOPPA IN DEN
+ EE74 C105                    CMPB    #5        MAX FEM BRYTPUNKTER
+ EE76 2504                    BCS     BRKP50    OK
+ EE78 7D80EE          BELRTS  TST     BELL      GE PIIP OM FÖR MÅNGA
+ EE7B 39                      RTS
+                      *
+ EE7C 8DE3            BRKP50  BSR     ADD3X     ÖKA X MED 3
+ EE7E 26FC                    BNE     BRKP50
+                      *
+ EE80 7CA010          BRKP60  INC     VFLAG     ÖKA ANTALSRÄKNAREN
+ EE83 B6A027                  LDA     ADRESS    ADRESS TILL MINNET
+ EE86 A700                    STA     0,X       IN I TABELLEN
+ EE88 B6A028                  LDA     ADRESS+1
+ EE8B A701                    STA     1,X       LSB-DELEN
+ EE8D 7EEDA1                  JMP     DELAYD    VÄNTA EN STUND
+                      *
+                      * STOPPA IN ALLA BRKPT'S I MINNET VID 'G'
+                      *
+ EE90 8DD4            BRKPIN  BSR     BRKP40
+ EE92 2722            BRKPRT  BEQ     CMPRTS
+                      *
+ EE94 FFA00C          TGB     STX     XHI
+ EE97 EE00                    LDX     0,X       HÄMTA ADRESSEN
+ EE99 A600                    LDA     0,X       HÄMTA INSTRUKTIONEN
+ EE9B 36                      PSHA
+ EE9C 863F                    LDA     #$3F      OPCODE FÖR SWI
+ EE9E A700                    STA     0,X       I MINNET
+ EEA0 FEA00C                  LDX     XHI
+ EEA3 32                      PULA
+ EEA4 A702                    STA     2,X       SPARAD OPCODE
+ EEA6 8DB9                    BSR     ADD3X
+ EEA8 20E8                    BRA     BRKPRT
+                      *
+                      * JÄMFÖR START/STOPPADDRESSER
+                      *
+ EEAA B6A005          CMPADR  LDA     ENDA+1
+ EEAD B0A003                  SUBA    BEGA+1
+ EEB0 F6A004                  LDB     ENDA
+ EEB3 F2A002                  SBCB    BEGA
+ EEB6 39              CMPRTS  RTS
+                      *
+                      * PUNCHA TILL KASSETT I S1-FORMAT
+                      * ERFORDRAR KCS-MODEM MED ACIA PA $E020
+                      * UNDER PUNCHNING VISAS ADRESS OCH DATA
+                      * PA INDIKATORERNA
+                      *
+ EEB7 8611            PNCHOO  LDA     #$11      SATT UPP ACIAN FÖR
+ EEB9 B78020                  STA     TAPE      TVÅ STOPPBITAR VID PUNCH
+ EEBC BDECF7                  JSR     BADDR     BEGÄR STARTADRESS
+ EEBF FFA002                  STX     BEGA
+ EEC2 BDEDA1                  JSR     DELAYD
+ EEC5 CEA020                  LDX     #RDS1     PEKA PÅ FÖRSTA DISPLYEN
+ EEC8 FFA029                  STX     DSPEK
+ EECB BDECF7                  JSR     BADDR     BEGÄR STOPPADRESS
+ EECE FFA004                  STX     ENDA
+ EED1 8DD7            PUN11   BSR     CMPADR    JÄMFÖR START/STOPP
+ EED3 2604                    BNE     PUN22
+ EED5 8110                    CMPA    #16       MINDRE ÄN 16 BYTES KVAR ?
+ EED7 2502                    BCS     PUN23     HOPPA ISÅFALL ÖVER NÄSTA INSTRUKTION
+                      *
+                      * LAGG UT 16 MINNESBYTES PER RECORD
+                      *
+ EED9 860F            PUN22   LDA     #15
+ EEDB 8B04            PUN23   ADDA    #4        INKLUDERA ADRESS I BYTERÄKNARE
+ EEDD B7A026                  STA     MCONT     SPARA RESULTATET
+ EEE0 8003                    SUBA    #3
+ EEE2 B7A031                  STA     BUFF      DETTA RECORDS BYTEANTAL
+                      *
+                      * SÄND CR,LF,NULL OCH S1(BBAAAADDDDDDDDDDDDCC)
+                      *
+ EEE5 CEEFD3                  LDX     #MTAPE1   STRÄNG MED DATA
+ EEE8 8D35                    BSR     TDATA     IVÄG MED DET
+ EEEA 5F                      CLRB              CHECKSUMMA
+                      *
+                      * SÄND BYTEANTALET (S1)BBAAAADDDDDDDDDDDDCC)
+                      *
+ EEEB CEA026                  LDX     #MCONT
+ EEEE 8D3A                    BSR     PUNT2
+                      *
+                      * SÄND ADRESSEN (S1BB)AAAA(DDDDDDDDDDDDCC)
+                      *
+ EEF0 FEA002                  LDX     BEGA      HÄMTA ADRESS FÖR RECORD
+ EEF3 FFA027                  STX     ADRESS
+ EEF6 37                      PSHB
+ EEF7 BDED19                  JSR     UTADR     LAGG UT PÅ DISPLAYEN
+ EEFA 33                      PULB
+ EEFB CEA002                  LDX     #BEGA     STARTADRESS FÖR VARJE RECORD
+ EEFE 8D2A                    BSR     PUNT2     FÖRSTA 2 HEX
+ EF00 8D28                    BSR     PUNT2     ANDRA 2 HEX
+                      *
+                      * SÄND DATA (S1BBAAAA)DDDDDDDDDDDD(CC)
+                      *
+ EF02 FEA002                  LDX     BEGA      ADRESSEN TILL DATAT
+ EF05 BDEDB5          PUN32   JSR     DATAIX
+ EF08 8D20                    BSR     PUNT2
+ EF0A 7AA031                  DEC     BUFF
+ EF0D 26F6                    BNE     PUN32
+                      *
+                      * SÄND CHECKSUMMAN (S1BBAAAADDDDDDDDDDDD)CC
+                      *
+ EF0F 53                      COMB              CHECKSUMMAN INVERTERAS
+ EF10 17                      TBA
+ EF11 8D1C                    BSR     OUT2HT
+ EF13 FFA002                  STX     BEGA
+ EF16 09                      DEX
+ EF17 BCA004                  CPX     ENDA      KLAR ?
+ EF1A 26B5                    BNE     PUN11
+ EF1C CEEFDC                  LDX     #S9STR
+                      *
+ EF1F A600            TDATA   LDA     0,X       HÄMTA TECKEN
+ EF21 8104                    CMPA    #4        SLUT ?
+ EF23 2724                    BEQ     TRTS
+ EF25 8D16                    BSR     TAPEUT
+ EF27 08                      INX
+ EF28 20F5                    BRA     TDATA
+                      *
+                      * SÄND 2 HEX TAL SAMT UPPDATERA CHECKSUMMAN
+                      *
+ EF2A EB00            PUNT2   ADDB    0,X       UPPDATERA CHECKSUMMAN
+ EF2C A600                    LDA     0,X       SÄND 2 HEX TECKEN
+ EF2E 08                      INX
+ EF2F 36              OUT2HT  PSHA
+ EF30 8D18                    BSR     OUTHL     OMVANDLA TILL ASCII
+ EF32 32                      PULA
+ EF33 840F            OUTHR   ANDA    #$0F      MASKA BORT MSD-DELEN
+ EF35 8B30                    ADDA    #$30      TILLVERKA ASCII
+ EF37 8139                    CMPA    #$39
+ EF39 2302                    BLS     TAPEUT
+ EF3B 8B07                    ADDA    #7        FÖR A-F
+                      *
+                      * UTRUTIN FÖR TAPE
+                      *
+ EF3D 36              TAPEUT  PSHA
+ EF3E B68020          TAPUT   LDA     TAPE
+ EF41 47                      ASRA
+ EF42 47                      ASRA
+ EF43 24F9                    BCC     TAPUT     LEDIG ?
+ EF45 32                      PULA
+ EF46 B78021                  STA     TAPED
+ EF49 39              TRTS    RTS
+                      *
+ EF4A 44              OUTHL   LSRA
+ EF4B 44                      LSRA
+ EF4C 44                      LSRA
+ EF4D 44                      LSRA
+ EF4E 20E3                    BRA     OUTHR
+                      *
+                      * LADDA MINNET FRÅN KASSETT I S1-FORMAT
+                      * UNDER LADDNINGEN VISAS MINNESADRESSEN
+                      * PÅ ADRESSDISPLAYEN DS1-4
+                      * OCH DATA PÅ DS5-6
+                      *
+ EF50 8615            LOADOO  LDA     #$15      SÄTT UPP ACIAN FÖR
+ EF52 B78020                  STA     TAPE      EN STOPPBIT
+ EF55 8D45            LOAD3   BSR     TAPEIN    HÄMTA TECKEN
+ EF57 8153                    CMPA    #'S       SÖK TYP AV RECORD
+ EF59 26FA                    BNE     LOAD3
+ EF5B 8D3F                    BSR     TAPEIN
+ EF5D 8139                    CMPA    #'9       ÄR DET EOF ?
+ EF5F 27E8                    BEQ     TRTS
+ EF61 8131                    CMPA    #'1       DATA RECORD
+ EF63 26F0                    BNE     LOAD3
+ EF65 7FA00A                  CLR     CKSM      NOLLA CHECKSUMMECELLEN
+ EF68 8D51                    BSR     TBYTE     LÄS IN ANTAL BYTES I RECORDET
+ EF6A 8002                    SUBA    #2        KOMMANDE ADRESS= 2 BYTE
+ EF6C B7A00B                  STA     BYTECT
+                      *
+                      * BYGG ADRESSEN
+                      *
+ EF6F 8D4A                    BSR     TBYTE     HÄMTA MSB
+ EF71 B7A027                  STA      ADRESS
+ EF74 8D45                    BSR     TBYTE     HÄMTA LSB
+ EF76 B7A028                  STA      ADRESS+1
+ EF79 BDED19                  JSR     UTADR     LÄGG UT PÅ DISPLAYEN
+ EF7C FEA027                  LDX     ADRESS    X HAR NU LADDADRESSEN
+                      *
+                      * LAGRA DATA
+                      *
+ EF7F 8D3A            LOAD11  BSR     TBYTE     GÖR EN BYTE
+ EF81 7AA00B                  DEC     BYTECT    MINSKA ANTALSRÄKNAREN
+ EF84 270E                    BEQ     LOAD15    OM NOLL SA GÅ TILL BÖRJAN
+ EF86 36                      PSHA
+ EF87 BDEDB7                  JSR     DATADS    LÄGG UT DATA PÅ DISPLAYEN
+ EF8A 32                      PULA
+ EF8B A700                    STA     0,X       LAGRA I MINNET
+ EF8D A100                    CMPA    0,X       FASTNADE DET
+ EF8F 2608                    BNE     LOAD19
+ EF91 08                      INX
+ EF92 20EB                    BRA     LOAD11
+                      *
+ EF94 7CA00A          LOAD15  INC     CKSM
+ EF97 27BC                    BEQ     LOAD3
+ EF99 7EEE78          LOAD19  JMP     BELRTS
+                      *
+ EF9C B68020          TAPEIN  LDA     TAPE
+ EF9F 47                      ASRA
+ EFA0 24FA                    BCC     TAPEIN
+ EFA2 B68021                  LDA     TAPED
+ EFA5 39                      RTS
+                      *
+ EFA6 8DF4            TINHEX  BSR     TAPEIN
+ EFA8 8030                    SUBA    #$30
+ EFAA 2B21                    BMI     C1        EJ HEX
+ EFAC 8109                    CMPA    #$09
+ EFAE 2F0A                    BLE     IN1HG
+ EFB0 8111                    CMPA    #$11
+ EFB2 2B19                    BMI     C1
+ EFB4 8116                    CMPA    #$16
+ EFB6 2E15                    BGT     C1        EJ HEX
+ EFB8 8007                    SUBA    #7
+ EFBA 39              IN1HG   RTS
+                      *
+ EFBB 8DE9            TBYTE   BSR     TINHEX
+ EFBD 48                      ASLA
+ EFBE 48                      ASLA
+ EFBF 48                      ASLA
+ EFC0 48                      ASLA
+ EFC1 16                      TAB
+ EFC2 8DE2                    BSR     TINHEX
+ EFC4 1B                      ABA
+ EFC5 16                      TAB
+ EFC6 FBA00A                  ADDB    CKSM
+ EFC9 F7A00A                  STAB     CKSM
+ EFCC 39                      RTS
+                      *
+ EFCD 7D80EE          C1      TST     BELL      GE PIIP OCH ÅTERGÅ
+ EFD0 7EEC3B                  JMP     CONTRL
+                      *
+ EFD3 0D0A0000000053  MTAPE1  FCB     $D,$A,0,0,0,0,'S,'1,4
+ EFDA 3104
+                      *
+ EFDC 533904          S9STR   FCB     'S,'9,4
+                      *
+                      *
+                      * TABELL FÖR KOMMANDON
+                      *
+ EFDF 0A              INTAB   FCB     $0A
+ EFE0 ED3A                    FDB     MEMCHG    MINNESMANIPULERING  "M"
+ EFE2 0B                      FCB     $0B       SET BREAKPOINTS
+ EFE3 EE6D                    FDB     SETBR
+ EFE5 0C                      FCB     $0C       CONTINUE
+ EFE6 EDD6                    FDB     CONTIN
+ EFE8 0D                      FCB     $0D       DELETE BREAKPOINTS
+ EFE9 EC38                    FDB     KILL
+ EFEB 0E                      FCB     $0E       EXECUTE PROGRAM
+ EFEC EDC9                    FDB     GOEXEC
+ EFEE 10                      FCB     $10       LADDA I S1-FORMAT
+ EFEF EF50                    FDB     LOADOO
+ EFF1 11                      FCB     $11       PUNCHA I S1-FORMAT TILL KASSETT
+ EFF2 EEB7                    FDB     PNCHOO
+ EFF4 12                      FCB     $12       REGISTERDISPLAY
+ EFF5 EE02                    FDB     PRREG
+ EFF7                 TABEND  EQU     *
+                      *
+                      *
+                              ORG     PGM+$3F8
+ EFF8 EC00                    FDB     IRQSER
+ EFFA EC0A                    FDB     SWISER
+ EFFC EC05                    FDB     NMISER
+ EFFE EC1B                    FDB     START
+                              END
+
+SYMBOL TABLE
+     ADD3X 02 EE61    ADRESS 02 A027     BADDR 02 ECF7    BADDR7 02 ECFE
+      BEGA 02 A002      BELL 00 80EE    BELRTS 02 EE78     BLFLG 02 A02D
+     BLRAM 02 A02B     BLTID 02 A02F     BPTAB 02 A011    BRKP00 02 EDEE
+    BRKP10 02 EDFE    BRKP40 02 EE66    BRKP50 02 EE7C    BRKP60 02 EE80
+    BRKPIN 02 EE90    BRKPRT 02 EE92    BRKRTS 02 EE6C      BUFF 02 A031
+      BYTE 02 ED05     BYTE2 02 ED07    BYTECT 02 A00B        C1 02 EFCD
+      CKSM 02 A00A     CL300 02 EC14     CLEAR 02 EC12    CLEARD 02 EC0F
+    CMPADR 02 EEAA    CMPRTS 02 EEB6    CONTIN 02 EDD6    CONTRL 02 EC3B
+    DATADS 02 EDB7    DATAIX 02 EDB5    DEC2DS 02 EDBF    DEL200 02 ECDF
+    DEL500 02 ECEB     DELAY 02 ECD6    DELAYD 02 EDA1    DELDEX 02 EDAA
+    DELLDX 02 EDA7     DPFLG 02 A02E     DPOFF 02 ECC4      DPON 02 ECC1
+       DS1 00 80E0       DS2 00 80E1       DS3 00 80E2       DS4 00 80E3
+       DS5 00 80E4       DS6 00 80E5     DSPEK 02 A029      ENDA 02 A004
+    GOEXEC 02 EDC9     IN100 02 EC80     IN1HG 02 EFBA     IN200 02 ECC6
+     IN250 02 EC89    INCDSP 02 ED36      INCH 02 EC7C     INFLG 00 80E8
+     INHEX 02 ECEC    INHEX5 02 ED39     INTAB 02 EFDF    INTECK 02 EE46
+    INTRTS 02 EE57    IRQSER 02 EC00      IRQV 02 A000       KEY 00 80E6
+      KILL 02 EC38    LBLINK 02 EC70    LOAD11 02 EF7F    LOAD15 02 EF94
+    LOAD19 02 EF99     LOAD3 02 EF55    LOADOO 02 EF50    LOOP10 02 EC50
+    LOOP20 02 EC57    LOOP30 02 EC65     MATCH 02 EC6A     MCONT 02 A026
+     MEM10 02 ED3C     MEM15 02 ED44     MEM2O 02 ED4B     MEM60 02 ED83
+     MEM62 02 ED88     MEM88 02 ED93     MEM92 02 ED96     MEM93 02 ED98
+     MEM94 02 ED9B     MEM95 02 ED9C    MEMCHG 02 ED3A    MEMFEL 02 ED8E
+    MTAPE1 02 EFD3    NMISER 02 EC05      NMIV 02 A006        OK 02 ED7B
+     OUT2H 02 ED27    OUT2H2 02 ED29    OUT2HT 02 EF2F     OUTHL 02 EF4A
+     OUTHR 02 EF33       PGM 02 EC00    PNCHOO 02 EEB7     PRREG 02 EE02
+     PUN11 02 EED1     PUN22 02 EED9     PUN23 02 EEDB     PUN32 02 EF05
+     PUNT2 02 EF2A       RAM 02 A000      RDS1 02 A020      RDS2 02 A021
+      RDS3 02 A022      RDS4 02 A023      RDS5 02 A024      RDS6 02 A025
+    RETINT 02 EDDC     S9STR 02 EFDC    SBLINK 02 EC73     SETBR 02 EE6D
+       SFE 02 EDDD     SKIP2 00 008C      SPEK 02 A008     ST200 02 EC40
+     STACK 02 A07F     START 02 EC1B     STODS 02 ECB1    STODSP 02 ECB7
+    SWISER 02 EC0A    SWIVEK 02 A00E    TABEND 02 EFF7      TAPE 00 8020
+     TAPED 00 8021    TAPEIN 02 EF9C    TAPEUT 02 EF3D     TAPUT 02 EF3E
+     TBYTE 02 EFBB     TDATA 02 EF1F     TFRDX 02 EC9D     TFRXD 02 ECA7
+       TGB 02 EE94    TINHEX 02 EFA6      TRTS 02 EF49     UTADR 02 ED19
+     VFLAG 02 A010       XHI 02 A00C       XLO 02 A00D
+147 SYMBOLS
+
+0 error(s), 0 warning(s)
