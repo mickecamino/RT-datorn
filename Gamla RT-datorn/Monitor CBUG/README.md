@@ -1,13 +1,12 @@
-# TBUG 2C EPROM MONITOR
+# CBUG 2.3 EPROM MONITOR
 ### AV TOMMY BLADH OCH ÅKE HOLM
-Monitors:
-6800 - TBUG 2C
+Monitor:
 ```
-TBUG-2C-E400.bin
-TBUG-2C-EC00.bin
+CBUG-2.3-F800.bin
+CBUG-2.3-F800.bin
 ```
 
-## COMMANDS IN TBUG 2C
+## COMMANDS IN CBUG
 * @	Varmstart i FLEX 2.0
 * B	Display Breakpoints
 * C	Continue
@@ -24,6 +23,7 @@ TBUG-2C-EC00.bin
 *   '-' ger föregående minnesposition
 *   '.' ger nästa minnesposition
 *   OAAAA offsetberäkning
+* N stega nästa instruktion
 * O fyll ett visst minnesblock med en byte
 * P Punch i S1-format med rubrik
 * Q Mät RAM-storleken
@@ -36,11 +36,3 @@ TBUG-2C-EC00.bin
 * X Exchange AA NNNN mot AA MMMM
 * Y Verifiering
 * Z Dumpa i HEX och ASCII 16 bytes/rad
-
-Kommandot för att kompilera tbug2c.asm med A09 till .BIN och .LST är:
-```
-./a09 tbug2c.asm -ltbug2c.lst -btbug2c.bin -oTSC -oNOS -oNMU -oNUM -oM08
-```
-
-Om koden kompileras i FLEX ASMB:  
-Kommandot: ```ASMB,tbug2c.asm,+SGN```

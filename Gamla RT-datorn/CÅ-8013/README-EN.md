@@ -1,2 +1,2 @@
-# CA-8013 Cassette modem
-Cassette modem for the HEX-terminal
+# CA-8013 Korthållsmodem 300 baud
+Korthållsmodem 300 baud

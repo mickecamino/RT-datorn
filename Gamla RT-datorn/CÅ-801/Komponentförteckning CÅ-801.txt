@@ -25,11 +25,11 @@ IC10          - 78P05 10A stab
 IC11          - 78H12 5A stab
 IC12          - 7912
 J1-15         - 22-polig kortkontakt 0,156" delning
-J16-21        - 86-polig kortkontalt 0.156" delning
+J16-19        - 86-polig kortkontalt 0.156" delning
 R1-12         - 4,7k
 R13           - 2,2k
 R14-15        - 1M
-T1-2          - BC548 eller motsvarande
+T1            - BC548 eller motsvarande
 1 st          - kretskort CÅ-801
 1 st          - IC-hållare 9-pin.
 3 st          - IC-hållare 14-pin.
