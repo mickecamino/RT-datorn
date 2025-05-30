@@ -3,7 +3,7 @@
 Monitor:
 ```
 CBUG-2.3-F800.bin
-CBUG-2.3-F800.bin
+CBUG-2.3-FC00.bin
 ```
 
 ## COMMANDS IN CBUG
