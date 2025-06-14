@@ -120,7 +120,7 @@ SEEK3   CLRA              SET FOR SIDE 1
         BLS     SEEK5     YES: SELECT SIDE 1
 SEEK4   LDA     #2        NO: SELECT SIDE 2
 SEEK5   STA     SSEL      SIDE SELECT FLAG
-        PULS B            RESTORE B
+        PULS    B         RESTORE B
         JMP     DELAY     DELAY
 *
 SEEK6   CMPB    #18       IS SECTOR <18 ?
