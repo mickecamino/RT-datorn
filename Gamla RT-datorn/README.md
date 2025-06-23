@@ -12,10 +12,10 @@
 * Del 5  - RT 1980-5   - CÅ-8006 HEX terminalkort
 * Del 6  - RT 1980-6/7 - CÅ-8003 kassettmodem
 * Del 7  - RT 1980-10  - CÅ-8005 Realtidsklocka
-* Del 8  - RT 1981-1   - CÅ-8025 EPROM-kort
-* Del 9  - RT 1981-3   - CÅ-8018 IEEE-kort
-* Del 10 - RT-1981-9   - CÅ-8043 Färg-TV som dataskärm
-* Del 11 - RT 1981-12  - CÅ-8010 EPROM-programmerare
+* Del 8  - RT 1980-12  - CÅ-8010 EPROM-programmerare
+* Del 9  - RT 1981-1   - CÅ-8025 EPROM-kort
+* Del 10 - RT 1981-3   - CÅ-8018 IEEE-kort
+* Del 11 - RT-1981-9   - CÅ-8043 Färg-TV som dataskärm
 ```
 
 ## Följande kort fanns till den "gamla" RT-datorn:

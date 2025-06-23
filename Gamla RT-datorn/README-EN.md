@@ -12,10 +12,11 @@
 * Part 5  - RT 1980-5   - CA-8006 HEX terminal
 * Part 6  - RT 1980-6/7 - CA-8003 cassette modem
 * Part 7  - RT 1980-10  - CA-8005 Real Time Clock
-* Part 8  - RT 1981-1   - CA-8025 EPROM board
-* Part 9  - RT 1981-3   - CA-8018 IEEE board
-* Part 10 - RT-1981-9   - CA-8043 Color-TV as monitor
-* Part 11 - RT 1981-12  - CA-8010 EPROM-programmer
+* Part 8  - RT 1981-12  - CA-8010 EPROM-programmer
+* Part 9  - RT 1981-1   - CA-8025 EPROM board
+* Part 10 - RT 1981-3   - CA-8018 IEEE board
+* Part 11 - RT-1981-9   - CA-8043 Color-TV as monitor
+
 ```
 
 ## The following boards was available to the "old" RT-computer:
