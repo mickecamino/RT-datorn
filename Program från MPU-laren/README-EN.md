@@ -68,7 +68,9 @@ MATEMAT.BAS   - Match game
 ```
 ### 1982-1	
 ```
+CLOCKSET.ASM  - Software for setting up the MSM5832 RTC
 DIR.ASM       - Better version than CAT for listing files
+FLEXPAT.ASM   - Patch for FLEX 2.65, read MSM5832
 UNDEL.ASM     - Undeletes files
 VOXMEM.ASM    - Program that speech - needs VS-1 Speaker Board
 VOXMEM1.ASM   - Program that speech - needs VS-1 Speaker Board - alternative voice
