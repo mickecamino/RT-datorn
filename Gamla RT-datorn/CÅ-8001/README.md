@@ -1,2 +1,11 @@
 # CÅ-8001 ACIA med 2 portar
 Uppdaterat schema för CÅ-8001 - det som finns i tidningen och i boken är tyvärr fel.
+
+Periferikort för två ACIO'r
+
+På moderkortet fordras minst ett periferikort, nämligen det för anslutning av terminal. Kortet är avsett att placeras i kontakt J1. ACIA-kretsarna kan då adresseras inom området $8000-800F resp. $E000-E00F.
+Kortet har försetts med två ACIO'r, en för terminalanslutning och en för anslutning av en separat printer. Anslutning av terminal och printer kan ske med de båda 25-pol. kontakterna J1 och J2 eller över kabel och propp till den 16-pol. sockeln till höger på schemat. Den senare anslutningen är tänkt för de fall då man har chassimonterade 25-poliga kontakter, vilka med en kabel ansluts till kortet. Kablarna från terminal och printer behöver då inte dras in i datorlådan. I sitt grundutförande är detta kort bestyckat med endast en ACIA, markerad med A. Till den matas sändnings- och mottagningsklocka från baudrategeneratorn IC4 med tillhörande kristall. Val av baudflöde kan ske med en DIP-omkopplare eller helt enkelt genom att man löder in en tråd på önskat tal.
+
+Kretsarna MC 1488 och MC1489 är anpassningskretsar för RS-232C (V24-snitt). Vissa terminaler fordrar dessutom handskakning till datorn via ledaren CTS, detta för att inte tappa tecken vid hög överföringshastighet. För att kunna anpassa till olika terminaler ges man möjlighet till att koppla CTS-ledaren till stift 11 eller 20. Skall datorn anslutas till den i RT tidigare beskrivna intelligenta videoterminalen, skall CTS kopplas till stift 20. Vidare skall stiften 5, 6, 8 och 9 sammankopplas. 
+Avkodaren IC1 möjliggör att varje ACIA kan få sin egen unika adress. ACIAn A skall adresseras till hålet märkt 8 och ACIA B till hålet märkt C om TBUG eller CBUG monitorprogram skall användas, Lysdioden Dl indikerar när processorn adresserar kortet. Denna indikation är mest till hjälp vid programutveckling och felsökning.
+Observera, att CTS-ledaren till ACIAn måste jordas om den inte ansluts till terminalen. I annat fall kan inga tecken sändas från datorn. RTS-utgången används för närvarande inte, men den har tagits med för att finnas till hands om någon tillämpning så kräver.
