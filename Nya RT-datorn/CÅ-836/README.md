@@ -1,4 +1,6 @@
 # CÅ-836 - EPROM-kort med RAM
+# Använd inte denna design! IC11 är inte buffrad och lastar ner adress och databussen.
+
 Ett nydesignat kort för 3 st 27512 EPROM, detta ger 192 kb med permanent programminne. Detta kort kan lagra t.ex. operativsystemet Flex, de flesta utilities som används i FLEX och större program som BASIC, XBASIC, ASMB etc. Med en programrutin flyttar man ned data från EPROM-minnet till datorns arbetsminne. Kortet ersätter CÅ-816.  
   
 Programmet för att hämta programmen från EPROM kallas PROM.BIN, källkoden för detta finns här med namnet PROM.ASM.  
